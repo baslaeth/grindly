@@ -29,6 +29,14 @@ Browser tests start and stop their own production server on port 3100. Build fir
 
 GitHub Actions runs lint, type checking, unit tests, build, and desktop/mobile browser tests. ESLint 9 is intentionally pinned because the React plugins in the chosen Next.js config do not yet support ESLint 10. `pnpm peers check` verifies compatibility.
 
+## Database
+
+Ordered migrations live in `supabase/migrations/`. Browser roles have no table privileges or RPC access; RLS is forced without browser policies. Server-only operations use Supabase's secret key. No database membership flag is sufficient to grant research access.
+
+`pnpm test:db` applies the migrations to empty PGlite PostgreSQL instances and tests real SQL constraints and permissions. `tests/database/bootstrap.sql` supplies the Supabase roles and minimal `auth.users` table for those tests only; never apply it to Supabase.
+
+`pnpm db:types` regenerates `src/types/database.ts` by inspecting the migrated PostgreSQL catalog. `pnpm db:types:check` fails when committed types drift from migrations. The test database is ephemeral and does not replace the Supabase project.
+
 ## Screen routes
 
 | Route | Screen |

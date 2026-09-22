@@ -17,7 +17,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "test:db": "vitest run --config vitest.database.config.ts",
+    "db:types": "tsx scripts/generate-database-types.ts",
+    "db:types:check": "tsx scripts/generate-database-types.ts --check",
+    "format": "prettier --write src tests scripts *.ts *.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm db:types:check && pnpm build"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.3.3",
@@ -30,12 +34,15 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "1.63.0",
     "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.5",
+    "prettier": "3.9.8",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vitest": "5.0.1"
   }
