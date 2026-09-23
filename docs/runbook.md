@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, database migrations, invitation redemption, and server-side email OTP integration are implemented. Hosted Auth/SMTP verification and GitHub CI are pending external access. Wallet proof and all later Phase 1 steps remain to be implemented in order. Phase 1 is not complete.
+The six-screen foundation, database migrations, invitation redemption, and server-side email OTP integration are implemented. GitHub CI passed and the two migrations were applied to hosted Supabase with browser-role denial verified. Hosted Auth/SMTP verification is pending SMTP credentials. Wallet proof and all later Phase 1 steps remain to be implemented in order. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -16,7 +16,11 @@ On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. 
 
 ## Supabase access and migrations
 
-The project pins the Supabase CLI. Run `pnpm exec supabase login` to authorize it in the browser. After login, the implementation agent can inspect organizations/projects and create or link Grindly's single Supabase project. No account session is currently available.
+The single hosted project is `errbtterppmvtlfltgzp` in the Grindly Free organization. Browser access is authorized; the pinned Supabase CLI is not yet authorized. Run `pnpm exec supabase login` before using its remote management commands.
+
+Both `202609230001` and `202609230002` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002` if missing. Do not rerun them against existing tables. Then inspect `db push --dry-run` before applying subsequent migrations.
+
+Run `scripts/verify-hosted-security.sql` as the project database administrator to check all ten forced-RLS tables, actual browser-role read denial, absence of table privileges, and invitation RPC denial. It ends with rollback and changes no application data.
 
 For an existing empty project, link it using `pnpm exec supabase link --project-ref PROJECT_REF`, inspect `pnpm exec supabase db push --dry-run`, and then apply `pnpm exec supabase db push`. Do not apply `tests/database/bootstrap.sql`: it is an embedded-test fixture, not a hosted migration.
 
@@ -46,7 +50,7 @@ Record actual results for valid, expired, revoked, reused, and wrong-email invit
 
 ## GitHub and CI
 
-Local commits are on `codex/phase-1`, authored as Codex. There is no GitHub remote yet. GitHub's connected app can read the account but this machine has no Git push credential. `git credential-manager github login --username baslaeth --browser` authorizes Git through the browser. The implementation agent can then create the Grindly repository, push the existing meaningful commits, and inspect the configured CI run.
+Commits are on `codex/phase-1` in the private repository `https://github.com/baslaeth/grindly`, connected as `origin`. Git Credential Manager is authorized. This checkout uses the Windows certificate store through repository-local `http.sslBackend=schannel`; TLS verification remains enabled. The original commit history was pushed intact and CI run `35849010398` passed all checks.
 
 The workflow includes lint, type checking, unit tests, database tests, generated-type drift, production build, and desktop/mobile browser tests. Contract checks will be added when the Hardhat package lands. Do not describe local checks as a successful remote CI run.
 

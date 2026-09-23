@@ -42,4 +42,13 @@
 - Rechecked Join and navigation to Workbench in Codex's built-in browser. Join correctly reports unavailable authentication without service configuration, and Workbench exposes no research content. This is not live authentication or NFT access verification.
 - No Vercel deployment was initiated.
 
-Authorize Supabase and GitHub on this machine and supply SMTP settings through ignored `.env.local`. Then apply migrations to the single Supabase project, configure OTP delivery, verify real invitation/authentication behavior, publish the existing Git history and inspect CI, and continue Phase 1 Task 5 onward. Record each result only after it actually runs.
+### Hosted schema and remote CI - 2026-09-23
+
+- Pushed the existing commit history through `ca40be2` to private `baslaeth/grindly`, branch `codex/phase-1`, without rewriting it. Git uses the Windows certificate store with verification enabled.
+- GitHub Actions run `35849010398`, job `107141968644`, passed installation, lint, type checking, unit tests, database tests, generated-type checking, build, Chromium installation, and end-to-end tests. Evidence: https://github.com/baslaeth/grindly/actions/runs/35849010398.
+- Applied both committed migrations successfully via the SQL Editor on Supabase project `errbtterppmvtlfltgzp` (Seoul). CLI migration history has not yet been repaired; see the runbook before any future database push.
+- Executed `scripts/verify-hosted-security.sql` on hosted Postgres. Result: `PASS: 10 forced-RLS tables; both browser roles denied table access and invitation RPCs`. The script actually attempts reads as each browser role, checks all table privileges, and rolls back. This does not claim PostgREST or live authenticated-session verification.
+- Re-ran all 41 local database tests successfully.
+- Supabase email settings report that custom SMTP is required before OTP templates can be edited. SMTP credentials remain missing. No live OTP delivery, wallet proof, deployment, mint, or transfer is claimed.
+
+Supply SMTP settings through ignored `.env.local`. Then configure OTP delivery and templates, connect the server-only project keys, verify real invitation/authentication behavior, and continue Phase 1 Task 5 onward. Record each result only after it actually runs.
