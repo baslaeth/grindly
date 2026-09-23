@@ -35,4 +35,11 @@
 
 ## Next required checkpoint
 
+### Account setup progress - 2026-09-23
+
+- Created the private GitHub repository `baslaeth/grindly` and connected it as the local `origin`. Existing commits are unchanged and have not yet been pushed; Git Credential Manager has no authorized account.
+- Created the Grindly Supabase organization on the Free plan. Prepared the `grindly` project form; project creation is pending the owner's database password entry and submission.
+- Rechecked Join and navigation to Workbench in Codex's built-in browser. Join correctly reports unavailable authentication without service configuration, and Workbench exposes no research content. This is not live authentication or NFT access verification.
+- No Vercel deployment was initiated.
+
 Authorize Supabase and GitHub on this machine and supply SMTP settings through ignored `.env.local`. Then apply migrations to the single Supabase project, configure OTP delivery, verify real invitation/authentication behavior, publish the existing Git history and inspect CI, and continue Phase 1 Task 5 onward. Record each result only after it actually runs.
