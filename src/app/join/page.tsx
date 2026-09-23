@@ -1,16 +1,40 @@
 import type { Metadata } from "next";
 import { Screen } from "@/components/screen";
+import { JoinForm, SignOutButton } from "@/components/join-form";
+import { getEnvironment } from "@/server/environment";
+import { getCurrentMember } from "@/server/auth/session";
+import { readOtpIntent } from "@/server/auth/service";
 
 export const metadata: Metadata = { title: "Join / Membership" };
+export const dynamic = "force-dynamic";
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  let available = getEnvironment().GRINDLY_STAGE !== "foundation";
+  let member: Awaited<ReturnType<typeof getCurrentMember>> = null;
+  if (available) {
+    try {
+      member = await getCurrentMember();
+    } catch {
+      available = false;
+    }
+  }
+  const intent = await readOtpIntent();
   return (
     <Screen title="Join / Membership">
       <section className="section">
         <h2>Invitation access</h2>
-        <p className="notice" role="status">
-          Invitation sign-in is not available yet.
-        </p>
+        {member ? (
+          <div className="account-state">
+            <p className="email-target">{member.email}</p>
+            <p className="notice">
+              Email verified. Wallet verification and active NFT membership are
+              required for research access.
+            </p>
+            <SignOutButton />
+          </div>
+        ) : (
+          <JoinForm available={available} pendingEmail={intent?.email} />
+        )}
       </section>
       <section className="section sample" aria-label="Public sample">
         <div className="sample-heading">

@@ -4,6 +4,8 @@ One Next.js application, one Supabase project, and one transferable membership N
 
 The authoritative scope is in `docs/frozen-p0.md`, `docs/frozen-technical-architecture.md`, and `docs/build-phase-1.md`. Actual verification results are in `docs/verification.md`.
 
+See [the setup runbook](docs/runbook.md) for Supabase, SMTP, invitation creation, GitHub access, and the remaining live verification requirements. Phase 1 is not yet complete.
+
 ## Local development
 
 Use Node 22.23.2 and pnpm 11.19.0. The supplied desktop pnpm runtime also uses compatible Node 24. Dependencies and the lockfile are pinned.

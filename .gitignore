@@ -10,6 +10,7 @@ next-env.d.ts
 .env.*
 !.env.example
 .vercel/
+.local/
 .pnpm-store/
 supabase/.temp/
 supabase/.branches/

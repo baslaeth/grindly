@@ -4,12 +4,25 @@ const httpUrl = z
   .url()
   .refine((value) => ["http:", "https:"].includes(new URL(value).protocol));
 
+const appUrl = httpUrl.refine((value) => {
+  const url = new URL(value);
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  return (
+    !url.username &&
+    !url.password &&
+    url.pathname === "/" &&
+    !url.search &&
+    !url.hash &&
+    (url.protocol === "https:" || local)
+  );
+}, "Expected an HTTPS origin, or HTTP localhost for development");
+
 const schema = z
   .object({
     GRINDLY_STAGE: z
       .enum(["foundation", "auth", "membership"])
       .default("foundation"),
-    APP_URL: httpUrl.default("http://localhost:3000"),
+    APP_URL: appUrl.default("http://localhost:3000"),
     CHAIN_ID: z.coerce
       .number()
       .refine(
@@ -20,6 +33,13 @@ const schema = z
     SUPABASE_URL: httpUrl.optional(),
     SUPABASE_PUBLISHABLE_KEY: z.string().min(1).optional(),
     SUPABASE_SECRET_KEY: z.string().min(1).optional(),
+    OTP_COOLDOWN_SECONDS: z.coerce.number().int().min(1).max(3600).default(60),
+    INVITATION_MAX_OTP_REQUESTS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(10),
     ROBINHOOD_RPC_URL: httpUrl.optional(),
     MEMBERSHIP_CONTRACT_ADDRESS: z
       .string()

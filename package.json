@@ -20,10 +20,13 @@
     "test:db": "vitest run --config vitest.database.config.ts",
     "db:types": "tsx scripts/generate-database-types.ts",
     "db:types:check": "tsx scripts/generate-database-types.ts --check",
+    "invite": "tsx --env-file=.env.local scripts/create-invitation.ts",
     "format": "prettier --write src tests scripts *.ts *.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm db:types:check && pnpm build"
   },
   "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.116.0",
     "@tailwindcss/postcss": "4.3.3",
     "lucide-react": "1.47.0",
     "next": "16.3.5",
@@ -42,6 +45,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.5",
     "prettier": "3.9.8",
+    "supabase": "2.117.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vitest": "5.0.1"

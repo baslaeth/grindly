@@ -2,6 +2,15 @@ import { describe, expect, it } from "vitest";
 import { parseEnvironment } from "@/config/environment";
 
 describe("environment validation", () => {
+  it("rejects insecure remote app origins and URL credentials", () => {
+    for (const APP_URL of [
+      "http://grindly.test",
+      "https://user:secret@grindly.test",
+      "https://grindly.test/join",
+    ]) {
+      expect(() => parseEnvironment({ APP_URL })).toThrow("APP_URL");
+    }
+  });
   it("allows a foundation build without external credentials", () => {
     expect(parseEnvironment({}).CHAIN_ID).toBe(46630);
   });

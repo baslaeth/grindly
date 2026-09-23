@@ -19,6 +19,7 @@ export default defineConfig({
     command: "pnpm start --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100/join",
     reuseExistingServer: false,
+    env: { GRINDLY_STAGE: "foundation", APP_URL: "http://127.0.0.1:3100" },
     timeout: 120_000,
   },
 });

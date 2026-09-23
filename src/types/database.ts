@@ -495,7 +495,24 @@ export type Database = {
       };
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      redeem_invitation: {
+        Args: {
+          p_token_hash: string;
+          p_auth_user_id: string;
+        };
+        Returns: string;
+      };
+      reserve_invitation_otp: {
+        Args: {
+          p_token_hash: string;
+          p_email: string;
+          p_cooldown_seconds?: number;
+          p_max_requests?: number;
+        };
+        Returns: boolean;
+      };
+    };
     Enums: {
       member_role: "reviewer" | "steward" | "issuer";
       operation_status:
