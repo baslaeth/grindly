@@ -26,15 +26,15 @@ Updated 2026-09-25. **Phase 1 is not complete. Stop before research workflows.**
 - Local app: http://localhost:3000/join. Preserve both independent test sessions.
 - Vercel: https://grindly-woad.vercel.app. Corrected source `f3c8bad4b017e2ed49b44bdae641642399b49e7a` is deployed READY as `dpl_AbRr3XPDP7o3J38tQXmaanQiRqBB`; manifest records the deployment. Subsequent documentation-only commits do not change the deployed executable source.
 - Supabase: `errbtterppmvtlfltgzp`; migrations applied in dashboard, CLI migration history repair still required before db push (runbook).
-- Contract: `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356`; token #1 current owner `0x50579Ca09e9F37B803Dd8e6906Ead7426F4893c7`, epoch 2.
+- Contract: `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356`; token #1 returned to Member 1 `0xbbB383F167cfb3C848f111f2976c1820d88B9Edb`, fresh binding at epoch 3. Current Silver is a labeled QA demo fixture, NOT an earned promotion.
 - Original owner / return recipient: `0xbbB383F167cfb3C848f111f2976c1820d88B9Edb`.
 - Deployment/ABI: `../deployments/robinhood-testnet.json`, `../deployments/GrindlyMembership.abi.json`, `../deployments/app-testnet.json`.
 
 ## Blocking evidence
 
-1. After corrected deployment, chain 46630 still reports the second wallet owns token #1 and has zero testnet ETH. First required manual action: fund that wallet at the official faucet. No transfer-back approval requested yet. Ask one exact action at a time.
-2. After funding, request token #1 return transfer. Verify epoch increment, deny stale bindings/actions before rebind, rebind original owner and repeat reads/actions for both members. Compare the pre-existing eight audit events and two member/wallet rows against ignored `.local/qa-transfer-baseline.json`; allow new audit events, not edits/reassignment of old ones.
-3. Live nonempty promotion invalidation is untested. Owner authorized an explicitly labeled demo Silver promotion with nonempty evidence. Verify Silver while valid, Bronze after transfer, unchanged attribution, and no automatic Silver revival after return/rebind. Never portray the fixture as earned reputation.
+1. Live A completed after deployment: return transaction `0xcc6c19d3011c5e4b98750a1a2ff42e145ba2e516b1c45ce45aa008195dd41a0e`, epoch 3, both stale bindings denied, fresh original-owner bind succeeds, reads/actions follow ownership. Local authenticated browsers with hosted Supabase/testnet; production auth remains C.
+2. Both member rows, both wallet rows and eight pre-existing audit rows matched their saved digests before and after rebind. No unimplemented history preservation is claimed.
+3. Live B started: demo promotion `72057bb3-9d84-42a4-9a0b-cdb2be12cd2d` with explicit nonempty synthetic evidence is valid at epoch 3; production metadata and local owner page show Silver. Next manual action: Member 1 transfers token #1 to Member 2. Then verify Bronze and unchanged promotion digest, request return separately, and verify no Silver revival after fresh rebind. The ignored `.local/demo-silver-epoch3.json` contains the digest and test steward/audit IDs. **Keep the demo approval/temporary Member 2 steward role during invalidation tests; afterward revoke only this fixture and remove only that test grant, appending cleanup audit events.**
 4. Approved architecture sections beyond section 1 need original source from owner. No replacements were invented.
 
 Do not claim findings, XP, points, ranks, balances, or later work histories were preserved: they are not implemented. Other residual test gaps are explicit in `verification.md`.
