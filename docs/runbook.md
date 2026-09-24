@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, database migrations, invitation redemption, and server-side email OTP integration are implemented. GitHub CI passed and the two migrations were applied to hosted Supabase with browser-role denial verified. Hosted Auth/SMTP verification is pending SMTP credentials. Wallet proof and all later Phase 1 steps remain to be implemented in order. Phase 1 is not complete.
+The six-screen foundation, database migrations, invitation redemption, and server-side email OTP integration are implemented. GitHub CI passed and the two migrations were applied to hosted Supabase with browser-role denial verified. Resend SMTP is configured and a real Join OTP was delivered; inbox verification and session checks remain pending. Wallet proof and all later Phase 1 steps remain to be implemented in order. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -30,7 +30,7 @@ PostgreSQL tests use PGlite with actual SQL permissions and constraints. They do
 
 ## Email OTP and SMTP
 
-The user's SMTP provider must supply `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and the verified sender `SMTP_FROM`. Store them in ignored `.env.local`; do not send passwords in chat or commit them.
+Grindly uses Resend with verified sending domain `auth.grindly.io`. Supabase custom SMTP is configured with host `smtp.resend.com`, port `465`, username `resend`, and sender `Grindly <noreply@auth.grindly.io>`. The SMTP password is a sending-only Resend key scoped to this domain. Configuration inputs are stored in ignored `.env.local`; do not print or commit secrets. The application sends OTPs through Supabase Auth, not a separate Resend SDK or email service.
 
 Configure the project's custom SMTP and set email OTP to six digits with a 600-second expiry. Use `supabase/templates/magic-link.html` for both the Magic Link and Confirm Signup templates. Keep email confirmations enabled, anonymous sign-in disabled, and refresh-token rotation enabled. Set the hosted Site URL to the exact `APP_URL`.
 
