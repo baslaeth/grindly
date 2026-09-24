@@ -51,4 +51,13 @@
 - Re-ran all 41 local database tests successfully.
 - Supabase email settings report that custom SMTP is required before OTP templates can be edited. SMTP credentials remain missing. No live OTP delivery, wallet proof, deployment, mint, or transfer is claimed.
 
-Supply SMTP settings through ignored `.env.local`. Then configure OTP delivery and templates, connect the server-only project keys, verify real invitation/authentication behavior, and continue Phase 1 Task 5 onward. Record each result only after it actually runs.
+### Email infrastructure checkpoint - 2026-09-24
+
+- Added the three Resend-provided records for `auth.grindly.io` in Porkbun: DKIM TXT at `resend._domainkey.auth`, CNAME `rsend.auth` to `rsend-apne1.forge.rmta.net`, and CNAME `send.auth` to `send.forge.rmta.net`. Existing root and wildcard website records were retained.
+- All three records resolved publicly. Resend reported the domain verified and ready to send.
+- Saved hosted email OTP settings: six digits, 600-second expiration. Email confirmation remained enabled and anonymous sign-in disabled.
+- Existing Supabase publishable and server keys were stored in ignored `.env.local`; the application remains in foundation mode until SMTP setup is complete.
+- Created a sending-only Resend key scoped to `auth.grindly.io`. The usage-limit interruption closed its one-time secret view before storage. The key is unused and must be replaced; no secret was committed or printed. On resumption, Supabase SMTP remained disabled.
+- OTP templates, SMTP delivery, and real invitation/session verification remain pending. No live authentication or NFT milestone is claimed.
+
+Replace the unused Resend key, configure Supabase SMTP and OTP templates, verify real invitation/authentication behavior, and continue Phase 1 Task 5 onward. Record each result only after it actually runs.
