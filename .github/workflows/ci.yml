@@ -24,6 +24,7 @@ jobs:
       - run: pnpm test
       - run: pnpm test:db
       - run: pnpm db:types:check
+      - run: pnpm test:contract
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e

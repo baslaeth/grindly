@@ -17,6 +17,8 @@ supabase/.branches/
 contracts/artifacts/
 contracts/cache/
 contracts/typechain-types/
+artifacts/
+cache/
 *.log
 .DS_Store
 Thumbs.db

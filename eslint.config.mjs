@@ -13,5 +13,7 @@ export default defineConfig([
     "test-results/**",
     "contracts/artifacts/**",
     "contracts/cache/**",
+    "artifacts/**",
+    "cache/**",
   ]),
 ]);

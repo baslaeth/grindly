@@ -18,11 +18,12 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:db": "vitest run --config vitest.database.config.ts",
+    "test:contract": "hardhat build --config contracts/hardhat.config.ts && tsc -p contracts/tsconfig.json && hardhat test --config contracts/hardhat.config.ts",
     "db:types": "tsx scripts/generate-database-types.ts",
     "db:types:check": "tsx scripts/generate-database-types.ts --check",
     "invite": "tsx --env-file=.env.local scripts/create-invitation.ts",
     "format": "prettier --write src tests scripts *.ts *.mjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm db:types:check && pnpm build"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm db:types:check && pnpm test:contract && pnpm build"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -41,12 +42,15 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
+    "@nomicfoundation/hardhat-toolbox-viem": "5.0.7",
+    "@openzeppelin/contracts": "5.6.1",
     "@playwright/test": "1.63.0",
     "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.5",
+    "hardhat": "3.17.0",
     "prettier": "3.9.8",
     "supabase": "2.117.0",
     "tsx": "4.23.15",

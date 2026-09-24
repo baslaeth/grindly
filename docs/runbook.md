@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation redemption, email OTP, and wallet proof are implemented. Real OTP redemption and session persistence after reload are verified. Three migrations are applied to hosted Supabase. Wallet proof has local cryptographic/database tests; live wallet signing is pending a wallet-enabled browser. Contract issuance and all later Phase 1 steps remain. Phase 1 is not complete.
+The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption and session persistence after reload are verified. Three migrations are applied to hosted Supabase. Live wallet binding remains unconfirmed. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -60,7 +60,15 @@ The built-in browser's injected wallet connection was unavailable during live te
 
 Commits are on `codex/phase-1` in the private repository `https://github.com/baslaeth/grindly`, connected as `origin`. Git Credential Manager is authorized. This checkout uses the Windows certificate store through repository-local `http.sslBackend=schannel`; TLS verification remains enabled. The original commit history was pushed intact and CI run `35849010398` passed all checks.
 
-The workflow includes lint, type checking, unit tests, database tests, generated-type drift, production build, and desktop/mobile browser tests. Contract checks will be added when the Hardhat package lands. Do not describe local checks as a successful remote CI run.
+The workflow includes lint, type checking, unit tests, database tests, generated-type drift, contract compilation/type checking/tests, production build, and desktop/mobile browser tests. Do not describe local checks as a successful remote CI run.
+
+## Contract development
+
+Run `pnpm test:contract`. Hardhat compiles `contracts/contracts/GrindlyMembership.sol` using Solidity 0.8.34, optimizer 200 runs, Cancun EVM target, then checks TypeScript and runs the tests in `contracts/test`. Generated artifacts and caches are ignored. The first compile downloads the compiler with normal TLS verification.
+
+Deployment requires a nonzero dedicated issuer address and a stable metadata base URL ending in `/`. These are fixed in the constructor. The server will use opaque random issuance keys, never member IDs or emails, as the public idempotency keys. An issuance retry returns the original token without minting again or reclaiming it from a transferee. Metadata URLs do not change on transfer. Epochs start at one and increase on every transfer, including self-transfers.
+
+The next phase must deploy the app shell first, establish its stable metadata origin, confirm Robinhood chain 46630 independently, then deploy and verify the contract. No deployment address or manifest should be recorded until a real receipt exists.
 
 ## Remaining live evidence
 
