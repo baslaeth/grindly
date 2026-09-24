@@ -135,3 +135,8 @@
 - Deliberately pointed only the local app's RPC setting at an unreachable localhost port. The authenticated Workbench showed a retry alert and no research content; metadata returned HTTP 503, code `CHAIN_UNAVAILABLE`, and `retryable: true`.
 - Restored the real testnet RPC immediately afterward. Reloading the same authenticated Workbench restored `Research` / `No findings yet.` Production RPC settings were never changed during this test.
 - Still required: a second independently authenticated member and wallet, actual transfer/transfer-back, protected mutation success/revocation, and stale promotion evidence. Requested the second member's email and public wallet address; no private key or recovery phrase is needed. Phase 1 remains incomplete.
+
+### Second member ready - 2026-09-24
+
+- Confirmed the second invitation was redeemed through email authentication and a second active wallet binding was created. The two active wallet bindings belong to distinct member IDs. No session, signature, or private key was copied between members.
+- RPC still reports token #1 owned by the original wallet at epoch 1. Both participating wallets have zero testnet ETH; a live transfer has not yet been submitted. Sender faucet funding and personal wallet approval are required next.
