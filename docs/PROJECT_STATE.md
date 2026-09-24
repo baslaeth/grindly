@@ -24,7 +24,7 @@ Updated 2026-09-25. **Phase 1 is not complete. Stop before research workflows.**
 
 - Repository: `baslaeth/grindly`, branch `codex/phase-1`; use `git rev-parse HEAD` for exact checkpoint.
 - Local app: http://localhost:3000/join. Preserve both independent test sessions.
-- Vercel: https://grindly-woad.vercel.app. Corrected checkpoint deployment is in progress; the final verification entry and `deployments/app-testnet.json` record the deployed source/result.
+- Vercel: https://grindly-woad.vercel.app. Corrected source `f3c8bad4b017e2ed49b44bdae641642399b49e7a` is deployed READY as `dpl_AbRr3XPDP7o3J38tQXmaanQiRqBB`; manifest records the deployment. Subsequent documentation-only commits do not change the deployed executable source.
 - Supabase: `errbtterppmvtlfltgzp`; migrations applied in dashboard, CLI migration history repair still required before db push (runbook).
 - Contract: `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356`; token #1 current owner `0x50579Ca09e9F37B803Dd8e6906Ead7426F4893c7`, epoch 2.
 - Original owner / return recipient: `0xbbB383F167cfb3C848f111f2976c1820d88B9Edb`.
@@ -32,7 +32,7 @@ Updated 2026-09-25. **Phase 1 is not complete. Stop before research workflows.**
 
 ## Blocking evidence
 
-1. Second wallet needs free testnet gas. Faucet request sent; no transfer-back approval requested yet. Ask one exact wallet action at a time.
+1. After corrected deployment, chain 46630 still reports the second wallet owns token #1 and has zero testnet ETH. First required manual action: fund that wallet at the official faucet. No transfer-back approval requested yet. Ask one exact action at a time.
 2. After funding, request token #1 return transfer. Verify epoch increment, deny stale bindings/actions before rebind, rebind original owner and repeat reads/actions for both members. Compare the pre-existing eight audit events and two member/wallet rows against ignored `.local/qa-transfer-baseline.json`; allow new audit events, not edits/reassignment of old ones.
 3. Live nonempty promotion invalidation is untested. Owner authorized an explicitly labeled demo Silver promotion with nonempty evidence. Verify Silver while valid, Bronze after transfer, unchanged attribution, and no automatic Silver revival after return/rebind. Never portray the fixture as earned reputation.
 4. Approved architecture sections beyond section 1 need original source from owner. No replacements were invented.

@@ -216,3 +216,10 @@ Independent review of `2d46ca7` confirmed five defects. The following are correc
 - C: production OTP, returning sign-in, deliberate expired-session refresh, sign-out, and direct protected DB/RPC denial from an authenticated browser context.
 - D: real concurrent issuance and interrupted/reverted recovery on chain 46630. No mainnet transactions; no bypass of personal wallet approval.
 - Findings, reputation, XP, points, ranks and earned balances are unimplemented and are **not** claimed as preserved. Phase 1 remains incomplete until the remaining required live evidence is recorded.
+
+### Corrected deployment result
+
+- Pushed corrected source commit `f3c8bad4b017e2ed49b44bdae641642399b49e7a` on `codex/phase-1`. Deployed its tracked-only Git archive to Vercel after the passing final suite and migration 006 application. Deployment `dpl_AbRr3XPDP7o3J38tQXmaanQiRqBB` is READY, URL https://grindly-abwekg65c-basla1.vercel.app, stable alias https://grindly-woad.vercel.app. `deployments/app-testnet.json` records the exact source; the later deployment-record commit is documentation only.
+- Post-deploy smoke: production Join 200, token #1 metadata 200, anonymous same-origin protected mutation 401 AUTH_REQUIRED. These are availability/anonymous boundary checks, not completion of live production auth or transfer acceptance.
+- Post-deploy prerequisite read: chain ID 46630; token #1 still owned by the second wallet; that wallet's testnet ETH balance is zero. Stop for its faucet funding before requesting a single return-transfer approval. No live test/demo promotion was created yet, no NFT moved, and no auth/session history was fabricated.
+- Independent Chat 05 re-review target is source `f3c8bad` plus the deployment-record documentation commit. Remaining live A-D acceptance is explicitly pending. Original untracked branding/public assets remain untouched and excluded.
