@@ -496,11 +496,39 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      allocate_mint_nonce: {
+        Args: {
+          p_operation: string;
+          p_issuer: string;
+          p_pending: number;
+        };
+        Returns: number;
+      };
+      bind_owned_token: {
+        Args: {
+          p_member: string;
+          p_contract: string;
+          p_token: string;
+          p_epoch: string;
+          p_block: string;
+          p_hash: string;
+          p_mint?: string;
+        };
+        Returns: string;
+      };
       bind_verified_wallet: {
         Args: {
           p_member_id: string;
           p_challenge_id: string;
           p_message: string;
+        };
+        Returns: string;
+      };
+      create_mint_operation: {
+        Args: {
+          p_member: string;
+          p_contract: string;
+          p_key: string;
         };
         Returns: string;
       };
@@ -515,6 +543,14 @@ export type Database = {
           p_message: string;
           p_created_at: string;
           p_expires_at: string;
+        };
+        Returns: string;
+      };
+      persist_mint_transaction: {
+        Args: {
+          p_operation: string;
+          p_signed: string;
+          p_hash: string;
         };
         Returns: string;
       };
