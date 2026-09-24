@@ -1,6 +1,6 @@
 # Actual verification
 
-Latest checkpoint: **2026-09-25, 05 - QA & Security preparation** (see the final
+Latest checkpoint: **2026-09-25, Chat 05 confirmed-finding remediation** (see the final
 section and `PROJECT_STATE.md`). Earlier entries are historical, not current
 completion claims. Phase 1 remains incomplete pending live transfer-back and
 the explicitly listed evidence gaps.
@@ -190,3 +190,29 @@ the explicitly listed evidence gaps.
 - **Other residual QA gaps:** hosted multi-connection nonce contention, interrupted/reverted issuance service orchestration under concurrent requests, production-origin OTP completion, and a deliberate refresh-token rotation/sign-out/returning-sign-in cycle are not claimed by this run. PGlite is single-connection and browser CI uses foundation mode.
 - **Not implemented / not preservation evidence:** findings, versions, awards, XP/points, balances, contextual reputation, review and assignment/payment history. Their empty/absent state must never be called a passing transfer-preservation test.
 - This checkpoint's UI/test changes are local/Git only. Vercel still runs source `80079fc` recorded in `deployments/app-testnet.json`; it does not yet include this checkpoint's placeholder correction or Check access control.
+
+## Chat 05 confirmed-finding remediation - 2026-09-25
+
+Independent review of `2d46ca7` confirmed five defects. The following are corrections, not new product workflows.
+
+1. **Existing-token confirmation bypass:** `readConfirmedOwnership()` requires owner/epoch at latest and at head minus one to agree. A token nonexistent at the confirmed block, or a new ownership epoch, returns retryable 409 `OWNERSHIP_PENDING` without calling the binding RPC. Normal mint and explicit binding share the two-confirmation constant; protected reads still check latest ownership for immediate revocation. Regressions in `tests/unit/ownership.test.ts` exercise the real binding service with explicit 100/99 block reads and prove no RPC binding on insufficient depth.
+2. **Interrupted confirmation-to-binding:** reconciliation now includes confirmed operations with null `binding_completed_at`. Migration 006 writes that marker atomically with initial mint binding, or settles recovery without binding when member/token binding history already exists. This protects later legitimate explicit rebinding, even when revoked. Legacy mint bindings are backfilled as settled. Tests cover interruption after receipt persistence, retry without another signature, duplicate completion, preserved active/revoked later bindings, pending/reverted handling, and concurrent callers broadcasting the first persisted signed transaction only.
+3. **Historical stale observations:** migration 006 replaces active-only checks with token epoch/block and member block history checks under the existing token/member locks. Old observations arriving after newer rows were revoked are rejected. Same-epoch refresh advances the high-water mark; ambiguous same-block switches to a different token are rejected. Database regressions cover these cases with real SQL/constraints.
+4. **Dropped refreshed cookies:** protected membership and wallet Route Handlers opt into writable cookies through session verification. Server Components remain read-only and use proxy refresh. `session-refresh.test.ts` exercises the real protected route/session/client adapter with simulated provider rotation and response-cookie chunks, then a subsequent protected request using those updated cookies. It does not claim an actual production expiry/refresh cycle.
+5. **Returning-email enumeration:** removed member-email eligibility lookup. Every valid returning email follows the same response and intent-cookie path; identical non-signup Supabase requests run in Next.js `after()` after the response. Provider errors, throttling and delivery latency cannot select an application response path. Regressions cover member/nonmember inputs, 400/429/500/success results, thrown network errors and unbounded provider latency; membership still requires server verification after code entry.
+
+### Automated and deployment preparation results
+
+- `pnpm check` passed on the final source: lint, type checking, **92 unit**, **68 embedded PostgreSQL**, **11 Hardhat contract** tests, generated-type drift, and production build.
+- Chrome Playwright suite passed **34 desktop/mobile** tests. `git diff --check` passed. No outstanding automated failure is being hidden by a skip.
+- Applied `202609250006_qa_membership.sql` successfully to hosted Supabase through the signed-in SQL Editor. Service readback confirms the legacy confirmed operation has a populated completion marker. Generated TypeScript types include the new column. No new member, role, promotion, token transfer, or fabricated wallet proof was created.
+- Concurrency orchestration uses deterministic provider/database doubles; SQL tests use single-connection PGlite. These are focused automated regressions, not proof of hosted multi-connection contention or real reverted/interrupted recovery. Production response-cookie transport still needs the live auth cycle.
+- Corrected tracked source will be deployed before any new live verification. The following deployment entry records its exact commit and outcome. No local secrets, signed transaction journal, `docs/brand/`, or untracked `public/` assets are included in the deployment archive.
+
+### Remaining live acceptance (not passed by these fixes)
+
+- A: fund the second wallet if necessary, request one approved token #1 return transfer, verify epoch/stale denial/fresh rebind and protected reads/actions, then compare existing member/wallet/audit attribution against the saved nonempty baseline.
+- B: create a clearly labeled test/demo Silver promotion with nonempty evidence as explicitly authorized; verify valid Silver, transfer Bronze, unchanged promotion attribution, and no automatic Silver revival after return/rebind. Do not describe test evidence as earned reputation.
+- C: production OTP, returning sign-in, deliberate expired-session refresh, sign-out, and direct protected DB/RPC denial from an authenticated browser context.
+- D: real concurrent issuance and interrupted/reverted recovery on chain 46630. No mainnet transactions; no bypass of personal wallet approval.
+- Findings, reputation, XP, points, ranks and earned balances are unimplemented and are **not** claimed as preserved. Phase 1 remains incomplete until the remaining required live evidence is recorded.

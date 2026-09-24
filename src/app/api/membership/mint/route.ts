@@ -7,7 +7,7 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request, getEnvironment().APP_URL);
-    const member = await requireMember();
+    const member = await requireMember(true);
     return jsonResponse(await mintMembership(member.id));
   } catch (error) {
     return errorResponse(error);

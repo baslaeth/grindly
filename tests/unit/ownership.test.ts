@@ -3,8 +3,24 @@ const mocks = vi.hoisted(() => ({
   read: vi.fn(),
   block: vi.fn(),
   chain: vi.fn(),
+  rpc: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
+vi.mock("@/server/auth/session", () => ({ requireMember: vi.fn() }));
+vi.mock("@/server/supabase", () => ({
+  createDataClient: () => {
+    const query = {
+      select: () => query,
+      eq: () => query,
+      is: () => query,
+      maybeSingle: async () => ({
+        data: { address: `0x${"b".repeat(40)}` },
+        error: null,
+      }),
+    };
+    return { from: () => query, rpc: mocks.rpc };
+  },
+}));
 vi.mock("@/server/environment", () => ({
   getEnvironment: () => ({
     GRINDLY_STAGE: "membership",
@@ -21,13 +37,49 @@ vi.mock("viem", async (original) => ({
   }),
 }));
 import { readOwnership } from "@/server/membership/chain";
+import { bindOwnedToken } from "@/server/membership/access";
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.chain.mockResolvedValue(46630);
-  mocks.block.mockResolvedValue({ number: 100n, hash: `0x${"a".repeat(64)}` });
+  mocks.block.mockImplementation(async (request) => ({
+    number: request.blockNumber ?? 100n,
+    hash: `0x${"a".repeat(64)}`,
+  }));
   mocks.read
     .mockResolvedValueOnce(`0x${"b".repeat(40)}`)
     .mockResolvedValueOnce(2n);
+});
+it("existing-token binding cannot bypass the two-confirmation mint gate", async () => {
+  mocks.read.mockRejectedValueOnce(new Error("ERC721NonexistentToken"));
+  await expect(bindOwnedToken("member", "1")).rejects.toMatchObject({
+    code: "OWNERSHIP_PENDING",
+    retryable: true,
+  });
+  expect(mocks.rpc).not.toHaveBeenCalled();
+  expect(mocks.block).toHaveBeenCalledWith({ blockNumber: 99n });
+});
+it("rejects a newly transferred epoch even if the NFT existed earlier", async () => {
+  mocks.read
+    .mockResolvedValueOnce(`0x${"b".repeat(40)}`)
+    .mockResolvedValueOnce(1n);
+  await expect(bindOwnedToken("member", "1")).rejects.toMatchObject({
+    code: "OWNERSHIP_PENDING",
+  });
+  expect(mocks.rpc).not.toHaveBeenCalled();
+});
+it("binds only when confirmed and latest owner and epoch agree", async () => {
+  mocks.read
+    .mockResolvedValueOnce(`0x${"b".repeat(40)}`)
+    .mockResolvedValueOnce(2n);
+  mocks.rpc.mockResolvedValue({ data: "binding", error: null });
+  expect(await bindOwnedToken("member", "1")).toMatchObject({
+    bound: true,
+    epoch: "2",
+  });
+  expect(mocks.rpc).toHaveBeenCalledOnce();
+  expect(mocks.read.mock.calls.map(([request]) => request.blockNumber)).toEqual(
+    [100n, 100n, 99n, 99n],
+  );
 });
 it("reads owner and epoch at exactly the same explicit block", async () => {
   const result = await readOwnership(1n);

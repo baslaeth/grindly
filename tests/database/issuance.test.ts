@@ -241,3 +241,94 @@ for (const role of ["anon", "authenticated"])
     );
     await reject(() => bind(), /permission denied/);
   });
+
+it("rejects a stale token observation after the newer token binding was revoked", async () => {
+  await bind(bob, "2", "20");
+  await db.query(
+    "update public.membership_bindings set revoked_at=now() where member_id=$1",
+    [bob],
+  );
+  await reject(() => bind(alice, "1", "10"), /Stale ownership/);
+  await reject(() => bind(alice, "2", "21"), /Conflicting ownership/);
+});
+it("rejects delayed observations using revoked member history on another token", async () => {
+  await db.query("select public.bind_owned_token($1,$2,'2','1','30',$3,null)", [
+    alice,
+    contract,
+    hash,
+  ]);
+  await db.query(
+    "update public.membership_bindings set revoked_at=now() where member_id=$1",
+    [alice],
+  );
+  await reject(() => bind(alice, "1", "20"), /Stale member/);
+  await reject(() => bind(alice, "1", "30"), /Stale member/);
+});
+it("an idempotent binding refresh advances the observation high-water mark", async () => {
+  await bind(alice, "1", "10");
+  await bind(alice, "1", "30");
+  await db.query("update public.membership_bindings set revoked_at=now()");
+  await reject(() => bind(alice, "1", "20"), /Stale ownership/);
+});
+async function confirmedOperation() {
+  const id = await operation();
+  await nonce(id);
+  await db.query("select public.persist_mint_transaction($1,'0x1234',$2)", [
+    id,
+    hash,
+  ]);
+  await db.query(
+    "update public.chain_operations set status='confirmed',token_id='1',receipt_block='10',receipt_block_hash=$2 where id=$1",
+    [id, hash],
+  );
+  return id;
+}
+it("recovers interruption after chain confirmation, completing binding atomically once", async () => {
+  const id = await confirmedOperation();
+  expect(
+    (await db.query("select binding_completed_at from public.chain_operations"))
+      .rows[0],
+  ).toEqual({ binding_completed_at: null });
+  await bind(alice, "1", "11", id);
+  await bind(alice, "1", "12", id);
+  expect(
+    (await db.query("select * from public.membership_bindings")).rows,
+  ).toHaveLength(1);
+  expect(
+    (
+      await db.query(
+        "select * from public.chain_operations where binding_completed_at is not null",
+      )
+    ).rows,
+  ).toHaveLength(1);
+});
+it.each([false, true])(
+  "late mint recovery cannot replace a later binding (revoked=%s)",
+  async (revoked) => {
+    const id = await confirmedOperation();
+    await db.query(
+      "select public.bind_owned_token($1,$2,'2','1','30',$3,null)",
+      [alice, contract, hash],
+    );
+    if (revoked)
+      await db.query("update public.membership_bindings set revoked_at=now()");
+    await bind(alice, "1", "40", id);
+    expect(
+      (await db.query("select * from public.membership_bindings")).rows,
+    ).toHaveLength(1);
+    expect(
+      (
+        await db.query(
+          "select * from public.membership_bindings where revoked_at is null",
+        )
+      ).rows,
+    ).toHaveLength(revoked ? 0 : 1);
+    expect(
+      (
+        await db.query(
+          "select * from public.chain_operations where binding_completed_at is not null",
+        )
+      ).rows,
+    ).toHaveLength(1);
+  },
+);

@@ -4,6 +4,8 @@ import { robinhoodTestnet } from "viem/chains";
 import { getEnvironment } from "../environment";
 import { ServiceError } from "../errors";
 
+export const REQUIRED_CONFIRMATIONS = 2n;
+
 export const membershipAbi = parseAbi([
   "error ERC721NonexistentToken(uint256 tokenId)",
   "function ownerOf(uint256 tokenId) view returns (address)",
@@ -38,11 +40,13 @@ export function membershipChain() {
   };
 }
 
-export async function readOwnership(token: bigint) {
+export async function readOwnership(token: bigint, blockNumber?: bigint) {
   const { client, address } = membershipChain();
   try {
     if ((await client.getChainId()) !== 46630) throw new Error("Wrong chain");
-    const block = await client.getBlock({ blockTag: "latest" });
+    const block = await client.getBlock(
+      blockNumber === undefined ? { blockTag: "latest" } : { blockNumber },
+    );
     const owner = await client.readContract({
       address,
       abi: membershipAbi,
@@ -81,4 +85,28 @@ export async function readOwnership(token: bigint) {
       true,
     );
   }
+}
+
+export async function readConfirmedOwnership(token: bigint) {
+  const latest = await readOwnership(token);
+  const confirmedBlock = BigInt(latest.block) - REQUIRED_CONFIRMATIONS + 1n;
+  const pending = () =>
+    new ServiceError(
+      "OWNERSHIP_PENDING",
+      "Ownership is awaiting confirmations. Please retry.",
+      409,
+      true,
+    );
+  if (confirmedBlock < 0n) throw pending();
+  let confirmed;
+  try {
+    confirmed = await readOwnership(token, confirmedBlock);
+  } catch (error) {
+    if (error instanceof ServiceError && error.code === "TOKEN_NOT_FOUND")
+      throw pending();
+    throw error;
+  }
+  if (confirmed.owner !== latest.owner || confirmed.epoch !== latest.epoch)
+    throw pending();
+  return latest;
 }

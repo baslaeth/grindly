@@ -18,7 +18,7 @@ const input = z.strictObject({
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request, getEnvironment().APP_URL);
-    const member = await requireMember();
+    const member = await requireMember(true);
     const { tokenId } = await readJson(request, input);
     return jsonResponse(await bindOwnedToken(member.id, tokenId));
   } catch (error) {

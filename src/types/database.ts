@@ -64,6 +64,7 @@ export type Database = {
           last_error_code: string | null;
           created_at: string;
           updated_at: string;
+          binding_completed_at: string | null;
         };
         Insert: {
           id?: string;
@@ -84,6 +85,7 @@ export type Database = {
           last_error_code?: string | null;
           created_at?: string;
           updated_at?: string;
+          binding_completed_at?: string | null;
         };
         Update: {
           id?: string;
@@ -104,6 +106,7 @@ export type Database = {
           last_error_code?: string | null;
           created_at?: string;
           updated_at?: string;
+          binding_completed_at?: string | null;
         };
         Relationships: [
           {

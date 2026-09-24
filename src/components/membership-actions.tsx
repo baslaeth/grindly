@@ -33,7 +33,11 @@ export function MembershipActions() {
       else if (data.status === "reverted")
         setError("Mint reverted. No membership access granted.");
       else {
-        setMessage("Membership bound.");
+        setMessage(
+          data.bound === false
+            ? "Mint confirmed. Bind your currently owned token to update access."
+            : "Membership bound.",
+        );
         router.refresh();
       }
     } catch (error) {

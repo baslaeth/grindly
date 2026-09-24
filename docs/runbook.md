@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation/OTP, wallet proof, durable issuance, live ownership gating, and metadata are implemented. Five migrations are applied to hosted Supabase. The contract is deployed and verified on chain 46630; real token #1 was minted through local Join and now opens Workbench after live ownership checks. The production shell is https://grindly-woad.vercel.app. The two-member live transfer test remains required. Phase 1 is not complete.
+The six-screen foundation, invitation/OTP, wallet proof, durable issuance, live ownership gating, and metadata are implemented. Six migrations are applied to hosted Supabase. Real token #1 was minted, transferred, and bound by a separately authenticated recipient. The production shell is https://grindly-woad.vercel.app. Transfer-back, demo promotion invalidation, production auth lifecycle and live concurrent/recovery evidence remain required. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -18,7 +18,7 @@ On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. 
 
 The single hosted project is `errbtterppmvtlfltgzp` in the Grindly Free organization. Browser access is authorized; the pinned Supabase CLI is not yet authorized. Run `pnpm exec supabase login` before using its remote management commands.
 
-Migrations `202609230001`, `202609230002`, `202609240003`, `202609240004`, and `202609240005` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004 202609240005` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
+Migrations `202609230001`, `202609230002`, `202609240003`, `202609240004`, `202609240005`, and corrective `202609250006` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004 202609240005 202609250006` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
 
 Run `scripts/verify-hosted-security.sql` as the project database administrator to check all ten forced-RLS tables, actual browser-role read denial, absence of table privileges, and invitation RPC denial. It ends with rollback and changes no application data.
 
@@ -43,6 +43,8 @@ Set `GRINDLY_STAGE=auth` only once project credentials, migrations, and SMTP are
 Run `pnpm invite --email person@example.com --days 7`. The script stores only a SHA-256 token hash in the database. The raw invitation code is written once to an ignored `.local/invitations/ID.txt` file for private delivery and is not printed to logs. Deliver it only to the named recipient. Do not commit those files.
 
 The invitee enters their email and invitation code on `/join`, receives a six-digit email OTP, and enters it on the same screen. After joining, they can use Returning member for subsequent sign-ins. New member identity comes only from Supabase's server-verified user ID. An auth account alone creates neither a member nor an NFT entitlement.
+
+Returning sign-in always returns the same public response and intent-cookie shape without querying membership by email. Next.js `after()` schedules the same non-signup OTP provider request for every address after the response is sent. Provider throttling, unknown accounts, failures, and delivery latency are not exposed by this endpoint. Delivery is best-effort; the generic response is not proof that an email was sent. Membership is still enforced after OTP verification. Protected Route Handlers opt into writable auth cookies; Server Component reads remain read-only and use proxy refresh.
 
 Record actual results for valid, expired, revoked, reused, and wrong-email invitations. Test sign-out, refresh, returning-member sign-in, and confirm that authenticated accounts still cannot access research before wallet/NFT verification. Do not record OTPs, session cookies, invitation codes, or credentials in evidence.
 
@@ -78,7 +80,9 @@ Set `GRINDLY_STAGE=membership`, `ROBINHOOD_RPC_URL=https://rpc.testnet.chain.rob
 
 Join offers Mint / check status after wallet proof. Each member/contract gets one durable operation and random issuance key. The database allocates issuer nonces atomically, persists the first signed transaction, and preserves it on retries. Only matching successful receipts with two confirmations become confirmed; then current ownership is read before binding. Pending or reverted operations never grant access. Existing owners can bind a token ID without minting.
 
-Run `pnpm mint:reconcile` with the same server environment to resume pending operations in nonce order after an interrupted request. On this Windows host also set NODE_USE_SYSTEM_CA=1. This operator command does not create new members, grant roles, or bypass chain checks. A reverted operation is terminal; investigate before changing database records. Do not send unrelated transactions from the dedicated issuer while app minting is active.
+Run `pnpm mint:reconcile` with the same server environment to resume unfinished operations in nonce order, including confirmed operations whose initial binding has not settled. Migration 006 adds `binding_completed_at`, written atomically with a mint binding, or when recovery is superseded by existing member/token binding history. Settled operations are not rebound on retries; explicit existing-token binding remains available to the current owner. On this Windows host also set NODE_USE_SYSTEM_CA=1. This command does not create new members, grant roles, or bypass chain checks. Reverted operations are terminal. Do not send unrelated transactions from the dedicated issuer while app minting is active.
+
+All binding paths require two confirmations: current owner and epoch must also match at head minus one block. Newly minted/transferred tokens return retryable `OWNERSHIP_PENDING` until stable. Access checks still use latest ownership, denying former owners without waiting for confirmation depth. Binding SQL compares historical token epochs/blocks and member observations even after revocation. Ambiguous same-block switches to a different token are rejected; retry with a newer observation.
 
 Workbench and My Membership call `requireActiveMembership()` for server reads. Owner and epoch are read at one explicit block, then the block hash is checked again. RPC failure is retryable and fails closed. A transfer or changed epoch denies the old binding; the recipient must authenticate, prove their own wallet, and bind the token. POST `/api/membership/check` is a same-origin, authenticated, protected audit mutation for verification.
 

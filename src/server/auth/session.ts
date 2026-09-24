@@ -2,8 +2,9 @@ import "server-only";
 import { createAuthClient, createDataClient } from "@/server/supabase";
 import { ServiceError } from "@/server/errors";
 
-export async function getCurrentMember() {
-  const auth = await createAuthClient(true);
+export async function getCurrentMember(writableCookies = false) {
+  // Server Components rely on proxy refresh; Route Handlers can persist cookies.
+  const auth = await createAuthClient(!writableCookies);
   const { data, error } = await auth.auth.getUser();
   if (error) {
     if (
@@ -34,8 +35,8 @@ export async function getCurrentMember() {
   return result.data;
 }
 
-export async function requireMember() {
-  const member = await getCurrentMember();
+export async function requireMember(writableCookies = false) {
+  const member = await getCurrentMember(writableCookies);
   if (!member)
     throw new ServiceError(
       "AUTH_REQUIRED",

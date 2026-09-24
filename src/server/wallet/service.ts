@@ -20,7 +20,7 @@ async function proofTime(db: ReturnType<typeof createDataClient>) {
 }
 
 export async function issueChallenge(address: string) {
-  const member = await requireMember();
+  const member = await requireMember(true);
   const db = createDataClient();
   const challenge = createChallenge(
     member.id,
@@ -53,7 +53,7 @@ export async function issueChallenge(address: string) {
 }
 
 export async function bindWallet(challengeId: string, signature: Hex) {
-  const member = await requireMember();
+  const member = await requireMember(true);
   const db = createDataClient();
   const { data: challenge, error } = await db
     .from("wallet_challenges")

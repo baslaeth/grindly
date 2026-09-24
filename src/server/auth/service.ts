@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { after } from "next/server";
 import type { z } from "zod";
 import {
   createAuthClient,
@@ -24,11 +25,10 @@ export async function readOtpIntent() {
 
 export async function requestOtp(input: z.infer<typeof otpRequest>) {
   const env = getAuthEnvironment();
-  const db = createDataClient();
   const invitationHash =
     input.mode === "join" ? hashInvitation(input.invitation) : undefined;
-  let eligible = true;
   if (invitationHash) {
+    const db = createDataClient();
     const result = await db.rpc("reserve_invitation_otp", {
       p_token_hash: invitationHash,
       p_email: input.email,
@@ -48,23 +48,9 @@ export async function requestOtp(input: z.infer<typeof otpRequest>) {
         "Invitation unavailable. Check the email and code, or wait before retrying.",
         400,
       );
-  } else {
-    const result = await db
-      .from("members")
-      .select("id")
-      .eq("email", input.email)
-      .maybeSingle();
-    if (result.error)
-      throw new ServiceError(
-        "DATABASE_UNAVAILABLE",
-        "Sign-in is temporarily unavailable.",
-        503,
-        true,
-      );
-    eligible = Boolean(result.data);
   }
 
-  if (eligible) {
+  if (input.mode === "join") {
     const auth = await createAuthClient();
     const { error } = await auth.auth.signInWithOtp({
       email: input.email,
@@ -77,6 +63,20 @@ export async function requestOtp(input: z.infer<typeof otpRequest>) {
         error.status === 429 ? 429 : 503,
         true,
       );
+  } else {
+    // Every returning address follows the same public path. Delivery, provider
+    // throttling and unknown-account errors happen only after the response.
+    const auth = await createAuthClient(true);
+    after(async () => {
+      try {
+        await auth.auth.signInWithOtp({
+          email: input.email,
+          options: { shouldCreateUser: false },
+        });
+      } catch {
+        // Do not expose provider/account-specific outcomes to the requester.
+      }
+    });
   }
 
   (await cookies()).set(

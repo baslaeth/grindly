@@ -2,10 +2,14 @@ import "server-only";
 import { requireMember } from "../auth/session";
 import { createDataClient } from "../supabase";
 import { ServiceError } from "../errors";
-import { membershipChain, readOwnership } from "./chain";
+import {
+  membershipChain,
+  readOwnership,
+  readConfirmedOwnership,
+} from "./chain";
 
-export async function requireActiveMembership() {
-  const member = await requireMember();
+export async function requireActiveMembership(writableCookies = false) {
+  const member = await requireMember(writableCookies);
   const { address } = membershipChain();
   const db = createDataClient();
   const binding = await db
@@ -65,7 +69,7 @@ export async function bindOwnedToken(
   if (wallet.error) throw wallet.error;
   if (!wallet.data)
     throw new ServiceError("WALLET_REQUIRED", "Verify a wallet first.", 403);
-  const owned = await readOwnership(BigInt(token));
+  const owned = await readConfirmedOwnership(BigInt(token));
   if (owned.owner !== wallet.data.address)
     throw new ServiceError(
       "NOT_TOKEN_OWNER",
@@ -82,5 +86,5 @@ export async function bindOwnedToken(
     p_mint: mintId,
   });
   if (result.error) throw result.error;
-  return { tokenId: token, epoch: owned.epoch };
+  return { tokenId: token, epoch: owned.epoch, bound: result.data !== null };
 }

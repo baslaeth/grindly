@@ -13,7 +13,11 @@ import { robinhoodTestnet } from "viem/chains";
 import { createDataClient } from "../supabase";
 import { getEnvironment } from "../environment";
 import { ServiceError } from "../errors";
-import { membershipAbi, membershipChain } from "./chain";
+import {
+  membershipAbi,
+  membershipChain,
+  REQUIRED_CONFIRMATIONS,
+} from "./chain";
 import { bindOwnedToken } from "./access";
 
 export async function mintMembership(memberId: string) {
@@ -128,7 +132,11 @@ export async function mintMembership(memberId: string) {
       if (broadcast.error) throw broadcast.error;
       receipt = await client.getTransactionReceipt({ hash }).catch(() => null);
     }
-    if (!receipt || (await client.getBlockNumber()) < receipt.blockNumber + 1n)
+    if (
+      !receipt ||
+      (await client.getBlockNumber()) <
+        receipt.blockNumber + REQUIRED_CONFIRMATIONS - 1n
+    )
       return { operationId, status: "pending", transactionHash: hash };
     if (
       (await client.getBlock({ blockNumber: receipt.blockNumber })).hash !==
@@ -162,7 +170,10 @@ export async function mintMembership(memberId: string) {
       .from("chain_operations")
       .update({
         status: receipt.status === "success" ? "confirmed" : "reverted",
-        token_id: event?.args.tokenId.toString() ?? null,
+        token_id:
+          receipt.status === "success"
+            ? (event?.args.tokenId.toString() ?? null)
+            : null,
         receipt_block: receipt.blockNumber.toString(),
         receipt_block_hash: receipt.blockHash,
         updated_at: new Date().toISOString(),
@@ -178,11 +189,14 @@ export async function mintMembership(memberId: string) {
       status: operation.status,
       transactionHash: operation.transaction_hash,
     };
-  await bindOwnedToken(memberId, operation.token_id, operation.id);
+  const binding = operation.binding_completed_at
+    ? null
+    : await bindOwnedToken(memberId, operation.token_id, operation.id);
   return {
     operationId,
     status: "confirmed",
     tokenId: operation.token_id,
     transactionHash: operation.transaction_hash,
+    bound: binding?.bound ?? false,
   };
 }
