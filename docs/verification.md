@@ -123,3 +123,15 @@
 - Reopened Workbench after confirmation: the protected shell rendered `Research` / `No findings yet.` My Membership displayed Bronze, contract/token explorer links and the mint transaction. These pages call live ownership/epoch checks, not database-only membership flags.
 - Local `/api/metadata/46630/1` returned 200 with Bronze and network traits, no member/email/wallet information, and no-store caching. A protected test mutation is implemented at POST `/api/membership/check`; its positive live call and the independently authenticated two-member transfer remain to be verified.
 - Unit tests verify former-owner and stale-epoch denial, retryable chain failure, same-block reads with block-hash recheck, and Bronze unless current owner/binding and steward approval match. Actual live transfer, transfer-back, RPC outage and promotion invalidation evidence are still pending. Phase 1 is not complete.
+
+### Membership deployment and outage recovery - 2026-09-24
+
+- Deployed tracked commit `80079fc` to Vercel production as `dpl_89rzTpQcypGtpabYcpkaFqJZvSC9`. The stable app URL remains https://grindly-woad.vercel.app. Production now uses membership stage and the verified contract; issuer credentials remain server-only.
+- GitHub Actions confirmed successful CI for this exact deployed commit: https://github.com/baslaeth/grindly/actions/runs/36015952070.
+- Updated hosted Supabase Site URL from localhost to `https://grindly-woad.vercel.app` and confirmed it persisted after a dashboard reload. No redirect wildcards were added. Production OTP entry itself remains unverified.
+- Production token #1 metadata returned 200 with Bronze and no personal data. Anonymous Workbench and My Membership remained locked; same-origin anonymous protected mutation returned 401.
+- Repeated Mint / check status through the authenticated local Join screen: one database operation and on-chain `totalIssued = 1` remained. Binding existing token ID 1 also succeeded without another mint. The reconciliation operator command completed with no pending operations.
+- The expanded browser suite passed 32 desktop/mobile checks using installed Chrome. These automated browser cases use foundation mode; they are not evidence of a second live member.
+- Deliberately pointed only the local app's RPC setting at an unreachable localhost port. The authenticated Workbench showed a retry alert and no research content; metadata returned HTTP 503, code `CHAIN_UNAVAILABLE`, and `retryable: true`.
+- Restored the real testnet RPC immediately afterward. Reloading the same authenticated Workbench restored `Research` / `No findings yet.` Production RPC settings were never changed during this test.
+- Still required: a second independently authenticated member and wallet, actual transfer/transfer-back, protected mutation success/revocation, and stale promotion evidence. Requested the second member's email and public wallet address; no private key or recovery phrase is needed. Phase 1 remains incomplete.

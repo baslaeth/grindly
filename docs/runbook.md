@@ -56,7 +56,7 @@ The server derives the member from Supabase's verified session. It issues a rand
 
 Issuance and signature verification use `wallet_proof_clock()`, a service-only database time RPC. Atomic consumption checks that same database clock. This avoids rejecting legitimate proofs because a developer machine or app server clock is skewed; database expiry and replay checks remain mandatory. A clock-service failure is retryable and never grants a binding.
 
-The built-in browser's injected wallet connection was unavailable during live testing. In a wallet-enabled browser, open the exact localhost URL, sign in using Returning member, connect the wallet, and approve only the Grindly ownership message. Never provide wallet recovery phrases or private keys. Finish live verification before claiming Task 5 acceptance.
+The initial injected-wallet connection issue was resolved and the owner's live wallet proof is recorded in the verification log. For another member, use a wallet-enabled browser at the exact configured URL, sign in, connect their own wallet, and approve only the Grindly ownership message. Never provide wallet recovery phrases or private keys.
 
 ## GitHub and CI
 
@@ -94,4 +94,4 @@ GitHub auto-deploy is not connected: Vercel requested a GitHub Login Connection.
 
 The dedicated testnet issuer key is held in ignored local configuration and the production Vercel secret store. Its public address is in the app manifest. Never fund this development issuer with real assets. It has received faucet gas and deployed the verified contract. Keep the stable metadata origin under the app's production URL.
 
-Deployment, source verification, real mint and initial current-owner access are recorded in `docs/verification.md`. Two independently authenticated members, actual transfer and transfer-back, protected mutation access/revocation, stale promotion invalidation, and live RPC-outage behavior still need recorded end-to-end evidence before Phase 1 can be called complete. Production OTP flow and the Supabase Site URL review also remain in the live runbook.
+Deployment, source verification, real mint/retry/bind, current-owner access, and local RPC-outage denial/recovery are recorded in `docs/verification.md`. Hosted Supabase Site URL is now `https://grindly-woad.vercel.app`, verified after reload. Two independently authenticated members, actual transfer and transfer-back, protected mutation access/revocation, and stale promotion invalidation still need recorded end-to-end evidence before Phase 1 can be called complete. Production OTP entry also remains unverified.
