@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption and session persistence after reload are verified. Three migrations are applied to hosted Supabase. Live wallet binding remains unconfirmed. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
+The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption and session persistence after reload are verified. Four migrations are applied to hosted Supabase. Live wallet binding remains unconfirmed. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -18,7 +18,7 @@ On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. 
 
 The single hosted project is `errbtterppmvtlfltgzp` in the Grindly Free organization. Browser access is authorized; the pinned Supabase CLI is not yet authorized. Run `pnpm exec supabase login` before using its remote management commands.
 
-Migrations `202609230001`, `202609230002`, and `202609240003` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
+Migrations `202609230001`, `202609230002`, `202609240003`, and `202609240004` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
 
 Run `scripts/verify-hosted-security.sql` as the project database administrator to check all ten forced-RLS tables, actual browser-role read denial, absence of table privileges, and invitation RPC denial. It ends with rollback and changes no application data.
 
@@ -53,6 +53,8 @@ Record actual results for valid, expired, revoked, reused, and wrong-email invit
 After email sign-in, Join offers injected EVM wallet connection and a SIWE signature on Robinhood Chain testnet (46630). Use an EOA wallet; contract-account signatures are not supported by this checkpoint. This is a message signature, not a transaction or token approval. Neither connection nor proof grants research access without the later on-chain NFT check.
 
 The server derives the member from Supabase's verified session. It issues a random, five-minute challenge for the exact configured APP_URL domain and Join URI. Issuing another challenge invalidates the prior one, with a five-per-minute member limit. Cryptographic verification precedes an atomic, service-only RPC that consumes the challenge, binds the address, and appends an audit event. An active wallet cannot belong to two members or be silently replaced.
+
+Issuance and signature verification use `wallet_proof_clock()`, a service-only database time RPC. Atomic consumption checks that same database clock. This avoids rejecting legitimate proofs because a developer machine or app server clock is skewed; database expiry and replay checks remain mandatory. A clock-service failure is retryable and never grants a binding.
 
 The built-in browser's injected wallet connection was unavailable during live testing. In a wallet-enabled browser, open the exact localhost URL, sign in using Returning member, connect the wallet, and approve only the Grindly ownership message. Never provide wallet recovery phrases or private keys. Finish live verification before claiming Task 5 acceptance.
 

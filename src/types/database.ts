@@ -534,6 +534,7 @@ export type Database = {
         };
         Returns: boolean;
       };
+      wallet_proof_clock: { Args: Record<string, never>; Returns: string };
     };
     Enums: {
       member_role: "reviewer" | "steward" | "issuer";

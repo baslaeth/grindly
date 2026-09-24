@@ -6,14 +6,29 @@ import { getEnvironment } from "../environment";
 import { ServiceError } from "../errors";
 import { createChallenge, verifyChallenge } from "./proof";
 
+async function proofTime(db: ReturnType<typeof createDataClient>) {
+  const { data, error } = await db.rpc("wallet_proof_clock");
+  const time = typeof data === "string" ? new Date(data) : null;
+  if (error || !time || !Number.isFinite(time.getTime()))
+    throw new ServiceError(
+      "WALLET_CLOCK_UNAVAILABLE",
+      "Wallet verification is temporarily unavailable. Please retry.",
+      503,
+      true,
+    );
+  return time;
+}
+
 export async function issueChallenge(address: string) {
   const member = await requireMember();
+  const db = createDataClient();
   const challenge = createChallenge(
     member.id,
     address,
     getEnvironment().APP_URL,
+    await proofTime(db),
   );
-  const { error } = await createDataClient().rpc("issue_wallet_challenge", {
+  const { error } = await db.rpc("issue_wallet_challenge", {
     p_id: challenge.id,
     p_member_id: member.id,
     p_address: challenge.address,
@@ -58,6 +73,7 @@ export async function bindWallet(challengeId: string, signature: Hex) {
     member.id,
     signature,
     getEnvironment().APP_URL,
+    await proofTime(db),
   );
   const { error: bindError } = await db.rpc("bind_verified_wallet", {
     p_member_id: member.id,

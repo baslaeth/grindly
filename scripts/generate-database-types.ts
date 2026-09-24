@@ -115,6 +115,12 @@ try {
   ).rows;
   lines.push(functions.length ? "{" : "Record<never, never>");
   for (const fn of functions) {
+    if (fn.args.length === 0) {
+      lines.push(
+        `${JSON.stringify(fn.name)}: { Args: Record<string, never>; Returns: ${typeFor(fn.result)}; };`,
+      );
+      continue;
+    }
     lines.push(`${JSON.stringify(fn.name)}: { Args: {`);
     for (const arg of fn.args)
       lines.push(

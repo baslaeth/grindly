@@ -108,4 +108,16 @@ for (const role of ["anon", "authenticated"])
     await db.exec(`set role ${role}`);
     await rejected(() => bind(), /permission denied/);
     await rejected(() => issue(other), /permission denied/);
+    await rejected(
+      () => db.query("select public.wallet_proof_clock()"),
+      /permission denied/,
+    );
   });
+
+it("exposes authoritative database time only to the server", async () => {
+  await db.exec("set role service_role");
+  const result = await db.query<{ delta: number }>(
+    "select abs(extract(epoch from (public.wallet_proof_clock() - clock_timestamp())))::float as delta",
+  );
+  expect(result.rows[0]!.delta).toBeLessThan(1);
+});
