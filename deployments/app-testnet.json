@@ -1,0 +1,14 @@
+{
+  "application": "Grindly",
+  "environment": "testnet",
+  "chainId": 46630,
+  "stage": "auth",
+  "sourceCommit": "a203839",
+  "appUrl": "https://grindly-woad.vercel.app",
+  "deploymentUrl": "https://grindly-axd4wsgjb-basla1.vercel.app",
+  "deploymentId": "dpl_Eg2RkoSTcxeaqLUySRvaQqbVd5tF",
+  "vercelProjectId": "prj_Bfam4j427T9FNcd7Lgd1Y0ND98Ad",
+  "vercelScope": "basla1",
+  "issuerAddress": "0xFC45BDc6F1eBdB5F87232CDaea2245e79d071BC9",
+  "contractDeploymentStatus": "awaiting-testnet-gas"
+}

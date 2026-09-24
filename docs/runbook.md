@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption, session persistence, and live wallet binding after reload are verified. Four migrations are applied to hosted Supabase. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Vercel CLI authorization is the next deployment prerequisite. Phase 1 is not complete.
+The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real local OTP redemption, session persistence, and wallet binding after reload are verified. Four migrations are applied to hosted Supabase. The auth-stage shell is deployed at https://grindly-woad.vercel.app. The contract passes local tests but awaits issuer testnet gas before deployment; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -73,5 +73,13 @@ Deployment requires a nonzero dedicated issuer address and a stable metadata bas
 The next phase must deploy the app shell first, establish its stable metadata origin, confirm Robinhood chain 46630 independently, then deploy and verify the contract. No deployment address or manifest should be recorded until a real receipt exists.
 
 ## Remaining live evidence
+
+### Vercel deployment checkpoint
+
+The authorized Vercel CLI is invoked with `pnpm dlx vercel@59.26.0`. The linked project is `basla1/grindly`. Production source is the tracked commit in `deployments/app-testnet.json`, uploaded from an ignored Git-archive snapshot so local secrets and unfinished branding are not published. Production environment settings use the hosted APP_URL and existing Supabase credentials. Keep local APP_URL at localhost; do not pull production secrets over `.env.local`.
+
+GitHub auto-deploy is not connected: Vercel requested a GitHub Login Connection. Existing Git pushes and GitHub Actions are independent and remain configured. Do not claim automatic Vercel deployments until this connection is actually verified.
+
+The dedicated testnet issuer key exists only in ignored local configuration. Its public address is in the app manifest. Never fund this development issuer with real assets. Complete the official faucet's human verification and Google sign-in to receive testnet gas, then confirm the balance via RPC before deployment. Keep the stable metadata origin under the app's production URL; no contract address exists yet.
 
 No contract has been deployed, no NFT has been issued, and ownership has not been verified on testnet. A later deployment manifest must record chain 46630, verified contract address, explorer URLs, ABI, deployment transaction, and independent app/RPC agreement. Mint, bind, transfer, transfer-away-and-back, epoch-bound promotion, and RPC-outage checks are still required before Phase 1 can be called complete.
