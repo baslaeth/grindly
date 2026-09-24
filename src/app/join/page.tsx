@@ -6,6 +6,7 @@ import { getCurrentMember } from "@/server/auth/session";
 import { readOtpIntent } from "@/server/auth/service";
 import { createDataClient } from "@/server/supabase";
 import { WalletProof } from "@/components/wallet-proof";
+import { MembershipActions } from "@/components/membership-actions";
 
 export const metadata: Metadata = { title: "Join / Membership" };
 export const dynamic = "force-dynamic";
@@ -60,6 +61,12 @@ export default async function JoinPage() {
           ) : (
             <WalletProof boundAddress={wallet} />
           )}
+        </section>
+      )}
+      {wallet && getEnvironment().GRINDLY_STAGE === "membership" && (
+        <section className="section">
+          <h2>Membership NFT</h2>
+          <MembershipActions />
         </section>
       )}
       <section className="section sample" aria-label="Public sample">

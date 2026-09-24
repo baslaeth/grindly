@@ -114,3 +114,12 @@
 - Read deployed issuer and runtime bytecode back through RPC. Recorded receipt block/hash, runtime hash, compiler settings, constructor metadata base and ABI in `deployments/robinhood-testnet.json` and `deployments/GrindlyMembership.abi.json`.
 - Submitted the exact Hardhat standard JSON compiler input to the explorer's verification API. It returned `Pass - Verified`. Explorer: https://explorer.testnet.chain.robinhood.com/address/0xa1f055b20c1bcbd0fa63859154a1fa283f11c356.
 - The deployment script persists the signed transaction in an ignored local journal before broadcasting. No NFT has been minted yet. The metadata URL is stable but its endpoint is still the next implementation work, not yet serving tokens.
+
+### Real issuance and access checkpoint - 2026-09-24
+
+- Implemented durable operations, database-serialized issuer nonce allocation, first-writer signed-transaction persistence, broadcast retry, two-confirmation receipt/event reconciliation, and owned-token binding. Applied migration `202609240005` successfully to hosted Supabase.
+- Local checks passed: lint/types/build, 61 unit tests, 61 PostgreSQL tests, 11 contract tests and the existing 28 desktop/mobile browser checks. PostgreSQL tests use a single embedded connection; they test reservation/idempotency/rollback semantics but are not multi-connection load tests.
+- Used the authenticated Join UI to mint real token #1 in transaction `0xed42a02da45647ff78e65d1b126210df65fee9708ec1498c1aaf255e443f88cd`. While the operation was broadcast but unreconciled, Workbench remained locked. A subsequent Join status check reconciled the receipt and bound token #1 at epoch 1.
+- Reopened Workbench after confirmation: the protected shell rendered `Research` / `No findings yet.` My Membership displayed Bronze, contract/token explorer links and the mint transaction. These pages call live ownership/epoch checks, not database-only membership flags.
+- Local `/api/metadata/46630/1` returned 200 with Bronze and network traits, no member/email/wallet information, and no-store caching. A protected test mutation is implemented at POST `/api/membership/check`; its positive live call and the independently authenticated two-member transfer remain to be verified.
+- Unit tests verify former-owner and stale-epoch denial, retryable chain failure, same-block reads with block-hash recheck, and Bronze unless current owner/binding and steward approval match. Actual live transfer, transfer-back, RPC outage and promotion invalidation evidence are still pending. Phase 1 is not complete.

@@ -22,6 +22,7 @@
     "db:types": "tsx scripts/generate-database-types.ts",
     "db:types:check": "tsx scripts/generate-database-types.ts --check",
     "invite": "tsx --env-file=.env.local scripts/create-invitation.ts",
+    "mint:reconcile": "node --conditions=react-server --import tsx --env-file=.env.local scripts/reconcile-mints.ts",
     "format": "prettier --write src tests scripts *.ts *.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm db:types:check && pnpm test:contract && pnpm build"
   },

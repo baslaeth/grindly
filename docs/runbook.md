@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real local OTP redemption, session persistence, and wallet binding after reload are verified. Four migrations are applied to hosted Supabase. The auth-stage shell is deployed at https://grindly-woad.vercel.app. The contract passes local tests but awaits issuer testnet gas before deployment; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
+The six-screen foundation, invitation/OTP, wallet proof, durable issuance, live ownership gating, and metadata are implemented. Five migrations are applied to hosted Supabase. The contract is deployed and verified on chain 46630; real token #1 was minted through local Join and now opens Workbench after live ownership checks. The production shell is https://grindly-woad.vercel.app. The two-member live transfer test remains required. Phase 1 is not complete.
 
 ## Fresh checkout
 
@@ -18,7 +18,7 @@ On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. 
 
 The single hosted project is `errbtterppmvtlfltgzp` in the Grindly Free organization. Browser access is authorized; the pinned Supabase CLI is not yet authorized. Run `pnpm exec supabase login` before using its remote management commands.
 
-Migrations `202609230001`, `202609230002`, `202609240003`, and `202609240004` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
+Migrations `202609230001`, `202609230002`, `202609240003`, `202609240004`, and `202609240005` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004 202609240005` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
 
 Run `scripts/verify-hosted-security.sql` as the project database administrator to check all ten forced-RLS tables, actual browser-role read denial, absence of table privileges, and invitation RPC denial. It ends with rollback and changes no application data.
 
@@ -70,7 +70,19 @@ Run `pnpm test:contract`. Hardhat compiles `contracts/contracts/GrindlyMembershi
 
 Deployment requires a nonzero dedicated issuer address and a stable metadata base URL ending in `/`. These are fixed in the constructor. The server will use opaque random issuance keys, never member IDs or emails, as the public idempotency keys. An issuance retry returns the original token without minting again or reclaiming it from a transferee. Metadata URLs do not change on transfer. Epochs start at one and increase on every transfer, including self-transfers.
 
-The next phase must deploy the app shell first, establish its stable metadata origin, confirm Robinhood chain 46630 independently, then deploy and verify the contract. No deployment address or manifest should be recorded until a real receipt exists.
+The verified deployment and ABI are recorded in `deployments/robinhood-testnet.json` and `deployments/GrindlyMembership.abi.json`. Never rerun deployment with a different issuer or delete the ignored deployment journal to work around a failed request. `scripts/deploy-membership.ts` resumes its persisted signed transaction. `scripts/verify-membership.ts` submits the exact compiler input to Blockscout.
+
+## Issuance and membership
+
+Set `GRINDLY_STAGE=membership`, `ROBINHOOD_RPC_URL=https://rpc.testnet.chain.robinhood.com`, and `MEMBERSHIP_CONTRACT_ADDRESS` from the verified deployment manifest. Supply the dedicated issuer key as server-only `ISSUER_PRIVATE_KEY`. The deployed contract's issuer must match. Never prefix server credentials with NEXT_PUBLIC or commit the ignored local environment.
+
+Join offers Mint / check status after wallet proof. Each member/contract gets one durable operation and random issuance key. The database allocates issuer nonces atomically, persists the first signed transaction, and preserves it on retries. Only matching successful receipts with two confirmations become confirmed; then current ownership is read before binding. Pending or reverted operations never grant access. Existing owners can bind a token ID without minting.
+
+Run `pnpm mint:reconcile` with the same server environment to resume pending operations in nonce order after an interrupted request. On this Windows host also set NODE_USE_SYSTEM_CA=1. This operator command does not create new members, grant roles, or bypass chain checks. A reverted operation is terminal; investigate before changing database records. Do not send unrelated transactions from the dedicated issuer while app minting is active.
+
+Workbench and My Membership call `requireActiveMembership()` for server reads. Owner and epoch are read at one explicit block, then the block hash is checked again. RPC failure is retryable and fails closed. A transfer or changed epoch denies the old binding; the recipient must authenticate, prove their own wallet, and bind the token. POST `/api/membership/check` is a same-origin, authenticated, protected audit mutation for verification.
+
+Metadata at `/api/metadata/46630/TOKEN_ID` uses live ownership and exposes only token name, description, tier and network. Silver requires a current matching member/token/epoch binding and a non-revoked promotion whose approving member still has the steward role. All other valid tokens return Bronze. No email, member ID, wallet address, rationale or evidence is exposed.
 
 ## Remaining live evidence
 
@@ -80,6 +92,6 @@ The authorized Vercel CLI is invoked with `pnpm dlx vercel@59.26.0`. The linked 
 
 GitHub auto-deploy is not connected: Vercel requested a GitHub Login Connection. Existing Git pushes and GitHub Actions are independent and remain configured. Do not claim automatic Vercel deployments until this connection is actually verified.
 
-The dedicated testnet issuer key exists only in ignored local configuration. Its public address is in the app manifest. Never fund this development issuer with real assets. Complete the official faucet's human verification and Google sign-in to receive testnet gas, then confirm the balance via RPC before deployment. Keep the stable metadata origin under the app's production URL; no contract address exists yet.
+The dedicated testnet issuer key is held in ignored local configuration and the production Vercel secret store. Its public address is in the app manifest. Never fund this development issuer with real assets. It has received faucet gas and deployed the verified contract. Keep the stable metadata origin under the app's production URL.
 
-No contract has been deployed, no NFT has been issued, and ownership has not been verified on testnet. A later deployment manifest must record chain 46630, verified contract address, explorer URLs, ABI, deployment transaction, and independent app/RPC agreement. Mint, bind, transfer, transfer-away-and-back, epoch-bound promotion, and RPC-outage checks are still required before Phase 1 can be called complete.
+Deployment, source verification, real mint and initial current-owner access are recorded in `docs/verification.md`. Two independently authenticated members, actual transfer and transfer-back, protected mutation access/revocation, stale promotion invalidation, and live RPC-outage behavior still need recorded end-to-end evidence before Phase 1 can be called complete. Production OTP flow and the Supabase Site URL review also remain in the live runbook.
