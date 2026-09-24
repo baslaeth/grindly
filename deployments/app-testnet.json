@@ -10,5 +10,5 @@
   "vercelProjectId": "prj_Bfam4j427T9FNcd7Lgd1Y0ND98Ad",
   "vercelScope": "basla1",
   "issuerAddress": "0xFC45BDc6F1eBdB5F87232CDaea2245e79d071BC9",
-  "contractDeploymentStatus": "awaiting-testnet-gas"
+  "contractDeploymentStatus": "deployed-and-verified"
 }

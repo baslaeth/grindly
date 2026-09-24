@@ -1,0 +1,19 @@
+{
+  "chainId": 46630,
+  "network": "Robinhood Chain Testnet",
+  "contractName": "GrindlyMembership",
+  "address": "0xa1f055b20c1bcbd0fa63859154a1fa283f11c356",
+  "issuer": "0xFC45BDc6F1eBdB5F87232CDaea2245e79d071BC9",
+  "metadataBase": "https://grindly-woad.vercel.app/api/metadata/46630/",
+  "transactionHash": "0x9972a0ce1c7a98aa83f4954a2d9c1d62569676bb9f377f662546e2cb38001d79",
+  "blockNumber": "123659257",
+  "blockHash": "0x2631d6d3ff3085b2c2872bbd2077826fad6f98e1570e453a674a073fd0400abc",
+  "compilerVersion": "0.8.34",
+  "optimizerRuns": 200,
+  "evmVersion": "cancun",
+  "runtimeCodeHash": "0xaaea45db5fe3adbb645ab1acbf496a57afa97bf9c2904cb4d756f102d7533edd",
+  "sourceCommit": "ffbf7c0c4bde775674dec5c3cba239579c8dcd12",
+  "explorerUrl": "https://explorer.testnet.chain.robinhood.com/address/0xa1f055b20c1bcbd0fa63859154a1fa283f11c356",
+  "verificationStatus": "verified",
+  "compilerLongVersion": "0.8.34+commit.80d5c536"
+}

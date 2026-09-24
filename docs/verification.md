@@ -107,3 +107,10 @@
 - HTTP checks returned 200 for all six routes. Each displayed chain 46630; all five non-Join screens remained locked. Production wallet challenge POST rejected an attacker origin with 403 INVALID_ORIGIN and a same-origin anonymous request with 401 AUTH_REQUIRED. Inspected Join in the built-in browser: sign-in fields are enabled. No production OTP or production authenticated flow has yet been exercised.
 - Generated a dedicated issuer key in ignored `.env.local`, without printing it. The public RPC returned chain ID 46630 and an issuer balance of zero. No deployment transaction was signed or sent.
 - Requested free testnet gas from the official faucet for the issuer address recorded in the manifest. The faucet requires Cloudflare human verification and Google sign-in. Owner action is pending; no CAPTCHA bypass was attempted. Supabase's hosted Site URL still needs review for the production origin before completing the production auth runbook.
+
+### Verified testnet contract - 2026-09-24
+
+- Faucet funding confirmed by RPC: 0.01 testnet ETH. Deployed GrindlyMembership at `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356` on chain 46630. Receipt succeeded with two confirmations; deployment transaction is `0x9972a0ce1c7a98aa83f4954a2d9c1d62569676bb9f377f662546e2cb38001d79`.
+- Read deployed issuer and runtime bytecode back through RPC. Recorded receipt block/hash, runtime hash, compiler settings, constructor metadata base and ABI in `deployments/robinhood-testnet.json` and `deployments/GrindlyMembership.abi.json`.
+- Submitted the exact Hardhat standard JSON compiler input to the explorer's verification API. It returned `Pass - Verified`. Explorer: https://explorer.testnet.chain.robinhood.com/address/0xa1f055b20c1bcbd0fa63859154a1fa283f11c356.
+- The deployment script persists the signed transaction in an ignored local journal before broadcasting. No NFT has been minted yet. The metadata URL is stable but its endpoint is still the next implementation work, not yet serving tokens.
