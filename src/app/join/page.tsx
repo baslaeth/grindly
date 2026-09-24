@@ -4,6 +4,8 @@ import { JoinForm, SignOutButton } from "@/components/join-form";
 import { getEnvironment } from "@/server/environment";
 import { getCurrentMember } from "@/server/auth/session";
 import { readOtpIntent } from "@/server/auth/service";
+import { createDataClient } from "@/server/supabase";
+import { WalletProof } from "@/components/wallet-proof";
 
 export const metadata: Metadata = { title: "Join / Membership" };
 export const dynamic = "force-dynamic";
@@ -19,6 +21,18 @@ export default async function JoinPage() {
     }
   }
   const intent = await readOtpIntent();
+  let wallet: string | null = null;
+  let walletUnavailable = false;
+  if (member) {
+    const result = await createDataClient()
+      .from("wallet_bindings")
+      .select("address")
+      .eq("member_id", member.id)
+      .is("revoked_at", null)
+      .maybeSingle();
+    walletUnavailable = !!result.error;
+    wallet = result.data?.address ?? null;
+  }
   return (
     <Screen title="Join / Membership">
       <section className="section">
@@ -36,6 +50,18 @@ export default async function JoinPage() {
           <JoinForm available={available} pendingEmail={intent?.email} />
         )}
       </section>
+      {member && (
+        <section className="section">
+          <h2>Wallet ownership</h2>
+          {walletUnavailable ? (
+            <p className="form-error" role="alert">
+              Wallet status unavailable. Please reload.
+            </p>
+          ) : (
+            <WalletProof boundAddress={wallet} />
+          )}
+        </section>
+      )}
       <section className="section sample" aria-label="Public sample">
         <div className="sample-heading">
           <h2>Public sample</h2>

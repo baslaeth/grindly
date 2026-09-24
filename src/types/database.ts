@@ -496,6 +496,28 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      bind_verified_wallet: {
+        Args: {
+          p_member_id: string;
+          p_challenge_id: string;
+          p_message: string;
+        };
+        Returns: string;
+      };
+      issue_wallet_challenge: {
+        Args: {
+          p_id: string;
+          p_member_id: string;
+          p_address: string;
+          p_nonce: string;
+          p_domain: string;
+          p_uri: string;
+          p_message: string;
+          p_created_at: string;
+          p_expires_at: string;
+        };
+        Returns: string;
+      };
       redeem_invitation: {
         Args: {
           p_token_hash: string;
