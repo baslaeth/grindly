@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption and session persistence after reload are verified. Four migrations are applied to hosted Supabase. Live wallet binding remains unconfirmed. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Phase 1 is not complete.
+The six-screen foundation, invitation redemption, email OTP, wallet proof, and membership contract are implemented. Real OTP redemption, session persistence, and live wallet binding after reload are verified. Four migrations are applied to hosted Supabase. The contract passes local tests but is not deployed; durable issuance, live ownership gating, and transfer verification remain. Vercel CLI authorization is the next deployment prerequisite. Phase 1 is not complete.
 
 ## Fresh checkout
 
