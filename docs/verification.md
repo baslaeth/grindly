@@ -148,3 +148,8 @@
 - Navigated the original authenticated member's browser to Workbench: `Active membership required`, with no research content. Join still showed the original email and verified wallet. The old database binding was still unrevoked at epoch 1, demonstrating that live ownership, not a database flag or sign-out, denied access.
 - Metadata returned one retryable 503 chain-read error; a subsequent request succeeded locally and on production with Bronze and no personal data. No access fallback was introduced.
 - Recipient binding is still pending. The connected Brave window did not expose the recipient's signed-in Grindly tab. Transfer-back, positive/negative protected mutation calls, and stale promotion checks remain outstanding; Phase 1 is not yet complete.
+
+### Recipient binding confirmed - 2026-09-24
+
+- The recipient reported successful binding and Workbench access in their independently authenticated Brave session. Hosted database verification confirms token #1 is actively bound to the second member at epoch 2; the original member's epoch-1 binding is revoked. The recipient's rendered Workbench was user-observed, not agent-observed.
+- Submit Finding, Review Desk, and Contribution Record remain hard-coded membership-required placeholders; their later workflows and permission-aware states are not implemented. These placeholders do not indicate failure of the recipient's verified membership. Review authorization will additionally require the appropriate role and self-review prevention under frozen P0.
