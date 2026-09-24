@@ -165,6 +165,67 @@ it("transfer back creates a fresh binding and same-epoch retry is idempotent", a
     (await db.query("select * from public.membership_bindings")).rows,
   ).toHaveLength(3);
 });
+it("preserves nonempty identities, roles, audit history and promotion attribution across transfer-back", async () => {
+  await bind();
+  await db.query(
+    "insert into public.member_roles(member_id,role) values($1,'steward')",
+    [bob],
+  );
+  await db.query(
+    'insert into public.audit_events(actor_member_id,event_type,details) values($1,\'qa.fixture\', \'{"demo":true,"note":"alice history"}\'),($2,\'qa.fixture\',\'{"demo":true,"note":"bob history"}\')',
+    [alice, bob],
+  );
+  await db.query(
+    `insert into public.promotion_decisions(member_id,membership_binding_id,chain_id,contract_address,token_id,ownership_epoch,approved_by,rationale,evidence)
+    select member_id,id,chain_id,contract_address,token_id,ownership_epoch,$1,'Explicit automated QA fixture','[{"demo":true}]'::jsonb
+    from public.membership_bindings where member_id=$2 and revoked_at is null`,
+    [bob, alice],
+  );
+  const members = (await db.query("select * from public.members order by id"))
+    .rows;
+  const roles = (
+    await db.query("select * from public.member_roles order by member_id,role")
+  ).rows;
+  const history = (
+    await db.query(
+      "select * from public.audit_events where event_type='qa.fixture' order by id",
+    )
+  ).rows;
+  const promotions = (
+    await db.query("select * from public.promotion_decisions")
+  ).rows;
+  expect(history).toHaveLength(2);
+  expect(promotions).toHaveLength(1);
+  await bind(bob, "2", "11");
+  await bind(alice, "3", "12");
+  expect(
+    (await db.query("select * from public.members order by id")).rows,
+  ).toEqual(members);
+  expect(
+    (
+      await db.query(
+        "select * from public.member_roles order by member_id,role",
+      )
+    ).rows,
+  ).toEqual(roles);
+  expect(
+    (
+      await db.query(
+        "select * from public.audit_events where event_type='qa.fixture' order by id",
+      )
+    ).rows,
+  ).toEqual(history);
+  expect(
+    (await db.query("select * from public.promotion_decisions")).rows,
+  ).toEqual(promotions);
+  expect(
+    (
+      await db.query(`select p.id from public.promotion_decisions p join public.membership_bindings b
+    on b.id=p.membership_binding_id and b.member_id=p.member_id and b.ownership_epoch=p.ownership_epoch
+    where b.revoked_at is null and p.revoked_at is null`)
+    ).rows,
+  ).toHaveLength(0);
+});
 for (const role of ["anon", "authenticated"])
   it(`denies ${role} issuance and binding RPCs`, async () => {
     await db.exec(`set role ${role}`);

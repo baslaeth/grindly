@@ -21,3 +21,12 @@ The frozen P0 remains authoritative. There are six screens; returning to Workben
 Use Server Components for initial reads and Client Components for forms and wallet interactions. Keep business rules in server modules rather than page components. Next.js documents server-side authentication patterns, and Supabase provides an official Next.js integration. [Next.js authentication](https://nextjs.org/docs/app/guides/authentication), [Supabase Next.js guide](https://supabase.com/docs/guides/auth/quickstarts/nextjs)
 
 No separate API deployment, ORM, queue service, search engine, indexer, or LLM is required for P0.
+
+## Source completeness note (2026-09-25; not an architecture amendment)
+
+The architecture supplied in the available implementation-chat transcript ends
+after section 1 above. Repository history contains only that supplied section.
+Any further approved sections are unavailable here and cannot be restored
+verbatim until their original source is supplied. No inferred replacements have
+been added. The separately supplied implementation requirements remain preserved
+in [build-phase-1.md](build-phase-1.md); they are not missing architecture text.

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BadgePlus, Link2 } from "lucide-react";
+import { BadgePlus, Link2, ShieldCheck } from "lucide-react";
 
 export function MembershipActions() {
   const [tokenId, setTokenId] = useState("");
@@ -10,10 +10,11 @@ export function MembershipActions() {
   const [message, setMessage] = useState("");
   const [tx, setTx] = useState<string | null>(null);
   const router = useRouter();
-  async function submit(kind: "mint" | "bind") {
+  async function submit(kind: "mint" | "bind" | "check") {
     setBusy(true);
     setError("");
     setMessage("");
+    setTx(null);
     try {
       const response = await fetch(`/api/membership/${kind}`, {
         method: "POST",
@@ -24,7 +25,10 @@ export function MembershipActions() {
       if (!response.ok)
         throw new Error(data.error?.message ?? "Membership request failed.");
       setTx(data.transactionHash ?? null);
-      if (data.status === "pending")
+      if (kind === "check") {
+        setMessage("Membership access verified.");
+        router.refresh();
+      } else if (data.status === "pending")
         setMessage("Mint pending. Check mint status again shortly.");
       else if (data.status === "reverted")
         setError("Mint reverted. No membership access granted.");
@@ -50,6 +54,14 @@ export function MembershipActions() {
         >
           <BadgePlus size={16} aria-hidden="true" />
           {busy ? "Processing..." : "Mint / check status"}
+        </button>
+        <button
+          className="button secondary"
+          disabled={busy}
+          onClick={() => submit("check")}
+        >
+          <ShieldCheck size={16} aria-hidden="true" />
+          Check access
         </button>
       </div>
       <form

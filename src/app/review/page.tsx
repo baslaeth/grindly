@@ -1,8 +1,5 @@
-import { MembershipRequired, Screen } from "@/components/screen";
+import { MembershipPlaceholder } from "@/components/membership-placeholder";
+export const dynamic = "force-dynamic";
 export default function ReviewPage() {
-  return (
-    <Screen title="Review Desk">
-      <MembershipRequired />
-    </Screen>
-  );
+  return <MembershipPlaceholder title="Review Desk" />;
 }

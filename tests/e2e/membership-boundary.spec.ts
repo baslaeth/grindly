@@ -1,4 +1,15 @@
 import { expect, test } from "@playwright/test";
+test("unfinished screens do not bypass membership", async ({ page }) => {
+  for (const path of ["/submit", "/review", "/contribution"]) {
+    await page.goto(path);
+    await expect(
+      page.getByRole("heading", { name: "Active membership required" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Not available yet" }),
+    ).toHaveCount(0);
+  }
+});
 test("membership mutations require the exact origin and fail closed without auth", async ({
   request,
 }) => {

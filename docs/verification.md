@@ -1,5 +1,10 @@
 # Actual verification
 
+Latest checkpoint: **2026-09-25, 05 - QA & Security preparation** (see the final
+section and `PROJECT_STATE.md`). Earlier entries are historical, not current
+completion claims. Phase 1 remains incomplete pending live transfer-back and
+the explicitly listed evidence gaps.
+
 ## Foundation - 2026-09-23
 
 - Dependencies installed with TLS certificate verification enabled.
@@ -153,3 +158,35 @@
 
 - The recipient reported successful binding and Workbench access in their independently authenticated Brave session. Hosted database verification confirms token #1 is actively bound to the second member at epoch 2; the original member's epoch-1 binding is revoked. The recipient's rendered Workbench was user-observed, not agent-observed.
 - Submit Finding, Review Desk, and Contribution Record remain hard-coded membership-required placeholders; their later workflows and permission-aware states are not implemented. These placeholders do not indicate failure of the recipient's verified membership. Review authorization will additionally require the appropriate role and self-review prevention under frozen P0.
+
+## 05 - QA & Security checkpoint - 2026-09-25
+
+### Source and implementation
+
+- Read frozen P0, architecture, Phase 1 checklist, and the prior verification record. Available architecture text and Git history contain only section 1. Missing approved sections cannot be restored from an unavailable source; flagged in the architecture document without inventing replacements. The Phase 1 checklist is a separate approved document, not a substitute for missing architecture sections.
+- Submit, Review, and Contribution now call the same live membership gate. Current members see `Not available yet`; non-members see the membership denial; infrastructure failures remain retryable. No later research/review/contribution workflow or role privilege was implemented.
+- Added `Check access` on existing Join controls, calling the already-implemented protected audit mutation. Member identity and binding remain derived on the server; the UI sends no member identity. No new screen, auth bypass, or chain was added.
+
+### Passed automated checks
+
+- `pnpm check`: lint, type checking, 77 unit tests, 62 database tests, generated-type drift check, 11 contract tests, and production build passed. The first run failed on strict TypeScript indexing in the new test fixture; the fixture was corrected and the complete command rerun successfully. No remaining failed automated check at this checkpoint.
+- `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome pnpm test:e2e`: 34 tests passed across desktop/mobile, including all six routes and denial on unfinished screens. These use a foundation-mode server, not hosted authentication or a live wallet.
+- `tests/unit/membership-security.test.ts` uses predicate-aware database doubles to check the real protected action and metadata service: session-derived audit identity, former owner, stale return epoch, another member's binding, cross-origin rejection, RPC failure, audit-write failure, and stale member/binding/contract/token/epoch/revocation promotions. These are mocked chain/database tests, not live promotion approvals.
+- `tests/database/issuance.test.ts` now exercises real embedded PostgreSQL transfer/rebinding with two distinct members, two nonempty audit fixtures, a steward role, and a nonempty explicitly labeled synthetic promotion. All pre-existing fixture rows retain their identities/attributions and content after simulated transfer-back; the old promotion no longer joins an active binding. This does not test findings, XP, points, reputation, rank, or earned balances: those histories are not implemented.
+
+### Passed live checks (local app, hosted Supabase, chain 46630)
+
+- Rechecked the actual token: owner remains the second wallet at epoch 2. Its native testnet gas balance was zero. Requested faucet funding only; no return transfer was submitted or signed by the agent.
+- Connected to the recipient's actual Brave tab, independently authenticated as the second member. Agent-observed Workbench `Research` and My Membership `Bronze`/token #1. Original member in the separate built-in browser remains authenticated but is denied on both routes.
+- Exercised the actual Join `Check access` in both browsers. Recipient succeeded; former owner received `Active membership required`. Hosted audit query returned exactly one `membership.protected_check`, attributed to the recipient, and none for the denied sender.
+- Agent-observed Submit, Review, and Contribution for both sessions: current owner gets the unavailable placeholder, former owner gets membership denial. This verifies authorization and truthful placeholder state, not later workflow correctness.
+- Captured a pre-return, hash-only local baseline in ignored `.local/qa-transfer-baseline.json`: two member records, two wallet bindings, and eight existing audit events. It contains no session credentials. **Preservation across the live return is not yet tested**; this is only the baseline. Local fixture preservation above is the separately verified result.
+
+### Untested / blocked / not applicable
+
+- **Blocked:** actual transfer-back of token #1 from the second wallet to the first, denial before fresh epoch-3 binding, rebind, post-return protected reads/actions, and comparison of the nonempty live audit baseline. Requires second-wallet faucet gas and then one exact user-approved NFT transfer. Do not request or use private keys. Do not mark Phase 1 complete yet.
+- **Untested live:** a nonempty steward-approved promotion surviving in the database while its old token/epoch becomes invalid. Automated predicate and database tests pass, but no genuine human promotion or approved demo persona was created on hosted data. Existing Bronze alone is not evidence of invalidating a nonempty live promotion.
+- **Unavailable source:** architecture sections beyond the supplied stack section. Owner asked to provide the approved original text; no invented restoration.
+- **Other residual QA gaps:** hosted multi-connection nonce contention, interrupted/reverted issuance service orchestration under concurrent requests, production-origin OTP completion, and a deliberate refresh-token rotation/sign-out/returning-sign-in cycle are not claimed by this run. PGlite is single-connection and browser CI uses foundation mode.
+- **Not implemented / not preservation evidence:** findings, versions, awards, XP/points, balances, contextual reputation, review and assignment/payment history. Their empty/absent state must never be called a passing transfer-preservation test.
+- This checkpoint's UI/test changes are local/Git only. Vercel still runs source `80079fc` recorded in `deployments/app-testnet.json`; it does not yet include this checkpoint's placeholder correction or Check access control.
