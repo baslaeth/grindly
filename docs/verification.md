@@ -140,3 +140,11 @@
 
 - Confirmed the second invitation was redeemed through email authentication and a second active wallet binding was created. The two active wallet bindings belong to distinct member IDs. No session, signature, or private key was copied between members.
 - RPC still reports token #1 owned by the original wallet at epoch 1. Both participating wallets have zero testnet ETH; a live transfer has not yet been submitted. Sender faucet funding and personal wallet approval are required next.
+
+### Live transfer and former-owner denial - 2026-09-24
+
+- Sender faucet balance reached 0.01 testnet ETH. The owner then transferred token #1 in transaction `0x4b3ba025dbeef9364973787a6283b50bc134b0304d1c935db900c402dc4a35a9`, block `123681544` on chain 46630.
+- At block `123681738`, same-block RPC reads returned recipient `0x50579Ca09e9F37B803Dd8e6906Ead7426F4893c7` and ownership epoch 2.
+- Navigated the original authenticated member's browser to Workbench: `Active membership required`, with no research content. Join still showed the original email and verified wallet. The old database binding was still unrevoked at epoch 1, demonstrating that live ownership, not a database flag or sign-out, denied access.
+- Metadata returned one retryable 503 chain-read error; a subsequent request succeeded locally and on production with Bronze and no personal data. No access fallback was introduced.
+- Recipient binding is still pending. The connected Brave window did not expose the recipient's signed-in Grindly tab. Transfer-back, positive/negative protected mutation calls, and stale promotion checks remain outstanding; Phase 1 is not yet complete.
