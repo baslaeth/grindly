@@ -400,6 +400,110 @@ Independent review of `2d46ca7` confirmed five defects. The following are correc
 - Post-deploy token #1 metadata returned 200 with Bronze and chain-46630 traits.
   This remains deliberate demo-retirement evidence, not transfer invalidation.
 - Final evidence/test/manifest commits do not change the deployed application.
-  No secrets or unrelated brand assets are committed. Stop here for independent
+No secrets or unrelated brand assets are committed. Stop here for independent
   QA and functional UI annotation. Genuine reviewer/steward appointments, funded
   work and the explicitly deferred Phase 1 B/C/D checks remain outstanding.
+
+## 2026-09-25: QA05 focused research remediation
+
+Baseline: Chat 05 review commit `3623a77` and `QA05_RESEARCH_REVIEW.md`.
+No new product feature, research workflow, contract, transfer or brand redesign.
+Preserve the independent review's passed local desktop/mobile and production
+desktop journeys on `fa03134`; those supersede the earlier missing clean rerun.
+The historical ownership 503 was not reproduced; its root cause is still unknown.
+
+### Confirmed defects and regression evidence
+
+| QA item | Correction and evidence |
+| --- | --- |
+| 1. Demo disruption | Migration 011 rejects incompatible dispute/usefulness actors before inserting or changing state. Both demo/real directions compare the full nonempty snapshot, accepted brief, assignment and audit rows before/after rejection. Routing/review/promotion apply the same boundary. |
+| 2. Synthetic promotion evidence | Immutable historical incompatible uses remain visible and attributed but `qualifies=false`; counts and promotion prerequisites use that filter. Demo usefulness is visibly labeled. Steward/candidate compatibility is checked before decisions, including a promotion-table trigger. Both candidate directions and demo-steward rejection pass. |
+| 3. Private lineage | Snapshot redacts inaccessible `related_version` per recipient. Both project/risk audience directions assert hidden claim, source URL, finding ID and version ID absent; authorized lineage remains. |
+| 4. Revoked reviewer | Finding then review locks; invalid open assignment is closed with an audit record before replacement selection. Scope, reviewer-role and demo-boundary revocation pass; no replacement remains pending; self-review/revoked decisions denied. |
+| 5. Optional peer tiers | Correction, review, membership and API core reads do not request peer tiers. Actor ownership still runs first. Rendered correction form tests cover hanging/failing optional peers, enabled correction inputs, and denied actor ownership. Workbench/record still enrich displayed peer tiers. |
+| 6. QA harness | Correction review opens the context belonging to the new assignment's actual reviewer. Original 20-second action/30-second navigation assertions remain. Failures save safe stage, final URL without query, request IDs, status/completion and classification; research-only failure screenshot stays ignored. No cookie/OTP/signature/key logging. |
+| 7. RPC diagnosis | Safe server stages distinguish network, transport, provider unavailable, timeout and block consistency. Correlated research API response IDs; tests prove concurrent IDs and sanitized logs. Existing 10-second RPC timeout, retry count and fail-closed gate unchanged. |
+| 8. Usability | Immediate accepted-brief anchor, collapsible compact mobile navigation, correct author correction prompt/link. Chrome checks navigation access, compact height, anchor and overflow; unit test checks correction next action. |
+
+Tests: `tests/database/research.test.ts`, `tests/unit/research-editor.test.ts`,
+`tests/unit/ownership.test.ts`, `tests/unit/diagnostics.test.ts`,
+`tests/e2e/shell.spec.ts`, `tests/live-research/journey.spec.ts`.
+No genuine member research records were used as mutation targets.
+
+### Automated and hosted checks
+
+- `pnpm check`: **PASS**, 110 unit, 122 database, 11 contract tests; lint,
+  typecheck, generated database type drift and production build pass.
+- Chrome `pnpm test:e2e`: **38 passed**, desktop/mobile, final run 13.7s.
+- Focused unit command in the handoff: **24 passed**. Focused research database
+  file: **26 passed**. These are subsets, not additional suite totals.
+- Initial lint found pre-existing ignored `.local/qa05-research` exploratory
+  test files. ESLint now ignores local deployment/QA artifacts, not tracked tests.
+- Migration 011 applied transactionally to hosted Supabase. No data cleanup or
+  role grant was run. Hosted security SQL **PASS**: 24 forced-RLS tables, denied
+  browser table reads, protected RPCs including new helpers denied to both roles.
+- Executable `e8b7426dcbcab7e5adc68e98737d4e1f146ab223` committed and pushed.
+  GitHub CI **PASS**: https://github.com/baslaeth/grindly/actions/runs/36139450883.
+  Existing action-runtime/runner-image notices remain, not failing checks.
+- Deployed only after deterministic checks passed, using a tracked Git archive:
+  **READY** `dpl_BQVfPZSGTsCvgsNXy9XzLHjMvthe`,
+  https://grindly-210tfh0lg-basla1.vercel.app,
+  stable https://grindly-woad.vercel.app.
+
+### Authenticated local journeys
+
+- First attempt: desktop **FAILED** at the initial review decision selector
+  (20-second timeout); mobile **PASSED**, finding
+  `1b0a00fd-be4d-43e9-af8a-9eea0143ed07`. No established root cause; no timeout
+  increase or assertion removal. The persisted desktop draft remains labeled QA.
+- Clean rerun: **2 passed in 4.6 minutes**. Desktop
+  `d54d006e-9ebd-4486-84e3-fea597ef637c`; mobile
+  `bfe32a7a-ff2f-4709-a0b1-bba9eabfd92e`.
+- Both use separate authenticated labeled identities with existing real chain-
+  46630 NFTs: discussion/reply -> attributed v1 -> correction request -> v2 ->
+  actual assigned reviewer -> acceptance -> three concurrent retries/one award ->
+  compatible usefulness -> accepted brief -> ledger progression.
+- Built-in browser also inspected the current original member's protected
+  Workbench and immediate brief jump read-only, with visible QA-usefulness labels.
+- Production desktop/mobile results follow below. Generated fixture OTPs and
+  synthetic reviews are not proof of real inbox delivery, human assessment or
+  customer validation. Phase 1 A remains passed; B invalidation/return, C full
+  production auth lifecycle and D issuance recovery remain deferred.
+
+### Corrected production executable: live results
+
+- Full desktop/mobile command on `e8b7426`: desktop **FAILED** at correction
+  navigation; mobile **PASSED** the full mutation/recognition journey (2.0m),
+  finding `77cbdc8e-3c02-44df-b519-04a806ca87b0`.
+- The failed desktop captured the safe unavailable page, final `/findings/new`
+  URL, response HTTP 200 (server-rendered denial), timeout, request completion
+  state and Vercel request ID `xb74r-1790342157373-db7b00096375`.
+  Vercel logs correlate `ownership.owner / rpc_transport`, followed by
+  `research.render.new / service_unavailable`. This was the acting member's
+  mandatory ownership read, not optional peer tier enrichment. No evidence was
+  exposed and no correction was submitted after that failed check.
+- This establishes a new RPC availability failure, not the root cause of the
+  historical POST 503. No timeout increase, access fallback or automatic test
+  retry was added. A separate fresh desktop verification was requested after
+  retaining the failure artifacts under ignored `.local/qa05-remediation/`.
+- Production mobile screenshot was inspected: compact navigation, readable
+  status/credit/progression, visible synthetic account/history labels and no
+  horizontal overflow. Test activity is not genuine-member/customer evidence.
+- Fresh desktop-only command: **FAILED** at the final Membership XP assertion
+  (1.9m), after correction, acceptance, concurrent award idempotency, usefulness
+  and brief assertions had succeeded. It is not a passing full journey.
+  The safe unavailable page and Vercel request
+  `ksdl2-1790342447425-daceb2bc8ebd` again correlate
+  `ownership.owner / rpc_transport` and
+  `research.render.membership / service_unavailable`. Response HTTP 200 completed
+  with a denial UI; no ownership fallback. Provider-level root cause is unknown.
+- **Remaining blocker:** intermittent live ownership-read availability prevents
+  a clean complete production desktop run on this executable. Local desktop/
+  mobile and production mobile passes stand; failed attempts also stand.
+  Do not increase timeouts, claim full hosted reliability, or declare readiness
+  for supervised genuine-user testing from these results. Labeled UI annotation
+  and independent security re-review can proceed. Genuine reviewer staffing,
+  wider hosted contention, human promotion/peer-request use, and Phase 1 B/C/D
+  remain outstanding. No genuine research mutation or role grant was performed.
+- Final `git diff --check`: PASS. Evidence/manifest-only checkpoint follows the
+  deployed executable; all source fixes and CI are already pushed.
