@@ -7,7 +7,15 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   async redirects() {
-    return [{ source: "/", destination: "/join", permanent: false }];
+    return [
+      { source: "/", destination: "/join", permanent: false },
+      { source: "/submit", destination: "/findings/new", permanent: true },
+      {
+        source: "/contribution",
+        destination: "/findings/latest",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

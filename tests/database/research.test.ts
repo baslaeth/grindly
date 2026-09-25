@@ -292,6 +292,21 @@ it("separates specialty, authority, Silver entitlement, work acceptance and paym
   s = await snapshot();
   expect(s.assignment.work_status).toBe("accepted");
   expect(s.assignment.payment_status).toBe("unfunded");
+  await submit({
+    finding: f.id,
+    previous: s.versions[0]!.id,
+    correction: "TEST correcting a previously accepted deliverable",
+  });
+  expect((await snapshot()).assignment.work_status).toBe("needs_correction");
+  expect((await snapshot()).assignment.payment_status).toBe("unfunded");
+  await reject(
+    () => mutate(author, "deliverAssignment", { version: s.versions[0]!.id }),
+    /current member-visible contribution/,
+  );
+  const corrected = (await snapshot()).findings[0]!.current_version;
+  await review(f.id, "correct");
+  await mutate(author, "deliverAssignment", { version: corrected });
+  expect((await snapshot()).assignment.work_status).toBe("needs_correction");
   await reject(
     () =>
       db.exec("update public.research_assignment set payment_status='paid'"),
@@ -309,4 +324,117 @@ it("denies browser execution of research mutations and snapshots", async () => {
     await reject(() => snapshot(), /permission denied/);
     await db.exec("reset role;set role service_role");
   }
+});
+
+it("isolates demo review powers and private reads from genuine member work", async () => {
+  await db.query(
+    "update public.research_profiles set is_demo=true where member_id in ($1,$2)",
+    [reviewer, other],
+  );
+  await submit({ visibility: "reviewers" });
+  expect((await snapshot(reviewer)).findings).toHaveLength(0);
+  expect((await snapshot()).assignments).toHaveLength(0);
+  const version = (await snapshot()).versions[0]!;
+  await reject(
+    () =>
+      db.query(
+        "insert into public.review_assignments(version_id,reviewer_id,scope) values($1,$2,'TEST unpermitted real work')",
+        [version.id, reviewer],
+      ),
+    /demo\/real boundary/,
+  );
+  await mutate(reviewer, "profile", {
+    name: "Looks ordinary",
+    specialty: "project",
+  });
+  expect(
+    (await snapshot(reviewer)).profiles.find((p) => p.member_id === reviewer)
+      ?.is_demo,
+  ).toBe(true);
+});
+
+it("rolls back acceptance when the award insert fails", async () => {
+  const f = await submit();
+  await db.exec(
+    "reset role; create function public.test_award_failure() returns trigger language plpgsql as $$begin raise exception 'TEST award insert failed'; end$$; create trigger test_award_failure before insert on public.award_ledger for each row execute function public.test_award_failure(); set role service_role",
+  );
+  await reject(() => review(f.id), /TEST award insert failed/);
+  const s = await snapshot();
+  expect(s.findings[0]!.status).toBe("pending");
+  expect(s.decisions).toHaveLength(0);
+  expect(s.awards).toHaveLength(0);
+});
+
+it("requires independent human promotion and published prerequisites", async () => {
+  await reject(
+    () =>
+      mutate(author, "promote", {
+        member: author,
+        reason: "TEST promote myself without evidence",
+      }),
+    /independent steward/,
+  );
+  await db.query(
+    "insert into public.member_roles(member_id,role) values($1,'steward')",
+    [reviewer],
+  );
+  await reject(
+    () =>
+      mutate(reviewer, "promote", {
+        member: author,
+        reason: "TEST no accepted work evidence provided",
+      }),
+    /prerequisites not met/,
+  );
+});
+
+it("binds an assessed promotion to evidence, member, token and epoch without duplicate approvals", async () => {
+  for (let i = 0; i < 3; i++) {
+    const f = await submit({ claim: `TEST independent finding ${i}` });
+    await review(f.id);
+  }
+  let s = await snapshot();
+  await mutate(other, "useful", {
+    version: s.findings[0]!.current_version,
+    detail: "TEST complementary use of the accepted source boundary",
+  });
+  await db.query(
+    "insert into public.member_roles(member_id,role) values($1,'steward')",
+    [reviewer],
+  );
+  await db.query(
+    "insert into public.wallet_challenges(id,member_id,address,nonce,domain,uri,message,expires_at) values($1,$1,$2,$3,'localhost','http://localhost','proof',now()+interval '5 minutes')",
+    [author, `0x${"a".repeat(40)}`, author],
+  );
+  await db.query("select public.bind_verified_wallet($1,$1,'proof')", [author]);
+  const binding = (
+    await db.query<{ id: string }>(
+      "select public.bind_owned_token($1,$2,'1','1','10',$3) id",
+      [author, `0x${"c".repeat(40)}`, `0x${"e".repeat(64)}`],
+    )
+  ).rows[0]!.id;
+  const payload = {
+    member: author,
+    binding,
+    reason: "TEST explicit independent evidence assessment; demonstration only",
+  };
+  await mutate(reviewer, "promote", payload);
+  await mutate(reviewer, "promote", payload);
+  const decisions = (
+    await db.query<{
+      evidence: unknown[];
+      approved_by: string;
+      ownership_epoch: string;
+    }>("select * from public.promotion_decisions")
+  ).rows;
+  expect(decisions).toHaveLength(1);
+  expect(decisions[0]!.evidence).toHaveLength(3);
+  expect(decisions[0]!.approved_by).toBe(reviewer);
+  expect(decisions[0]!.ownership_epoch).toBe("1");
+  await mutate(author, "peerRequest", {
+    specialty: "risk",
+    request: "TEST independent risk follow-up requested",
+  });
+  s = await snapshot();
+  expect(s.requests).toHaveLength(1);
 });

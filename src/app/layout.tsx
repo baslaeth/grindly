@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Layers3 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Navigation } from "@/components/navigation";
 import "./globals.css";
@@ -23,7 +23,12 @@ export default function RootLayout({
         <div className="app-shell">
           <aside className="sidebar">
             <Link className="brand" href="/join">
-              <Layers3 aria-hidden="true" size={28} />
+              <Image
+                src="/brand/grindly/grindly-logo-black-transparent.png"
+                alt=""
+                width={32}
+                height={32}
+              />
               <span>Grindly</span>
             </Link>
             <Navigation />

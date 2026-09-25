@@ -11,7 +11,11 @@ export function assertSameOrigin(request: Request, appUrl: string) {
   }
 }
 
-export async function readJson<T>(request: Request, schema: z.ZodType<T>) {
+export async function readJson<T>(
+  request: Request,
+  schema: z.ZodType<T>,
+  maximumBytes = 4096,
+) {
   if (
     request.headers.get("content-type")?.split(";")[0]?.trim() !==
     "application/json"
@@ -32,7 +36,7 @@ export async function readJson<T>(request: Request, schema: z.ZodType<T>) {
       const chunk = await reader.read();
       if (chunk.done) break;
       size += chunk.value.byteLength;
-      if (size > 4096) {
+      if (size > maximumBytes) {
         await reader.cancel();
         throw new ServiceError("INPUT_TOO_LARGE", "Request is too large.", 413);
       }

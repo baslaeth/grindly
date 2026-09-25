@@ -875,18 +875,21 @@ export type Database = {
           display_name: string;
           specialty: string;
           updated_at: string;
+          is_demo: boolean;
         };
         Insert: {
           member_id: string;
           display_name: string;
           specialty: string;
           updated_at?: string;
+          is_demo?: boolean;
         };
         Update: {
           member_id?: string;
           display_name?: string;
           specialty?: string;
           updated_at?: string;
+          is_demo?: boolean;
         };
         Relationships: [
           {
