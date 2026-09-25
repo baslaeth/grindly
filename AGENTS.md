@@ -18,6 +18,9 @@ Read these before changing scope or implementation:
 - `docs/verification.md`: chronological evidence; distinguish live, simulated, user-reported, and untested results.
 - `docs/runbook.md`: setup, service configuration and operations.
 - `docs/research-scope.md` and `docs/research-runbook.md`: authorized collaboration scope and operations.
+- `docs/ui-direction.md`: owner-authorized six-screen redesign and local-only UI
+  review on `codex/ui-specialist-workspace`. Do not deploy this UI checkpoint
+  to production without a new instruction. Preserve the reliability/security base.
 
 The 2026-09-25 owner authorization permits the research collaboration journey;
 see `docs/research-scope.md`. Stop at its QA/UI-annotation checkpoint. Phase 1

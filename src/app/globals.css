@@ -1078,6 +1078,9 @@ dd,
     border-color: #53565a;
     color: white;
   }
+  .sidebar .nav-toggle:hover {
+    background: #3c3e41;
+  }
   .navigation-shell nav[data-open="false"] {
     display: none;
   }

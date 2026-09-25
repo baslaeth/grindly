@@ -286,7 +286,9 @@ export function Workbench({ data }: { data: ResearchData }) {
             {profile ? (
               <ResearchForm kind="message" />
             ) : (
-              <p className="notice">Set your profile above before posting.</p>
+              <p className="notice">
+                Set your profile in Specialists before posting.
+              </p>
             )}
           </section>
         }

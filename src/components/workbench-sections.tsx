@@ -117,9 +117,7 @@ export function DiscussionHistory({ children }: { children: ReactNode[] }) {
         <details className="history-disclosure">
           <summary>
             Earlier discussion{" "}
-            <span className="muted">
-              {older.length} messages, including labeled QA history
-            </span>
+            <span className="muted">{older.length} messages</span>
           </summary>
           {older}
         </details>

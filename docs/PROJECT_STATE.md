@@ -1,8 +1,35 @@
-# Grindly: production ownership diagnostic checkpoint
+# Grindly: local UI redesign checkpoint
 
 Updated 2026-09-25. The owner authorized research implementation despite the
 deferred live promotion-invalidation test. **Not fully Phase 1 verified or
-production-ready.** Stop at independent QA and UI annotation, not new workflows.
+production-ready.** The latest owner instruction authorizes a cohesive UI
+redesign, not new workflows. Stop at local review before production deployment.
+
+## UI review location
+
+- Branch `codex/ui-specialist-workspace`, based on reliability checkpoint
+  `44dc11f`. Initial implementation commit `90beed6`; final evidence commit is
+  the current HEAD. No concurrent editing task or reset was used.
+- Review http://localhost:3000/join, then http://localhost:3000/workbench with
+  existing membership. Same six routes/backend. Production remains unchanged
+  at https://grindly-woad.vercel.app on executable `a89e4d5`.
+- Charcoal/white shared system, unchanged approved logo, accepted-evidence-first
+  Workbench tabs, retained/disclosed message history, grouped contribution form,
+  deliberate review selection, record next actions and ledger-derived progress.
+- One integrated 18-second, on-demand React/CSS core-loop explainer. Higgsfield
+  was unavailable in connected tools; no paid generation or external upload.
+- `ui-direction.md` records visual/asset decisions; `ui-review/before/` and
+  `ui-review/after/` hold desktop/mobile screenshots. Fixtures remain visibly
+  synthetic; genuine identities are masked and genuine research is not captured.
+- No ownership/authentication, schema/policy, contract, review-authority, award
+  or payment changes. Previous security/reliability passes and deferred checks
+  below stand. UI review does not clear the unresolved availability concern.
+- Local verification: full `pnpm check`, 46 Chrome foundation/UI tests, two
+  authenticated desktop/mobile collaboration journeys, and two read-only
+  before/after capture checks per phase passed. The old test's preselected-Accept
+  assumption was corrected, without relaxing timeouts or behavioral assertions.
+- Ready for local UI annotation. Not deployed or pushed; production and genuine
+  member data are unchanged. Real user reliability/staffing sign-off remains open.
 
 ## Authority
 
@@ -78,12 +105,12 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
 
 ## Current infrastructure and operational gaps
 
-- Repository `baslaeth/grindly`, branch `codex/phase-1`; `git rev-parse HEAD` gives
+- Repository `baslaeth/grindly`, UI branch `codex/ui-specialist-workspace`; `git rev-parse HEAD` gives
   the exact checkout. Executable deployment identity: `deployments/app-testnet.json`.
 - Local app: http://localhost:3000/workbench. Stable production URL:
   https://grindly-woad.vercel.app. Executable source `a89e4d5` is deployed READY as
-  `dpl_ENeKY144qwEBSAKxbJ73RUYwRUvx`; later evidence-only commits do not alter
-  the deployed application. See the latest verification entry for CI/live results.
+  `dpl_ENeKY144qwEBSAKxbJ73RUYwRUvx`; the local UI branch is not deployed.
+  See the latest verification entry for local and historical deployed results.
 - Supabase `errbtterppmvtlfltgzp`: all eleven migrations applied via dashboard;
   repair CLI migration history before `db push` (see runbook).
 - Contract `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356`, chain 46630 only.
@@ -144,11 +171,12 @@ git diff --check
 pnpm exec playwright test --config playwright.research.config.ts
 ```
 
-Latest completed local suites: 120 unit, 122 database, 11 contract, 38 foundation
-browser tests, plus the read-only live probes above. See the
-latest verification entry for final reruns and deployed results. Embedded SQL
-tests are single-connection, not a hosted contention benchmark.
+Latest completed local suites: 120 unit, 122 database, 11 contract, 46 foundation/
+UI browser tests, two authenticated collaboration journeys and two read-only UI
+capture checks per phase. See the latest verification entry for final reruns;
+production results above predate the UI branch. Embedded SQL tests are
+single-connection, not a hosted contention benchmark.
 
 Secrets and test-wallet journals stay ignored. Preserve unrelated `docs/brand/`
-and `public/` user assets. Only the existing approved black-transparent logo is
-used by this checkpoint; no brand redesign or new contract.
+and `public/` user assets. The existing approved white SVG is used unchanged
+on dark surfaces; no logo redesign or new contract.

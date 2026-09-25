@@ -251,6 +251,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
         has: reviewerPage.getByRole("button", { name: "Record decision" }),
       });
     await review.getByLabel("Decision").selectOption("correct");
+    await review.screenshot({ path: info.outputPath("assigned-review.png") });
     await review
       .getByLabel("Reasons and scope limits")
       .fill(
@@ -304,6 +305,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
       .filter({
         has: reviewerPage.getByRole("button", { name: "Record decision" }),
       });
+    await review.getByLabel("Decision").selectOption("accept");
     await review
       .getByLabel("Reasons and scope limits")
       .fill(

@@ -616,3 +616,90 @@ pnpm exec playwright test --config playwright.research.config.ts ownership-probe
 $env:RESEARCH_TEST_URL='https://grindly-woad.vercel.app'
 pnpm exec playwright test --config playwright.research.config.ts ownership-probe
 ```
+
+## Local six-screen UI redesign (2026-09-25)
+
+Owner-authorized presentation work on `codex/ui-specialist-workspace`, based on
+saved reliability checkpoint `44dc11f`; implementation commit `90beed6` plus
+the final local evidence commit. **No deployment.** Production remains on
+`a89e4d527459034874a124723ffed44b5dc73a79`. The diagnostic checkpoint and its
+unresolved availability finding above remain intact.
+
+### Scope and evidence boundaries
+
+- Charcoal/white shared styles and the original approved white SVG, unchanged.
+  Join explains the specialist exchange before authentication. Workbench defaults
+  to accepted evidence, with keyboard tabs and expandable older discussion.
+  Existing forms, review, record and progression screens share the same system.
+- Review now requires an explicit decision. Corrections keep immutable versions;
+  pending/error inputs remain intact. Displayed specialty, NFT rank, independent
+  authority, demo status, awarded credit and unfunded payment stay separate.
+- No diff under `src/server`, `supabase` or `contracts` from `44dc11f`. No RPC or
+  polling added for visuals, no authentication bypass or genuine research writes.
+- Higgsfield was not callable in the available tools/skills. Integrated one
+  18-second on-demand React/HTML/CSS explainer with original logo, real labels,
+  static poster/transcript, pause/replay, one-shot playback and reduced-motion
+  manual steps. No external upload, paid credits, media service or new dependency.
+- Desktop/mobile before captures preceded edits; after captures use the same
+  existing isolated QA personas through normal authentication and live testnet
+  ownership. The capture harness refuses genuine research and masks non-demo
+  bylines. See `ui-review/README.md`; asset/design details are in `ui-direction.md`.
+- Simulated form failure intercepts only the isolated test browser's submission
+  with HTTP 503; the assertion checks pending state and retained input. It is not
+  an actual backend failure or a public bypass. No request is written to research.
+- Initial journey rerun failed on desktop/mobile because the old harness relied
+  on Accept being preselected. Both stopped at the accepted-state assertion; no
+  decision had been submitted. The harness now explicitly chooses Accept for
+  the actual assigned reviewer; all original timeouts and award checks remain.
+  Labeled failed records/history are retained, not deleted or called passing.
+  Safe failure reports are under ignored `.local/ui-review/`.
+
+### UI verification results
+
+- `pnpm check`: **PASS**, 120 unit, 122 embedded database and 11 contract tests;
+  lint/typecheck, generated type drift and production build also passed.
+- Chrome `pnpm test:e2e`: **46 passed**, all six denied/public screens and
+  auth/research boundaries, one-shot motion, pause/replay, manual reduced motion,
+  keyboard skip/focus, sampled contrast, and no overflow/caption overlap at
+  320px and 1920px. This suite uses foundation mode, not live NFT fixtures.
+- Authenticated local full journey: **2 passed**, desktop and mobile (4.9m).
+  Discussion -> immutable v1 -> independent correction request -> corrected v2
+  -> actual newly assigned reviewer explicitly accepts -> concurrent acceptance
+  retries yield one 25-XP award -> attributed usefulness -> updated accepted
+  evidence brief -> ledger-derived Membership. Findings:
+  desktop `f4b3c215-2142-4be0-ab13-48edc5a1b027`,
+  mobile `8af80a5e-c468-4d60-a133-fda5326ee9ea`.
+- Before and after read-only UI captures: **2 passed each**, desktop/mobile.
+  After checks include keyboard tabs, retained long discussion/deep links,
+  actual protected pages, pending form controls and simulated-error retention.
+  This is local Chromium/Chrome desktop and Pixel 7 emulation, not physical
+  devices or a comprehensive assistive-technology audit.
+- Screenshot inspection also caught a low-contrast mobile menu hover state.
+  Dark hover background restored; hovered-menu contrast added to the regression.
+- Final post-fix reruns: `pnpm check` and all **46** Chrome tests passed;
+  read-only after capture repeated **2/2** successfully. `git diff --check`
+  passed. **38** before/after responsive PNGs saved in `docs/ui-review/`,
+  including the short denied page, populated pages and actual assigned review.
+- No new production journey or real-wallet transaction was run for this local
+  presentation checkpoint. No new production sign-off or customer-validation claim.
+
+### UI reproduction
+
+```powershell
+$env:NODE_USE_SYSTEM_CA='1'
+pnpm check
+$env:PLAYWRIGHT_CHROMIUM_CHANNEL='chrome'
+pnpm test:e2e
+# Existing isolated QA identities/services required; local dev app on port 3000:
+pnpm exec playwright test --config playwright.research.config.ts journey.spec.ts
+$env:GRINDLY_UI_REVIEW='1'
+$env:GRINDLY_UI_PHASE='after'
+pnpm exec playwright test --config playwright.research.config.ts ui-review
+git diff --check
+```
+
+Do not interpret simulated tests, fixture OTP generation or synthetic awarded
+work as genuine inbox delivery, human specialist assessment, customer validation,
+or completion of deferred live Phase 1 B/C/D. Transfer-back A remains passed.
+Historical intermittent RPC availability and genuine reviewer/steward staffing
+remain separate blockers; UI work is not production-readiness evidence.

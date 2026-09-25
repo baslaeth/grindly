@@ -1,5 +1,34 @@
 import { expect, test } from "@playwright/test";
 
+test("narrow and wide explainer scenes keep captions clear of controls", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const width of [320, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/join");
+    await page
+      .getByRole("button", { name: "Play the core loop", exact: true })
+      .click();
+    for (let frame = 0; frame < 6; frame++) {
+      const text = await page
+        .locator(".loop-caption p:last-child")
+        .boundingBox();
+      const progress = await page.locator(".loop-progress").boundingBox();
+      expect(text!.y + text!.height).toBeLessThanOrEqual(progress!.y);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      if (frame < 5)
+        await page
+          .getByRole("button", { name: "Next explainer scene" })
+          .click();
+    }
+  }
+});
+
 test("explainer loads on demand, pauses, replays and finishes without looping", async ({
   page,
 }) => {
@@ -80,6 +109,8 @@ test("keyboard skip link and high contrast brand remain usable", async ({
   expect(
     await logo.evaluate((el) => (el as HTMLImageElement).naturalWidth > 0),
   ).toBe(true);
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  if (await menu.isVisible()) await menu.hover();
   const ratios = await page.evaluate(() => {
     const luminance = (value: string) => {
       const channels = value
@@ -101,6 +132,10 @@ test("keyboard skip link and high contrast brand remain usable", async ({
       ".join-intro .button",
       ".sample-label",
       ".muted",
+      ...(getComputedStyle(document.querySelector(".nav-toggle")!).display !==
+      "none"
+        ? [".nav-toggle"]
+        : []),
     ].map((selector) => {
       const el = document.querySelector(selector)!;
       let background = getComputedStyle(el).backgroundColor;
