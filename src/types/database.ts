@@ -44,6 +44,71 @@ export type Database = {
           },
         ];
       };
+      award_ledger: {
+        Row: {
+          id: string;
+          finding_id: string;
+          version_id: string;
+          member_id: string;
+          decision_id: string;
+          xp: number;
+          points: number;
+          season: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          finding_id: string;
+          version_id: string;
+          member_id: string;
+          decision_id: string;
+          xp: number;
+          points: number;
+          season: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          finding_id?: string;
+          version_id?: string;
+          member_id?: string;
+          decision_id?: string;
+          xp?: number;
+          points?: number;
+          season?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "award_ledger_decision_id_fkey";
+            columns: ["decision_id"];
+            isOneToOne: true;
+            referencedRelation: "review_decisions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "award_ledger_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: true;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "award_ledger_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "award_ledger_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chain_operations: {
         Row: {
           id: string;
@@ -122,6 +187,277 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "wallet_bindings";
             referencedColumns: ["id", "member_id"];
+          },
+        ];
+      };
+      discussion_messages: {
+        Row: {
+          id: string;
+          question_id: string;
+          author_id: string;
+          specialty: string;
+          body: string;
+          sources: Json;
+          reply_to: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          question_id: string;
+          author_id: string;
+          specialty: string;
+          body: string;
+          sources?: Json;
+          reply_to?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          question_id?: string;
+          author_id?: string;
+          specialty?: string;
+          body?: string;
+          sources?: Json;
+          reply_to?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "discussion_messages_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "discussion_messages_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "discussion_messages_reply_to_fkey";
+            columns: ["reply_to"];
+            isOneToOne: false;
+            referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      finding_disputes: {
+        Row: {
+          id: string;
+          version_id: string;
+          member_id: string;
+          reason: string;
+          resolved_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          member_id: string;
+          reason: string;
+          resolved_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          member_id?: string;
+          reason?: string;
+          resolved_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "finding_disputes_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_disputes_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      finding_usefulness: {
+        Row: {
+          id: string;
+          version_id: string;
+          member_id: string;
+          specialty: string;
+          detail: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          member_id: string;
+          specialty: string;
+          detail: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          member_id?: string;
+          specialty?: string;
+          detail?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "finding_usefulness_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_usefulness_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      finding_versions: {
+        Row: {
+          id: string;
+          finding_id: string;
+          version: number;
+          previous_version: string | null;
+          specialty: string;
+          claim: string;
+          sources: Json;
+          addition: string;
+          limitations: string;
+          source_message: string | null;
+          related_version: string | null;
+          correction: string | null;
+          observed_at: string;
+          submitted_at: string;
+        };
+        Insert: {
+          id?: string;
+          finding_id: string;
+          version: number;
+          previous_version?: string | null;
+          specialty: string;
+          claim: string;
+          sources: Json;
+          addition: string;
+          limitations: string;
+          source_message?: string | null;
+          related_version?: string | null;
+          correction?: string | null;
+          observed_at: string;
+          submitted_at?: string;
+        };
+        Update: {
+          id?: string;
+          finding_id?: string;
+          version?: number;
+          previous_version?: string | null;
+          specialty?: string;
+          claim?: string;
+          sources?: Json;
+          addition?: string;
+          limitations?: string;
+          source_message?: string | null;
+          related_version?: string | null;
+          correction?: string | null;
+          observed_at?: string;
+          submitted_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "finding_versions_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_versions_previous_version_fkey";
+            columns: ["previous_version"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_versions_related_version_fkey";
+            columns: ["related_version"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_versions_source_message_fkey";
+            columns: ["source_message"];
+            isOneToOne: false;
+            referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      findings: {
+        Row: {
+          id: string;
+          question_id: string;
+          author_id: string;
+          visibility: string;
+          current_version: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          question_id: string;
+          author_id: string;
+          visibility: string;
+          current_version?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          question_id?: string;
+          author_id?: string;
+          visibility?: string;
+          current_version?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "current_version_belongs_to_finding";
+            columns: ["id", "current_version"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["finding_id", "id"];
+          },
+          {
+            foreignKeyName: "findings_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "findings_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -317,6 +653,48 @@ export type Database = {
           },
         ];
       };
+      peer_requests: {
+        Row: {
+          id: string;
+          member_id: string;
+          question_id: string;
+          specialty: string;
+          request: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          question_id: string;
+          specialty: string;
+          request: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          question_id?: string;
+          specialty?: string;
+          request?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "peer_requests_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "peer_requests_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       promotion_decisions: {
         Row: {
           id: string;
@@ -398,6 +776,285 @@ export type Database = {
               "token_id",
               "ownership_epoch",
             ];
+          },
+        ];
+      };
+      research_assignment: {
+        Row: {
+          id: boolean;
+          funder: string;
+          deliverable: string;
+          terms: string;
+          rights: string;
+          dispute_route: string;
+          compensation: string;
+          funding_status: string;
+          assignee_id: string | null;
+          version_id: string | null;
+          work_status: string;
+          payment_status: string;
+        };
+        Insert: {
+          id?: boolean;
+          funder: string;
+          deliverable: string;
+          terms: string;
+          rights: string;
+          dispute_route: string;
+          compensation: string;
+          funding_status: string;
+          assignee_id?: string | null;
+          version_id?: string | null;
+          work_status?: string;
+          payment_status?: string;
+        };
+        Update: {
+          id?: boolean;
+          funder?: string;
+          deliverable?: string;
+          terms?: string;
+          rights?: string;
+          dispute_route?: string;
+          compensation?: string;
+          funding_status?: string;
+          assignee_id?: string | null;
+          version_id?: string | null;
+          work_status?: string;
+          payment_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "research_assignment_assignee_id_fkey";
+            columns: ["assignee_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "research_assignment_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      research_policy: {
+        Row: {
+          id: boolean;
+          acceptance_xp: number;
+          acceptance_points: number;
+          season: string;
+          silver_xp: number;
+          silver_findings: number;
+          silver_uses: number;
+        };
+        Insert: {
+          id?: boolean;
+          acceptance_xp?: number;
+          acceptance_points?: number;
+          season?: string;
+          silver_xp?: number;
+          silver_findings?: number;
+          silver_uses?: number;
+        };
+        Update: {
+          id?: boolean;
+          acceptance_xp?: number;
+          acceptance_points?: number;
+          season?: string;
+          silver_xp?: number;
+          silver_findings?: number;
+          silver_uses?: number;
+        };
+        Relationships: [];
+      };
+      research_profiles: {
+        Row: {
+          member_id: string;
+          display_name: string;
+          specialty: string;
+          updated_at: string;
+        };
+        Insert: {
+          member_id: string;
+          display_name: string;
+          specialty: string;
+          updated_at?: string;
+        };
+        Update: {
+          member_id?: string;
+          display_name?: string;
+          specialty?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "research_profiles_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: true;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      research_questions: {
+        Row: {
+          id: string;
+          title: string;
+          purpose: string;
+          gaps: Json;
+        };
+        Insert: {
+          id: string;
+          title: string;
+          purpose: string;
+          gaps: Json;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          purpose?: string;
+          gaps?: Json;
+        };
+        Relationships: [];
+      };
+      research_reviewer_scopes: {
+        Row: {
+          member_id: string;
+          specialty: string;
+          scope: string;
+          granted_by: string;
+        };
+        Insert: {
+          member_id: string;
+          specialty: string;
+          scope: string;
+          granted_by: string;
+        };
+        Update: {
+          member_id?: string;
+          specialty?: string;
+          scope?: string;
+          granted_by?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "research_reviewer_scopes_granted_by_fkey";
+            columns: ["granted_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "research_reviewer_scopes_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      review_assignments: {
+        Row: {
+          id: string;
+          version_id: string;
+          reviewer_id: string;
+          scope: string;
+          kind: string;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          reviewer_id: string;
+          scope: string;
+          kind?: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          reviewer_id?: string;
+          scope?: string;
+          kind?: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_assignments_reviewer_id_fkey";
+            columns: ["reviewer_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_assignments_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      review_decisions: {
+        Row: {
+          id: string;
+          assignment_id: string;
+          version_id: string;
+          reviewer_id: string;
+          decision: string;
+          reason: string;
+          conflicts: string;
+          scope: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          assignment_id: string;
+          version_id: string;
+          reviewer_id: string;
+          decision: string;
+          reason: string;
+          conflicts: string;
+          scope: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          assignment_id?: string;
+          version_id?: string;
+          reviewer_id?: string;
+          decision?: string;
+          reason?: string;
+          conflicts?: string;
+          scope?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_decisions_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: true;
+            referencedRelation: "review_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_decisions_reviewer_id_fkey";
+            columns: ["reviewer_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_decisions_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -563,6 +1220,34 @@ export type Database = {
           p_auth_user_id: string;
         };
         Returns: string;
+      };
+      research_assign: {
+        Args: {
+          p_version: string;
+          p_kind?: string;
+        };
+        Returns: undefined;
+      };
+      research_can_view: {
+        Args: {
+          p_member: string;
+          p_finding: string;
+        };
+        Returns: boolean;
+      };
+      research_mutate: {
+        Args: {
+          p_member: string;
+          p_action: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      research_snapshot: {
+        Args: {
+          p_member: string;
+        };
+        Returns: Json;
       };
       reserve_invitation_otp: {
         Args: {

@@ -18,7 +18,9 @@ Read these before changing scope or implementation:
 - `docs/verification.md`: chronological evidence; distinguish live, simulated, user-reported, and untested results.
 - `docs/runbook.md`: setup, service configuration and operations.
 
-Stop at Phase 1 QA; do not implement research workflows without a new instruction.
+The 2026-09-25 owner authorization permits the research collaboration journey;
+see `docs/research-scope.md`. Stop at its QA/UI-annotation checkpoint. Phase 1
+still has explicitly deferred live checks; do not call it fully verified.
 Use only Robinhood Chain testnet (46630). Ask for wallet approvals one exact action
 at a time. Never request private keys, copy browser sessions, or manufacture live
 promotion evidence. Empty/unimplemented histories do not prove preservation.

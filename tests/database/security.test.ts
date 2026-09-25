@@ -13,6 +13,20 @@ const tables = [
   "membership_bindings",
   "promotion_decisions",
   "audit_events",
+  "research_questions",
+  "research_profiles",
+  "research_reviewer_scopes",
+  "discussion_messages",
+  "findings",
+  "finding_versions",
+  "review_assignments",
+  "review_decisions",
+  "research_policy",
+  "award_ledger",
+  "finding_usefulness",
+  "finding_disputes",
+  "peer_requests",
+  "research_assignment",
 ];
 
 beforeAll(async () => {
