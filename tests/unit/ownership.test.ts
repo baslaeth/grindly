@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   read: vi.fn(),
   block: vi.fn(),
@@ -40,6 +40,7 @@ import { readOwnership } from "@/server/membership/chain";
 import { bindOwnedToken } from "@/server/membership/access";
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.spyOn(console, "warn").mockImplementation(() => {});
   mocks.chain.mockResolvedValue(46630);
   mocks.block.mockImplementation(async (request) => ({
     number: request.blockNumber ?? 100n,
@@ -49,6 +50,7 @@ beforeEach(() => {
     .mockResolvedValueOnce(`0x${"b".repeat(40)}`)
     .mockResolvedValueOnce(2n);
 });
+afterEach(() => vi.restoreAllMocks());
 it("existing-token binding cannot bypass the two-confirmation mint gate", async () => {
   mocks.read.mockRejectedValueOnce(new Error("ERC721NonexistentToken"));
   await expect(bindOwnedToken("member", "1")).rejects.toMatchObject({
@@ -102,6 +104,10 @@ it("rejects a different chain", async () => {
   mocks.chain.mockResolvedValue(1);
   await expect(readOwnership(1n)).rejects.toMatchObject({ status: 503 });
   expect(mocks.read).not.toHaveBeenCalled();
+  expect(JSON.parse(vi.mocked(console.warn).mock.calls[0]![0])).toMatchObject({
+    stage: "ownership.network",
+    classification: "wrong_network",
+  });
 });
 it("rejects a reorganization during ownership reads", async () => {
   mocks.block
@@ -111,4 +117,34 @@ it("rejects a reorganization during ownership reads", async () => {
     status: 503,
     retryable: true,
   });
+  expect(JSON.parse(vi.mocked(console.warn).mock.calls[0]![0])).toMatchObject({
+    stage: "ownership.consistency",
+    classification: "block_consistency",
+  });
 });
+it.each([
+  ["TimeoutError", undefined, "timeout"],
+  ["HttpRequestError", 503, "provider_unavailable"],
+  ["HttpRequestError", 429, "provider_unavailable"],
+  ["HttpRequestError", undefined, "rpc_transport"],
+])(
+  "safely classifies %s/%s without logging provider payloads",
+  async (name, status, classification) => {
+    mocks.block.mockRejectedValue(
+      Object.assign(
+        new Error("https://private.rpc/?key=SECRET cookie=SECRET"),
+        { name, status },
+      ),
+    );
+    await expect(readOwnership(1n)).rejects.toMatchObject({
+      code: "CHAIN_UNAVAILABLE",
+      status: 503,
+      retryable: true,
+    });
+    const logs = JSON.stringify(vi.mocked(console.warn).mock.calls);
+    expect(logs).not.toContain("SECRET");
+    expect(JSON.parse(vi.mocked(console.warn).mock.calls[0]![0])).toMatchObject(
+      { stage: "ownership.block", classification },
+    );
+  },
+);

@@ -6,6 +6,8 @@ export default defineConfig([
   ...nextVitals,
   ...nextTypescript,
   globalIgnores([
+    ".local/**",
+    ".vercel/**",
     ".next/**",
     "next-env.d.ts",
     "coverage/**",

@@ -39,8 +39,12 @@ begin
     if has_function_privilege(browser_role, 'public.redeem_invitation(text,uuid)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.reserve_invitation_otp(text,text,integer,integer)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_snapshot(uuid)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_compatible(uuid,uuid)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_use_qualifies(uuid)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_promotion_boundary()', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_assign(uuid,text)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_mutate(uuid,text,jsonb)', 'EXECUTE') then
-      raise exception 'Browser role can execute invitation RPCs';
+      raise exception 'Browser role can execute protected invitation/research RPCs';
     end if;
   end loop;
 end;

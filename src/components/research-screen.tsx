@@ -2,6 +2,7 @@ import { Screen, MembershipRequired } from "./screen";
 import { readResearch } from "@/server/research/service";
 import { ServiceError } from "@/server/errors";
 import { getEnvironment } from "@/server/environment";
+import { reportFailure } from "@/server/diagnostics";
 import {
   Workbench,
   FindingEditor,
@@ -32,8 +33,12 @@ export async function ResearchScreen({
   if (getEnvironment().GRINDLY_STAGE !== "membership") denied = true;
   else
     try {
-      data = await readResearch();
+      data = await readResearch(
+        false,
+        view === "workbench" || view === "record",
+      );
     } catch (error) {
+      reportFailure(`research.render.${view}`, error);
       denied =
         error instanceof ServiceError && [401, 403, 404].includes(error.status);
     }

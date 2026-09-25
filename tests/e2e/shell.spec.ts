@@ -11,7 +11,19 @@ for (const screen of screens) {
     await expect(
       page.getByRole("heading", { name: screen.title, exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(6);
+    const toggle = page.getByRole("button", { name: "Open navigation" });
+    if (await toggle.isVisible()) {
+      await expect(page.getByRole("navigation")).toBeHidden();
+      await toggle.click();
+      await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
+        6,
+      );
+      await page.getByRole("button", { name: "Close navigation" }).click();
+    } else {
+      await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
+        6,
+      );
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

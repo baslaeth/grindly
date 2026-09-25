@@ -9,6 +9,7 @@ import type { ResearchData, Snapshot } from "@/research/model";
 
 export async function readResearch(
   writableCookies = false,
+  enrichPeers = false,
 ): Promise<ResearchData> {
   const active = await requireActiveMembership(writableCookies);
   const db = createDataClient();
@@ -30,7 +31,7 @@ export async function readResearch(
   const ids = snapshot.profiles
     .map((p) => p.member_id)
     .filter((id) => id !== active.member.id);
-  if (ids.length) {
+  if (enrichPeers && ids.length) {
     const bindings = await db
       .from("membership_bindings")
       .select("member_id,token_id,wallet_binding_id,ownership_epoch")

@@ -3,6 +3,11 @@ import { createPublicClient, http, parseAbi, type Address } from "viem";
 import { robinhoodTestnet } from "viem/chains";
 import { getEnvironment } from "../environment";
 import { ServiceError } from "../errors";
+import {
+  classifyFailure,
+  reportFailure,
+  type FailureClass,
+} from "../diagnostics";
 
 export const REQUIRED_CONFIRMATIONS = 2n;
 
@@ -42,11 +47,18 @@ export function membershipChain() {
 
 export async function readOwnership(token: bigint, blockNumber?: bigint) {
   const { client, address } = membershipChain();
+  let stage = "ownership.network";
+  let classification: FailureClass | undefined;
   try {
-    if ((await client.getChainId()) !== 46630) throw new Error("Wrong chain");
+    if ((await client.getChainId()) !== 46630) {
+      classification = "wrong_network";
+      throw new Error("Wrong chain");
+    }
+    stage = "ownership.block";
     const block = await client.getBlock(
       blockNumber === undefined ? { blockTag: "latest" } : { blockNumber },
     );
+    stage = "ownership.owner";
     const owner = await client.readContract({
       address,
       abi: membershipAbi,
@@ -54,6 +66,7 @@ export async function readOwnership(token: bigint, blockNumber?: bigint) {
       args: [token],
       blockNumber: block.number,
     });
+    stage = "ownership.epoch";
     const epoch = await client.readContract({
       address,
       abi: membershipAbi,
@@ -61,10 +74,13 @@ export async function readOwnership(token: bigint, blockNumber?: bigint) {
       args: [token],
       blockNumber: block.number,
     });
+    stage = "ownership.consistency";
     if (
       (await client.getBlock({ blockNumber: block.number })).hash !== block.hash
-    )
+    ) {
+      classification = "block_consistency";
       throw new Error("Chain changed");
+    }
     return {
       owner: owner.toLowerCase(),
       epoch: epoch.toString(),
@@ -78,6 +94,11 @@ export async function readOwnership(token: bigint, blockNumber?: bigint) {
       error.message.includes("ERC721NonexistentToken")
     )
       throw new ServiceError("TOKEN_NOT_FOUND", "Token does not exist.", 404);
+    reportFailure(
+      stage,
+      error,
+      classification ?? classifyFailure(error, "rpc_transport"),
+    );
     throw new ServiceError(
       "CHAIN_UNAVAILABLE",
       "Ownership check unavailable. Please retry.",

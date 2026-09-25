@@ -1,6 +1,6 @@
-import { test, expect, type BrowserContext } from "@playwright/test";
+import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import type { ResearchData } from "../../src/research/model";
 test("labeled specialists collaborate, correct, independently accept and receive credit", async ({
@@ -26,6 +26,66 @@ test("labeled specialists collaborate, correct, independently accept and receive
     { auth: { persistSession: false } },
   );
   const contexts = new Map<string, BrowserContext>();
+  let stage = "fixture_auth";
+  let activePage: Page | undefined;
+  const diagnostics: {
+    path: string;
+    status: number | null;
+    requestId: string | null;
+    completion: string;
+    classification: string;
+  }[] = [];
+  const safeURL = (url: string) => {
+    const parsed = new URL(url);
+    return parsed.origin + parsed.pathname;
+  };
+  const safeId = (id: string | null) =>
+    id && /^[a-zA-Z0-9:_-]{1,160}$/.test(id) ? id : null;
+  const observe = (page: Page) => {
+    activePage = page;
+    page.on("response", async (response) => {
+      if (
+        !/^\/(api\/research|workbench|findings|review|membership)(\/|$)/.test(
+          new URL(response.url()).pathname,
+        )
+      )
+        return;
+      const entry = {
+        path: safeURL(response.url()),
+        status: response.status(),
+        requestId:
+          safeId(await response.headerValue("x-request-id")) ??
+          safeId(await response.headerValue("x-vercel-id")),
+        completion: "pending",
+        classification:
+          response.status() >= 500
+            ? "service_unavailable"
+            : response.status() >= 400
+              ? "request_denied"
+              : "ok",
+      };
+      diagnostics.push(entry);
+      entry.completion = await response
+        .finished()
+        .then((e) => (e ? "failed" : "complete"))
+        .catch(() => "failed");
+    });
+    page.on("requestfailed", (request) => {
+      if (
+        !/^\/(api\/research|workbench|findings|review|membership)(\/|$)/.test(
+          new URL(request.url()).pathname,
+        )
+      )
+        return;
+      diagnostics.push({
+        path: safeURL(request.url()),
+        status: null,
+        requestId: null,
+        completion: "failed",
+        classification: "transport_or_cancelled",
+      });
+    });
+  };
   try {
     for (const f of fixtures) {
       const c = await browser.newContext({
@@ -70,17 +130,36 @@ test("labeled specialists collaborate, correct, independently accept and receive
     const authorContext = contexts.get(author.member)!;
     const snapshot = async (context = authorContext): Promise<ResearchData> => {
       const r = await context.request.get("/api/research");
+      diagnostics.push({
+        path: safeURL(r.url()),
+        status: r.status(),
+        requestId: safeId(
+          r.headers()["x-request-id"] ?? r.headers()["x-vercel-id"] ?? null,
+        ),
+        completion: "complete",
+        classification: r.ok() ? "ok" : "request_failed",
+      });
       expect(r.ok()).toBe(true);
       return r.json();
     };
     const mutate = async (context: BrowserContext, data: unknown) => {
       const r = await context.request.post("/api/research", { data });
-      expect(r.ok(), JSON.stringify(await r.json())).toBe(true);
+      diagnostics.push({
+        path: safeURL(r.url()),
+        status: r.status(),
+        requestId: safeId(
+          r.headers()["x-request-id"] ?? r.headers()["x-vercel-id"] ?? null,
+        ),
+        completion: "complete",
+        classification: r.ok() ? "ok" : "request_failed",
+      });
+      expect(r.ok(), `Research request status ${r.status()}`).toBe(true);
       return r.json();
     };
     const before = await snapshot();
     const priorXP = before.awards.reduce((n, a) => n + a.xp, 0);
     const tag = `DEMO QA ${info.project.name} ${Date.now()}`;
+    stage = "discussion";
     const message = await mutate(contexts.get(operator.member)!, {
       action: "message",
       body: `${tag}: Which prerequisites are supported, and which are assumptions?`,
@@ -93,9 +172,19 @@ test("labeled specialists collaborate, correct, independently accept and receive
       reply: null,
     });
     const page = await authorContext.newPage();
+    observe(page);
     const errors: string[] = [];
-    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("pageerror", () => errors.push("page_error"));
     await page.goto("/workbench");
+    await expect(
+      page.getByRole("link", { name: "Current accepted evidence brief" }),
+    ).toBeVisible();
+    if (info.project.name.includes("mobile")) {
+      await expect(page.getByRole("navigation")).toBeHidden();
+      expect(
+        (await page.locator(".sidebar").boundingBox())!.height,
+      ).toBeLessThan(90);
+    }
     const thread = page.locator(`#message-${message.id}`);
     await expect(thread).toContainText("Illustrative QA persona");
     await thread.locator("summary").click();
@@ -107,6 +196,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
     await thread.getByRole("button", { name: "Reply", exact: true }).click();
     await expect(thread.getByRole("status")).toHaveText("Saved.");
     await thread.getByRole("link", { name: "Develop a finding" }).click();
+    stage = "finding_submission";
     await expect(page).toHaveURL(
       new RegExp(`/findings/new\\?message=${message.id}`),
     );
@@ -149,7 +239,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
     let assignment = s.assignments.find(
       (a) => a.version_id === f.current_version && !a.completed_at,
     )!;
-    const reviewerPage = await contexts.get(assignment.reviewer_id)!.newPage();
+    let reviewerPage = await contexts.get(assignment.reviewer_id)!.newPage();
+    observe(reviewerPage);
+    stage = "initial_review";
     await reviewerPage.goto("/review");
     let review = reviewerPage
       .locator("article.record")
@@ -176,6 +268,8 @@ test("labeled specialists collaborate, correct, independently accept and receive
       )
       .toBe("needs_correction");
     await page.reload();
+    stage = "correction_editor";
+    activePage = page;
     await page.getByRole("link", { name: "Submit a correction" }).click();
     await page
       .getByLabel("What this correction changes")
@@ -198,7 +292,11 @@ test("labeled specialists collaborate, correct, independently accept and receive
       (a) => a.version_id === f.current_version && !a.completed_at,
     )!;
     expect(assignment.reviewer_id).not.toBe(author.member);
-    await reviewerPage.reload();
+    await reviewerPage.close();
+    reviewerPage = await contexts.get(assignment.reviewer_id)!.newPage();
+    observe(reviewerPage);
+    stage = "reassigned_review";
+    await reviewerPage.goto("/review");
     review = reviewerPage
       .locator("article.record")
       .filter({ hasText: tag })
@@ -236,6 +334,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
       ),
     );
     expect(repeated).toHaveLength(3);
+    stage = "usefulness_and_award";
     await mutate(contexts.get(operator.member)!, {
       action: "useful",
       version: f.current_version,
@@ -248,6 +347,12 @@ test("labeled specialists collaborate, correct, independently accept and receive
       2,
     );
     await page.goto("/workbench");
+    activePage = page;
+    stage = "evidence_brief";
+    await page
+      .getByRole("link", { name: "Current accepted evidence brief" })
+      .click();
+    await expect(page).toHaveURL(/#evidence-brief$/);
     const brief = page.getByRole("region", {
       name: "Grind Intelligence evidence brief",
     });
@@ -263,6 +368,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
       fullPage: true,
     });
     await page.goto("/membership");
+    stage = "progression";
     await expect(
       page
         .locator(".metrics div")
@@ -277,6 +383,32 @@ test("labeled specialists collaborate, correct, independently accept and receive
     console.log(
       `${info.project.name}: discussion -> v1 correction -> v2 acceptance -> one award -> usefulness -> brief; finding ${findingId}`,
     );
+  } catch (error) {
+    const safeFailure = JSON.stringify({
+      stage,
+      finalURL: activePage ? safeURL(activePage.url()) : null,
+      responses: diagnostics.slice(-20),
+      classification:
+        error instanceof Error && error.name === "TimeoutError"
+          ? "timeout"
+          : "assertion_or_request_failure",
+    });
+    const failurePath = info.outputPath("sanitized-journey-failure.json");
+    await writeFile(failurePath, safeFailure);
+    await info.attach("sanitized-journey-failure", {
+      contentType: "application/json",
+      path: failurePath,
+    });
+    if (
+      activePage &&
+      /\/(workbench|findings|review|membership)(\/|$)/.test(
+        new URL(activePage.url()).pathname,
+      )
+    )
+      await activePage
+        .screenshot({ path: info.outputPath("failed-research-screen.png") })
+        .catch(() => undefined);
+    throw error;
   } finally {
     for (const context of contexts.values())
       await context.close().catch(() => undefined);

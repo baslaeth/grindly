@@ -127,6 +127,11 @@ export function Workbench({ data }: { data: ResearchData }) {
           <FilePlus2 size={16} />
           Contribute evidence
         </Link>
+        <p>
+          <a className="inline-link" href="#evidence-brief">
+            Current accepted evidence brief <ArrowRight size={16} />
+          </a>
+        </p>
         <dl className="coverage">
           {Object.entries(gaps).map(([key, gap]) => (
             <div key={key}>
@@ -239,6 +244,7 @@ export function Workbench({ data }: { data: ResearchData }) {
       <section
         className="section"
         aria-label="Grind Intelligence evidence brief"
+        id="evidence-brief"
       >
         <h2>Grind Intelligence</h2>
         {brief.accepted.some(
@@ -273,6 +279,18 @@ export function Workbench({ data }: { data: ResearchData }) {
               <p key={u.id}>
                 Used by {person(data, u.member_id)} (
                 {specialtyLabel(u.specialty)}): {u.detail}
+                {u.is_demo && (
+                  <span className="sample-label">
+                    Illustrative QA usefulness
+                  </span>
+                )}
+                {!u.qualifies && (
+                  <span className="muted">
+                    {" "}
+                    Historical attribution only; not qualifying promotion
+                    evidence.
+                  </span>
+                )}
               </p>
             ))}
           </article>
@@ -528,6 +546,18 @@ export function FindingRecord({
             .map((u) => (
               <p key={u.id}>
                 Used by {person(data, u.member_id)}: {u.detail}
+                {u.is_demo && (
+                  <span className="sample-label">
+                    Illustrative QA usefulness
+                  </span>
+                )}
+                {!u.qualifies && (
+                  <span className="muted">
+                    {" "}
+                    Historical attribution only; not qualifying promotion
+                    evidence.
+                  </span>
+                )}
               </p>
             ))}
         </section>
@@ -637,12 +667,24 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
                 </Link>
               </p>
               <p className="muted">
-                {data.assignments.some(
-                  (a) => a.version_id === f.current_version && !a.completed_at,
-                )
-                  ? "Assigned to an authorized independent reviewer."
-                  : "Awaiting an available scoped reviewer."}
+                {f.status === "needs_correction"
+                  ? "The author must submit a corrected version."
+                  : data.assignments.some(
+                        (a) =>
+                          a.version_id === f.current_version && !a.completed_at,
+                      )
+                    ? "Assigned to an authorized independent reviewer."
+                    : "Awaiting an available scoped reviewer."}
               </p>
+              {f.status === "needs_correction" &&
+                f.author_id === data.memberId && (
+                  <Link
+                    className="inline-link"
+                    href={`/findings/new?revise=${f.current_version}`}
+                  >
+                    Submit a correction
+                  </Link>
+                )}
               {data.roles.includes("steward") &&
                 ["pending", "disputed"].includes(f.status) && (
                   <ResearchForm kind="assign" versionId={f.current_version!} />
@@ -731,8 +773,10 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
   const own = data.findings.filter((f) => f.author_id === data.memberId);
   const accepted = own.filter((f) => f.status === "accepted");
   const promotionEligible = accepted.filter((f) => f.visibility === "members");
-  const uses = data.uses.filter((u) =>
-    promotionEligible.some((f) => f.current_version === u.version_id),
+  const uses = data.uses.filter(
+    (u) =>
+      u.qualifies &&
+      promotionEligible.some((f) => f.current_version === u.version_id),
   );
   const explorer = "https://explorer.testnet.chain.robinhood.com";
   return (

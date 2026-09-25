@@ -1238,6 +1238,13 @@ export type Database = {
         };
         Returns: boolean;
       };
+      research_compatible: {
+        Args: {
+          p_actor: string;
+          p_author: string;
+        };
+        Returns: boolean;
+      };
       research_mutate: {
         Args: {
           p_member: string;
@@ -1251,6 +1258,12 @@ export type Database = {
           p_member: string;
         };
         Returns: Json;
+      };
+      research_use_qualifies: {
+        Args: {
+          p_use: string;
+        };
+        Returns: boolean;
       };
       reserve_invitation_otp: {
         Args: {

@@ -1,5 +1,6 @@
 import { beforeAll, afterAll, beforeEach, afterEach, expect, it } from "vitest";
 import { createTestDatabase } from "./database";
+import { evidenceBrief } from "../../src/research/model";
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const author = "11111111-1111-4111-8111-111111111111";
 const reviewer = "22222222-2222-4222-8222-222222222222";
@@ -437,4 +438,266 @@ it("binds an assessed promotion to evidence, member, token and epoch without dup
   });
   s = await snapshot();
   expect(s.requests).toHaveLength(1);
+});
+
+it.each([false, true])(
+  "rejects incompatible disputes/usefulness before any mutation (author demo=%s)",
+  async (demo) => {
+    await db.query(
+      "update public.research_profiles set is_demo=$1 where member_id in ($2,$3)",
+      [demo, author, reviewer],
+    );
+    await db.query(
+      "update public.research_profiles set is_demo=$1 where member_id=$2",
+      [!demo, other],
+    );
+    await mutate(author, "claimAssignment");
+    const f = await submit();
+    await review(f.id);
+    const version = (await snapshot()).findings[0]!.current_version;
+    await mutate(author, "deliverAssignment", { version });
+    const before = await snapshot();
+    const audit = await db.query(
+      "select * from public.audit_events order by id",
+    );
+    for (const action of ["dispute", "useful"]) {
+      await reject(
+        () =>
+          mutate(other, action, {
+            version,
+            reason: "TEST incompatible dispute",
+            detail: "TEST incompatible usefulness",
+          }),
+        /same demo\/real boundary/,
+      );
+      expect(await snapshot()).toEqual(before);
+      expect(evidenceBrief(await snapshot())).toEqual(evidenceBrief(before));
+      expect(
+        await db.query("select * from public.audit_events order by id"),
+      ).toEqual(audit);
+    }
+    expect(before.assignment.work_status).toBe("accepted");
+  },
+);
+
+it.each([false, true])(
+  "keeps historical incompatible usefulness visible but non-qualifying (candidate demo=%s)",
+  async (demo) => {
+    await db.query(
+      "update public.research_profiles set is_demo=$1 where member_id in ($2,$3)",
+      [demo, author, reviewer],
+    );
+    for (let n = 0; n < 3; n++) await review((await submit()).id);
+    const version = (await snapshot()).findings[0]!.current_version;
+    await db.query(
+      "update public.research_profiles set is_demo=$1 where member_id=$2",
+      [!demo, other],
+    );
+    // Simulate an immutable pre-fix record, never through the corrected action.
+    await db.query(
+      "insert into public.finding_usefulness(version_id,member_id,specialty,detail) values($1,$2,'operations','TEST historical synthetic attribution')",
+      [version, other],
+    );
+    const old = await db.query("select * from public.finding_usefulness");
+    const use = (await snapshot()).uses[0]!;
+    expect(use).toMatchObject({
+      member_id: other,
+      qualifies: false,
+      is_demo: !demo,
+    });
+    await db.query(
+      "insert into public.member_roles(member_id,role) values($1,'steward')",
+      [reviewer],
+    );
+    await reject(
+      () =>
+        mutate(reviewer, "promote", {
+          member: author,
+          reason: "TEST cannot qualify on incompatible history",
+        }),
+      /prerequisites not met/,
+    );
+    expect(await db.query("select * from public.finding_usefulness")).toEqual(
+      old,
+    );
+    // A compatible, independent use reaches the next binding check instead.
+    await mutate(reviewer, "useful", {
+      version,
+      detail: "TEST compatible risk assessment of the evidence",
+    });
+    expect((await snapshot()).uses.filter((u) => u.qualifies)).toHaveLength(1);
+    await reject(
+      () =>
+        mutate(reviewer, "promote", {
+          member: author,
+          reason: "TEST compatible history now qualifies",
+        }),
+      /current candidate binding/,
+    );
+  },
+);
+
+it("blocks incompatible stewards from promotion and review routing", async () => {
+  await db.query(
+    "update public.research_profiles set is_demo=true where member_id=$1",
+    [other],
+  );
+  await db.query(
+    "insert into public.member_roles(member_id,role) values($1,'steward')",
+    [other],
+  );
+  await submit();
+  const before = await snapshot();
+  await reject(
+    () =>
+      mutate(other, "promote", {
+        member: author,
+        reason: "TEST demo steward cannot decide for genuine member",
+      }),
+    /same demo\/real boundary/,
+  );
+  await reject(
+    () => mutate(other, "assign", { version: before.versions[0]!.id }),
+    /same demo\/real boundary/,
+  );
+  expect(await snapshot()).toEqual(before);
+});
+
+it.each([
+  ["project", "risk"],
+  ["risk", "project"],
+])(
+  "redacts hidden %s lineage from a %s audience, retaining authorized links",
+  async (hiddenSpecialty, visibleSpecialty) => {
+    await db.query("delete from public.research_reviewer_scopes");
+    await db.query(
+      "insert into public.research_reviewer_scopes values($1,$2,'TEST visible specialty assessment',$3)",
+      [reviewer, visibleSpecialty, author],
+    );
+    const hidden = await submit({
+      specialty: hiddenSpecialty,
+      visibility: "reviewers",
+      claim: "TEST secret hidden claim",
+      sources: [
+        { label: "Hidden", url: "https://hidden.example.test/private" },
+      ],
+    });
+    const hiddenVersion = (await snapshot()).versions[0]!.id;
+    const visible = await submit({
+      specialty: visibleSpecialty,
+      visibility: "reviewers",
+      relatedVersion: hiddenVersion,
+    });
+    const recipient = await snapshot(reviewer);
+    const serialized = JSON.stringify(recipient);
+    for (const secret of [
+      hidden.id,
+      hiddenVersion,
+      "TEST secret hidden claim",
+      "hidden.example.test",
+    ])
+      expect(serialized).not.toContain(secret);
+    expect(
+      recipient.versions.find((v) => v.finding_id === visible.id)!
+        .related_version,
+    ).toBeNull();
+    expect(
+      (await snapshot()).versions.find((v) => v.finding_id === visible.id)!
+        .related_version,
+    ).toBe(hiddenVersion);
+    const hiddenRecipient = await snapshot(other);
+    expect(JSON.stringify(hiddenRecipient)).not.toContain(visible.id);
+    await db.query(
+      "insert into public.research_reviewer_scopes values($1,$2,'TEST hidden specialty assessment',$3)",
+      [reviewer, hiddenSpecialty, author],
+    );
+    expect(
+      (await snapshot(reviewer)).versions.find(
+        (v) => v.finding_id === visible.id,
+      )!.related_version,
+    ).toBe(hiddenVersion);
+  },
+);
+
+it.each(["scope", "role", "boundary"])(
+  "invalidates revoked %s assignments under lock and reassigns independently",
+  async (revocation) => {
+    await submit();
+    const original = (await snapshot()).assignments[0]!;
+    if (revocation === "scope")
+      await db.query(
+        "delete from public.research_reviewer_scopes where member_id=$1",
+        [reviewer],
+      );
+    if (revocation === "role")
+      await db.query(
+        "delete from public.member_roles where member_id=$1 and role='reviewer'",
+        [reviewer],
+      );
+    if (revocation === "boundary")
+      await db.query(
+        "update public.research_profiles set is_demo=true where member_id=$1",
+        [reviewer],
+      );
+    await db.query(
+      "insert into public.member_roles(member_id,role) values($1,'steward'),($1,'reviewer')",
+      [author],
+    );
+    await db.query(
+      "insert into public.research_reviewer_scopes values($1,'project','TEST author may never review self',$1)",
+      [author],
+    );
+    await mutate(author, "assign", { version: original.version_id });
+    await mutate(author, "assign", { version: original.version_id });
+    const s = await snapshot();
+    expect(
+      s.assignments.find((a) => a.id === original.id)!.completed_at,
+    ).toBeTruthy();
+    expect(s.assignments.filter((a) => !a.completed_at)).toMatchObject([
+      { reviewer_id: other },
+    ]);
+    expect(
+      (
+        await db.query(
+          "select * from public.audit_events where event_type='research.assignment_invalidated'",
+        )
+      ).rows,
+    ).toHaveLength(1);
+    await reject(
+      () =>
+        mutate(reviewer, "review", {
+          assignment: original.id,
+          version: original.version_id,
+          decision: "accept",
+          reason: "TEST revoked reviewer must not decide",
+          conflictFree: true,
+          conflicts: "None",
+        }),
+      /assigned in-scope/,
+    );
+    await review(s.findings[0]!.id);
+    expect((await snapshot()).decisions[0]!.reviewer_id).toBe(other);
+  },
+);
+
+it("closes an invalid assignment without fabricating a replacement when none qualify", async () => {
+  await submit();
+  const original = (await snapshot()).assignments[0]!;
+  await db.query("delete from public.research_reviewer_scopes");
+  await db.query(
+    "insert into public.member_roles(member_id,role) values($1,'steward')",
+    [author],
+  );
+  await mutate(author, "assign", { version: original.version_id });
+  const s = await snapshot();
+  expect(s.assignments.filter((a) => !a.completed_at)).toHaveLength(0);
+  expect(s.findings[0]!.status).toBe("pending");
+  expect(s.awards).toHaveLength(0);
+  expect(
+    (
+      await db.query(
+        "select * from public.audit_events where event_type='research.assignment_invalidated'",
+      )
+    ).rows,
+  ).toHaveLength(1);
 });

@@ -16,7 +16,10 @@ export type Snapshot = {
   versions: Row<"finding_versions">[];
   assignments: Row<"review_assignments">[];
   decisions: Row<"review_decisions">[];
-  uses: Row<"finding_usefulness">[];
+  uses: (Row<"finding_usefulness"> & {
+    is_demo: boolean;
+    qualifies: boolean;
+  })[];
   disputes: Row<"finding_disputes">[];
   awards: Row<"award_ledger">[];
   requests: Row<"peer_requests">[];
