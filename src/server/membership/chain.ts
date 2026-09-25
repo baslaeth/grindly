@@ -4,9 +4,9 @@ import { robinhoodTestnet } from "viem/chains";
 import { getEnvironment } from "../environment";
 import { ServiceError } from "../errors";
 import {
-  classifyFailure,
-  reportFailure,
   type FailureClass,
+  ownershipDiagnostics,
+  reportRpcConfiguration,
 } from "../diagnostics";
 
 export const REQUIRED_CONFIRMATIONS = 2n;
@@ -20,7 +20,9 @@ export const membershipAbi = parseAbi([
   "event MembershipIssued(bytes32 indexed issuanceKey,uint256 indexed tokenId,address indexed recipient)",
 ]);
 
-export function membershipChain() {
+export function membershipChain(
+  observer?: ReturnType<typeof ownershipDiagnostics>,
+) {
   const env = getEnvironment();
   if (
     env.GRINDLY_STAGE !== "membership" ||
@@ -33,12 +35,15 @@ export function membershipChain() {
       503,
       true,
     );
+  reportRpcConfiguration(env.ROBINHOOD_RPC_URL);
   return {
     client: createPublicClient({
       chain: robinhoodTestnet,
       transport: http(env.ROBINHOOD_RPC_URL, {
         timeout: 10_000,
         retryCount: 1,
+        onFetchRequest: observer?.onFetchRequest,
+        onFetchResponse: observer?.onFetchResponse,
       }),
     }),
     address: env.MEMBERSHIP_CONTRACT_ADDRESS.toLowerCase() as Address,
@@ -46,37 +51,48 @@ export function membershipChain() {
 }
 
 export async function readOwnership(token: bigint, blockNumber?: bigint) {
-  const { client, address } = membershipChain();
+  const diagnostics = ownershipDiagnostics();
+  const { client, address } = membershipChain(diagnostics);
   let stage = "ownership.network";
   let classification: FailureClass | undefined;
   try {
-    if ((await client.getChainId()) !== 46630) {
+    if ((await diagnostics.step(stage, () => client.getChainId())) !== 46630) {
       classification = "wrong_network";
       throw new Error("Wrong chain");
     }
     stage = "ownership.block";
-    const block = await client.getBlock(
-      blockNumber === undefined ? { blockTag: "latest" } : { blockNumber },
+    const block = await diagnostics.step(stage, () =>
+      client.getBlock(
+        blockNumber === undefined ? { blockTag: "latest" } : { blockNumber },
+      ),
     );
     stage = "ownership.owner";
-    const owner = await client.readContract({
-      address,
-      abi: membershipAbi,
-      functionName: "ownerOf",
-      args: [token],
-      blockNumber: block.number,
-    });
+    const owner = await diagnostics.step(stage, () =>
+      client.readContract({
+        address,
+        abi: membershipAbi,
+        functionName: "ownerOf",
+        args: [token],
+        blockNumber: block.number,
+      }),
+    );
     stage = "ownership.epoch";
-    const epoch = await client.readContract({
-      address,
-      abi: membershipAbi,
-      functionName: "ownershipEpoch",
-      args: [token],
-      blockNumber: block.number,
-    });
+    const epoch = await diagnostics.step(stage, () =>
+      client.readContract({
+        address,
+        abi: membershipAbi,
+        functionName: "ownershipEpoch",
+        args: [token],
+        blockNumber: block.number,
+      }),
+    );
     stage = "ownership.consistency";
     if (
-      (await client.getBlock({ blockNumber: block.number })).hash !== block.hash
+      (
+        await diagnostics.step(stage, () =>
+          client.getBlock({ blockNumber: block.number }),
+        )
+      ).hash !== block.hash
     ) {
       classification = "block_consistency";
       throw new Error("Chain changed");
@@ -94,11 +110,7 @@ export async function readOwnership(token: bigint, blockNumber?: bigint) {
       error.message.includes("ERC721NonexistentToken")
     )
       throw new ServiceError("TOKEN_NOT_FOUND", "Token does not exist.", 404);
-    reportFailure(
-      stage,
-      error,
-      classification ?? classifyFailure(error, "rpc_transport"),
-    );
+    if (classification) diagnostics.report(stage, error, classification);
     throw new ServiceError(
       "CHAIN_UNAVAILABLE",
       "Ownership check unavailable. Please retry.",

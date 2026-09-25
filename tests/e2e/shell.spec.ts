@@ -13,6 +13,9 @@ for (const screen of screens) {
     ).toBeVisible();
     const toggle = page.getByRole("button", { name: "Open navigation" });
     if (await toggle.isVisible()) {
+      expect(
+        (await page.locator(".sidebar").boundingBox())!.height,
+      ).toBeLessThan(90);
       await expect(page.getByRole("navigation")).toBeHidden();
       await toggle.click();
       await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
