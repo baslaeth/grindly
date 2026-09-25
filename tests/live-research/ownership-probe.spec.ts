@@ -80,13 +80,22 @@ test("read-only protected ownership and mobile layout probe", async ({
       sample.completion = completion ? "failed" : "complete";
       sample.elapsedMs = Date.now() - started;
       sample.classification = (await page
-        .getByText("Ownership check unavailable. Please retry.", {
-          exact: true,
-        })
+        .getByText(
+          "Research or ownership check unavailable. Please reload to retry.",
+          {
+            exact: true,
+          },
+        )
         .count())
         ? "ownership_unavailable"
         : "rendered";
       expect(sample.classification).toBe("rendered");
+      await expect(
+        page.getByText(
+          "Illustrative QA account. Its work, reviews and credit are test activity, not customer validation.",
+          { exact: true },
+        ),
+      ).toBeVisible();
       await expect(
         page.getByText("Research unavailable", { exact: true }),
       ).toHaveCount(0);
