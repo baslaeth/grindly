@@ -17,6 +17,7 @@ Read these before changing scope or implementation:
 - `docs/PROJECT_STATE.md`: current checkpoint and blockers.
 - `docs/verification.md`: chronological evidence; distinguish live, simulated, user-reported, and untested results.
 - `docs/runbook.md`: setup, service configuration and operations.
+- `docs/research-scope.md` and `docs/research-runbook.md`: authorized collaboration scope and operations.
 
 The 2026-09-25 owner authorization permits the research collaboration journey;
 see `docs/research-scope.md`. Stop at its QA/UI-annotation checkpoint. Phase 1
@@ -30,6 +31,10 @@ Commands (pnpm 11.19.0, compatible Node per package.json):
 - `pnpm check`: lint, typecheck, unit, database, database type drift, contract tests, build.
 - `pnpm test:e2e`: foundation-mode browser tests on port 3100; not live OTP/NFT evidence.
 - `pnpm dev`: local app, normally http://localhost:3000/join.
+- `pnpm exec playwright test --config playwright.research.config.ts`: opt-in live
+  QA identities only, with an already-running app and ignored fixture journal.
+  This is not real inbox delivery, independent human research, or deferred NFT
+  invalidation evidence. Never grant demo reviewers authority over genuine work.
 
 Windows: set `$env:NODE_USE_SYSTEM_CA='1'` for Node network requests, retaining TLS
 verification. Set `$env:PLAYWRIGHT_CHROMIUM_CHANNEL='chrome'` to use installed Chrome

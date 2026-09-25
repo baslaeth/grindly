@@ -2,7 +2,13 @@
 
 ## Current checkpoint
 
-The six-screen foundation, invitation/OTP, wallet proof, durable issuance, live ownership gating, and metadata are implemented. Six migrations are applied to hosted Supabase. Real token #1 was minted, transferred, and bound by a separately authenticated recipient. The production shell is https://grindly-woad.vercel.app. Transfer-back, demo promotion invalidation, production auth lifecycle and live concurrent/recovery evidence remain required. Phase 1 is not complete.
+The six-screen application includes the authorized research collaboration flow;
+see `research-runbook.md` for reviewer appointments, demo policy, assignment and
+isolated fixtures. Ten migrations are applied to hosted Supabase. Live token #1
+transfer-back, fresh binding and access/identity checks passed. Demo promotion
+invalidation, the complete production auth lifecycle and live concurrent/recovery
+issuance evidence remain deferred. Phase 1 is not fully verified. The stable app
+is https://grindly-woad.vercel.app; `deployments/app-testnet.json` records its source.
 
 ## Fresh checkout
 
@@ -18,9 +24,18 @@ On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. 
 
 The single hosted project is `errbtterppmvtlfltgzp` in the Grindly Free organization. Browser access is authorized; the pinned Supabase CLI is not yet authorized. Run `pnpm exec supabase login` before using its remote management commands.
 
-Migrations `202609230001`, `202609230002`, `202609240003`, `202609240004`, `202609240005`, and corrective `202609250006` were applied successfully through the signed-in SQL Editor. Before a CLI push to this existing project, link it, inspect migration history, and register these already-applied versions with `supabase migration repair --status applied 202609230001 202609230002 202609240003 202609240004 202609240005 202609250006` if missing. Do not rerun them against existing objects. Then inspect `db push --dry-run` before applying subsequent migrations.
+Migrations `202609230001`, `202609230002`, `202609240003`, `202609240004`,
+`202609240005`, `202609250006`, `202609250007`, `202609250008`, `202609250009`,
+and `202609250010` were applied through the signed-in SQL Editor. Before a CLI
+push, link the project, inspect migration history, and register only missing
+already-applied versions with `supabase migration repair --status applied` followed
+by those version numbers. Do not rerun table-creation migrations against existing
+objects. Inspect `db push --dry-run` before applying subsequent migrations.
 
-Run `scripts/verify-hosted-security.sql` as the project database administrator to check all ten forced-RLS tables, actual browser-role read denial, absence of table privileges, and invitation RPC denial. It ends with rollback and changes no application data.
+Run `scripts/verify-hosted-security.sql` as the project database administrator to
+check all 24 forced-RLS tables, browser-role read denial, absence of table
+privileges, and invitation/research RPC denial. It ends with rollback and changes
+no application data.
 
 For an existing empty project, link it using `pnpm exec supabase link --project-ref PROJECT_REF`, inspect `pnpm exec supabase db push --dry-run`, and then apply `pnpm exec supabase db push`. Do not apply `tests/database/bootstrap.sql`: it is an embedded-test fixture, not a hosted migration.
 
@@ -98,4 +113,10 @@ GitHub auto-deploy is not connected: Vercel requested a GitHub Login Connection.
 
 The dedicated testnet issuer key is held in ignored local configuration and the production Vercel secret store. Its public address is in the app manifest. Never fund this development issuer with real assets. It has received faucet gas and deployed the verified contract. Keep the stable metadata origin under the app's production URL.
 
-Deployment, source verification, real mint/retry/bind, current-owner access, and local RPC-outage denial/recovery are recorded in `docs/verification.md`. Hosted Supabase Site URL is now `https://grindly-woad.vercel.app`, verified after reload. Two independently authenticated members, actual transfer and transfer-back, protected mutation access/revocation, and stale promotion invalidation still need recorded end-to-end evidence before Phase 1 can be called complete. Production OTP entry also remains unverified.
+Deployment, source verification, real mint/retry/bind, current-owner access and
+local RPC-outage denial/recovery are recorded in `docs/verification.md`. Hosted
+Supabase Site URL is `https://grindly-woad.vercel.app`. Two independently
+authenticated members completed transfer and transfer-back, fresh binding,
+protected action/read revocation and identity/audit preservation. Promotion
+invalidation/return, full production inbox/session lifecycle and hosted concurrent/
+interrupted/reverted issuance remain deferred. Phase 1 is not fully verified.

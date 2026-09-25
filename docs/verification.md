@@ -239,3 +239,108 @@ Independent review of `2d46ca7` confirmed five defects. The following are correc
 - Production metadata returned HTTP 200 with Silver. Agent-observed Member 1's local My Membership page displayed Silver. Captured the full promotion row digest for comparison in ignored `.local/demo-silver-epoch3.json`; no session credentials are in that journal.
 - **Still required for B:** user-approved transfer to Member 2, production Bronze and unchanged promotion row/attribution, then user-approved return and fresh rebind with no automatic Silver revival. Leave the promotion non-revoked and the test steward role in place during these checks so invalidation is genuinely due to binding/ownership epoch, not removal of approval.
 - **Cleanup required after B:** revoke only this demo promotion, remove only the temporary test steward grant introduced here, and append demo cleanup audit events. Journal records fixture/audit IDs and `roleAddedForTest: true`; preserve all historical audit records. Live C and D remain untested.
+
+## Authorized research collaboration checkpoint - 2026-09-25
+
+### Authority, retained evidence and fixture retirement
+
+- The owner's latest authorization explicitly permits research implementation
+  while deferring B's live promotion-invalidation/return test. `research-scope.md`
+  records the sole new product addition: one Workbench discussion thread. Frozen
+  P0 and the available approved stack were not replaced. Missing architecture
+  sections remain flagged; obsolete stop-before-research instructions were updated.
+- **Live A remains passed**, including epoch-3 return, stale denial, fresh binding,
+  protected reads/actions and nonempty member/wallet/audit digest preservation.
+  No completed check was reset to unverified and no further user token transfer
+  was requested or performed by this implementation.
+- Retired only demo promotion `72057bb3-9d84-42a4-9a0b-cdb2be12cd2d` and the temporary
+  Member 2 steward grant after verifying their fixture provenance and absence of
+  other active approvals. Appended `qa.demo_fixture_retired` and
+  `qa.demo_steward_retired` events. Original promotion and audit rows remain.
+  Token #1 metadata now returns Bronze. This is deliberate fixture cleanup, **not**
+  evidence of ownership-driven promotion invalidation.
+
+### Implementation and hosted database
+
+- Implemented the six-screen discussion -> finding -> correction -> independent
+  review -> recognition -> evidence brief loop. No additional product screen,
+  contract, chain, queue, chat service, LLM or token was introduced. Existing logo
+  was reused; unrelated brand assets remain untouched.
+- Applied migrations 007-010 to hosted Supabase. The final 010 function includes
+  consistent finding-before-assignment locks and preserves correction/dispute
+  work state during delivery. The hosted SQL editor returned success.
+- `scripts/verify-hosted-security.sql` returned **PASS: 24 forced-RLS tables; both
+  browser roles denied table access and invitation/research RPCs**. This is an
+  administrator-executed grant assertion, not the still-deferred production
+  authenticated browser auth/denial lifecycle.
+- Service routes derive actor from session, require live token ownership/epoch,
+  persist refresh cookies, validate origin and strict payloads, and filter
+  permissions before assembling summaries. Versions and awards are append-only;
+  exact-version acceptance and the initial unique-finding award are transactional.
+- Silver prerequisites are configurable demo values, not automatic promotion or
+  a universal reputation score. The single fixed-fee assignment is explicitly
+  unfunded, testnet-only/no monetary value, with work separate from payment.
+
+### Automated results and resolved failures
+
+- Final `pnpm check`: **passed** lint, types, **99 unit**, **111 embedded PostgreSQL**,
+  **11 contract** tests, generated-type drift and production build. Build exposes
+  exactly the six intended product routes plus internal APIs/framework fallback.
+- Final Chrome `pnpm test:e2e`: **38 passed**, desktop/mobile. `git diff --check`
+  passed. These foundation-mode tests are not an authenticated live journey.
+- Focused tests cover persistent messages/replies and source authorship, immutable
+  versions, private profile/content/review/count leakage, self/scope/conflict
+  boundaries, demo/real reviewer isolation, idempotent awards/revisions, rollback
+  on award failure, stale reviews, independent disputes, source lineage and brief
+  updates, Silver prerequisites, and correction propagation without payment.
+- During development a promotion SQL alias collided with a PL/pgSQL row variable;
+  migration 010 fixes it, with a successful assessed-promotion regression. Initial
+  live browser attempts failed ambiguous reply/decision selectors and an overly
+  short test timeout; selectors were scoped and the timeout adjusted. Final runs
+  passed. Failed attempts remain visibly labeled QA records, not hidden successes.
+
+### Authenticated live research QA (local application, hosted services)
+
+- Provisioned three isolated `grindly-qa-research-*@example.test` personas via
+  Supabase-generated QA OTPs, normal auth verification, signed challenges using
+  generated test wallets, and the ordinary durable mint/bind API. Real chain-46630
+  tokens #2, #3 and #4 confirmed. Existing user token #1, identities and sessions
+  were not substituted. Private fixture keys stay in ignored `.local/` only.
+- All fixture profiles carry an operator-controlled `is_demo` label. Their
+  reviewer scopes are explicitly synthetic-only, audited, and cannot read
+  restricted genuine findings or review genuine authors. No genuine reviewer or
+  steward appointment was invented.
+- `pnpm exec playwright test --config playwright.research.config.ts`: **2 passed**
+  in 5.2 minutes, desktop and mobile, using three separate fresh authenticated
+  contexts. Each persists another specialist's message, replies, creates an
+  attributed finding, requests correction, submits v2, accepts as an assigned
+  different reviewer, retries acceptance concurrently three times, verifies one
+  25-XP/25-point award, records complementary use and checks the brief/history.
+- Successful local finding IDs: desktop
+  `2d9aefe5-385a-491e-b222-39901acec70b`; mobile
+  `68ee35d8-0474-44a4-b42a-cf9b03ffe554`. Tests assert no browser errors and no
+  horizontal overflow. Screenshots were inspected; the built-in browser also
+  rendered the genuine original member's protected Workbench on desktop/mobile.
+- Separately seeded one coherent, **explicitly fictional** three-specialty
+  scenario with source reuse/usefulness and synthetic independent-identity
+  decisions. Project finding `0d57868c-5ada-4138-a906-142478520beb`, risk finding
+  `0a686074-54b4-42f7-9224-2c4bebe7bc4e`, operations finding
+  `8a31c77b-b1e7-4281-a42f-e7c2576ad903`. This service-side demo seed is not live
+  human review evidence or customer validation. Demo labels remain in the brief.
+
+### Still incomplete or deferred
+
+- B transfer-invalidation/return/no-revival; C full production inbox/auth refresh/
+  sign-out/direct-authenticated-denial cycle; D concurrent/interrupted/reverted
+  issuance remain explicitly deferred/unverified. QA-generated OTPs, sequential
+  minting and concurrent review retries do not satisfy those separate checks.
+- Genuine reviewer/steward roster requires owner designation. Genuine work can
+  be submitted but stays pending without authorized staff. Real human promotion,
+  peer-request use and dispute resolution are not claimed from synthetic tests.
+- No customer validation, funded customer assignment, payment or investment
+  return. Previously nonexistent histories are not retroactively called preserved.
+- Embedded database tests are single-connection. Wider hosted review/correction/
+  dispute/delivery contention is a remaining independent QA target. Phase 1 is
+  not fully verified and the product is not declared production-ready.
+- Deployment and post-deployment evidence follow below once the tracked release
+  is ready. Independent re-review instructions: `QA05_RESEARCH_HANDOFF.md`.
