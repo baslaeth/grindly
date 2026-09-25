@@ -41,20 +41,29 @@ test("labeled specialists collaborate, correct, independently accept and receive
           })
         ).ok(),
       ).toBe(true);
-      await setTimeout(1500);
-      const otp = await db.auth.admin.generateLink({
-        type: "magiclink",
-        email: f.email,
-      });
-      if (otp.error) throw new Error("Fixture OTP generation failed");
-      const verification = await c.request.post("/api/auth/verify", {
-        data: { code: otp.data.properties.email_otp },
-      });
-      const result = await verification.json();
-      expect(
-        verification.ok(),
-        `Fixture verification: ${verification.status()} ${result.error?.code ?? "ok"}`,
-      ).toBe(true);
+      // The returning route delivers asynchronously; do not race it with the
+      // operator-generated fixture code. This is not an inbox-delivery test.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await setTimeout(5000);
+        const otp = await db.auth.admin.generateLink({
+          type: "magiclink",
+          email: f.email,
+        });
+        if (otp.error) throw new Error("Fixture OTP generation failed");
+        const verification = await c.request.post("/api/auth/verify", {
+          data: { code: otp.data.properties.email_otp },
+        });
+        const result = await verification.json();
+        if (result.error?.code === "INVALID_OTP" && attempt < 2) {
+          console.log("Regenerating an isolated QA OTP after INVALID_OTP.");
+          continue;
+        }
+        expect(
+          verification.ok(),
+          `Fixture verification: ${verification.status()} ${result.error?.code ?? "ok"}`,
+        ).toBe(true);
+        break;
+      }
     }
     const author = fixtures[0]!;
     const operator = fixtures[2]!;

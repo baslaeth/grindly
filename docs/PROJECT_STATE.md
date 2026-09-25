@@ -59,7 +59,9 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
 - Repository `baslaeth/grindly`, branch `codex/phase-1`; `git rev-parse HEAD` gives
   the exact checkout. Executable deployment identity: `deployments/app-testnet.json`.
 - Local app: http://localhost:3000/workbench. Stable production URL:
-  https://grindly-woad.vercel.app. Deployment evidence is recorded after release.
+  https://grindly-woad.vercel.app. Executable source `fa03134` is deployed READY as
+  `dpl_PiMbt2Yq2dzg5pVpMWBzBypV8vrd`; later evidence/test-only commits do not alter
+  the deployed application. CI for the executable source passed.
 - Supabase `errbtterppmvtlfltgzp`: all ten migrations applied via dashboard;
   repair CLI migration history before `db push` (see runbook).
 - Contract `0xa1f055b20c1bcbd0fa63859154a1fa283f11c356`, chain 46630 only.
@@ -70,6 +72,10 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
   compensation is testnet-only with no monetary value.
 - Independent Chat 05 re-review, human research assessment, actual Silver
   progression/peer-request use and deferred Phase 1 live checks remain outstanding.
+- Hosted journey passed on `fd87bca`. Final `fa03134` reruns failed on a retryable
+  ownership RPC error and a later correction-form timeout; a clean full final-
+  deployment run remains unverified. Investigate hosting/RPC latency without
+  weakening the gate. Local authenticated desktop/mobile journeys remain passed.
 
 ## Verification commands
 

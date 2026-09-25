@@ -95,6 +95,9 @@ Optional `RESEARCH_TEST_URL=https://grindly-woad.vercel.app` runs the same expli
 labeled journey against the deployed build. Tests use separate fresh browser
 contexts, not copied member sessions. Tracing is disabled to keep OTP/session
 material out of artifacts. Screenshots contain labeled test records only.
+Fixture setup waits for background returning-email delivery and regenerates an
+operator QA code at most twice after `INVALID_OTP`; this does not change the
+application's OTP behavior or verify real inbox delivery. Other errors fail.
 
 The main `pnpm test:e2e` remains foundation-mode boundary coverage; it does not
 pretend to verify the authenticated journey or satisfy deferred production auth,

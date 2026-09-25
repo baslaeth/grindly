@@ -65,9 +65,16 @@ pnpm exec playwright test --config playwright.research.config.ts --project deskt
 - Assignment remains unfunded. No payment or customer-validation claim.
 - UI is ready for functional annotation; independent security review and the
   explicitly deferred live tests are not complete.
+- **Current hosted verification gap:** full production journey passed on `fd87bca`.
+  After the session-route fix, `fa03134` reruns failed once on a visible ownership
+  RPC error at submission and once on a correction-form timeout (cause unknown).
+  Investigate and rerun; do not call the final deployed journey verified. The
+  local desktop/mobile passes and all deterministic suites remain valid.
 
-The first production fixture OTP assertion failed before research, with no safe
-error-code diagnostic in that initial test. A rerun passed the complete hosted
-journey; diagnostic status/code reporting was added without logging codes or
-cookies. The original cause is not established, and the complete real-inbox/
-expired-session production auth lifecycle remains unverified.
+Production fixture OTP setup initially failed before research; a later diagnostic
+identified `INVALID_OTP`. The normal returning-email request runs asynchronously
+while the operator separately generates a QA code, allowing competing token
+issuance during setup. The harness now waits and retries only `INVALID_OTP`, at
+most three isolated fixture codes, with no OTP/cookie logging. Other failures
+still fail immediately. Production authentication was not changed. The complete
+real-inbox/expired-session auth lifecycle remains unverified.

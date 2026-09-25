@@ -366,3 +366,40 @@ Independent review of `2d46ca7` confirmed five defects. The following are correc
 - Full `pnpm check` after this correction passed **100 unit**, **111 database**,
   **11 contract** tests, lint/types/type drift/build. The final deployment below
   supersedes `fd87bca` and includes the route correction.
+
+### Final tracked deployment and honest verification boundary
+
+- Executable source `fa031345495725603d4dcbc914fb5078f08683a2` deployed READY as
+  `dpl_PiMbt2Yq2dzg5pVpMWBzBypV8vrd`, immutable URL
+  https://grindly-8gcmcy9kg-basla1.vercel.app, alias
+  https://grindly-woad.vercel.app. `deployments/app-testnet.json` records it.
+  Its GitHub CI passed: https://github.com/baslaeth/grindly/actions/runs/36132653123.
+- Final complete local checks passed again: **100 unit, 111 database, 11 contract**,
+  lint/types/type drift/build; Chrome foundation suite **38 passed**; diff checks
+  clean. Built-in browser inspected the current original member's Workbench and
+  the attributed, labeled demonstration record. Local server is left running.
+- The final deployed-source live rerun initially identified `400 INVALID_OTP`
+  during isolated fixture setup. Returning-email delivery and the administrative
+  QA-code generation are separate asynchronous issuances. The test now separates
+  them with a wait and permits at most two regenerations only for `INVALID_OTP`.
+  It logs status/code, never OTPs or cookies. Application authentication is unchanged.
+- Subsequent production fixture authentication succeeded. One journey attempt
+  failed on submission with the visible **Ownership check unavailable. Please
+  retry.** alert. Vercel request logs confirm a 5xx POST `/api/research`; the live
+  ownership gate failed closed before the write. This is an availability failure,
+  not a passing full journey and not grounds to bypass ownership.
+- One final full rerun persisted a finding and correction request, but timed out
+  waiting 20 seconds for the correction form. Its precise cause is unestablished;
+  it is recorded as **failed**, not assumed to be RPC-related or called a pass.
+- Consequently the complete local authenticated desktop/mobile journeys and the
+  earlier full production `fd87bca` journey remain passed, while a clean complete
+  production rerun on final `fa03134` remains **unverified after failed attempts**.
+  Chat 05 should investigate hosted latency/retry behavior and repeat that run.
+  No blind retries, disabled assertions or ownership fallback were added to claim
+  success; only explicitly isolated QA OTP setup retries were introduced.
+- Post-deploy token #1 metadata returned 200 with Bronze and chain-46630 traits.
+  This remains deliberate demo-retirement evidence, not transfer invalidation.
+- Final evidence/test/manifest commits do not change the deployed application.
+  No secrets or unrelated brand assets are committed. Stop here for independent
+  QA and functional UI annotation. Genuine reviewer/steward appointments, funded
+  work and the explicitly deferred Phase 1 B/C/D checks remain outstanding.
