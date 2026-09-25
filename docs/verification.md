@@ -507,3 +507,112 @@ No genuine member research records were used as mutation targets.
   remain outstanding. No genuine research mutation or role grant was performed.
 - Final `git diff --check`: PASS. Evidence/manifest-only checkpoint follows the
   deployed executable; all source fixes and CI are already pushed.
+
+## 2026-09-25: focused production ownership reliability diagnostic
+
+Scope: diagnostics, bounded read-only reproduction and the confirmed mobile
+grid-row correction only. Owner reports Chat 05 passed all previous High/Medium
+remediation findings; no new critical/high/medium application defect confirmed.
+Historical failures above remain recorded. No research writes, promotions,
+role changes, minting, transfers, authorization fallback or timeout increase.
+
+### Executable and safe diagnostics
+
+- Tracked executable `a89e4d527459034874a124723ffed44b5dc73a79`, deployed from
+  `git archive` after deterministic checks, not from the dirty working directory.
+  READY `dpl_ENeKY144qwEBSAKxbJ73RUYwRUvx`, immutable URL
+  https://grindly-4oxxfrmmz-basla1.vercel.app, stable
+  https://grindly-woad.vercel.app. Manifest updated in the evidence commit.
+- Failure events now extract signed-32-bit integer codes only from actual
+  `RpcRequestError` causes, validated HTTP status (100-599), allowlisted error
+  names and transport codes. Cause traversal is bounded/cycle-safe. No raw
+  exception, message, payload, URL, credentials, signature or cookie is logged.
+- Per-read observers count actual HTTP attempts, resetting per RPC stage, and
+  record stage elapsed time plus request correlation. HTTP callbacks retain
+  upstream status even when viem maps HTTP 500 + JSON-RPC error to an RPC error.
+  A mocked-fetch regression uses the installed viem transport to prove two
+  attempts, code -32005, HTTP 500 and exclusion of secret-marked text. This is
+  simulated diagnostic coverage, **not** the observed production failure cause.
+- Metadata now returns X-Request-ID, matching the failure context. Server
+  Component ownership failures use a per-read correlation UUID when no API
+  request context exists; Vercel's enclosing request ID remains available.
+- A once-per-worker configuration event emits only whether the endpoint exactly
+  matches the documented public testnet URL (optional trailing slash). Local
+  returned true; Vercel returned true for requests
+  `8xwpb-1790345766287-aa987993c730` and `ts8x5-1790345776783-6972ff55f904`.
+  Sensitive Vercel environment pull values were masked and were **not** treated
+  as evidence of mismatched configuration.
+- Same live chain, owner, epoch and block-hash checks; two confirmations for
+  binding; 10-second RPC timeout and one configured retry unchanged.
+
+### Results
+
+Read-only token-2 probes, 2026-09-25 approximately 14:06-14:19 UTC. Each mode ran
+10 sequential reads, then six reads in pairs (maximum concurrency two), with
+quiet intervals; modes did not overlap. Raw RPC uses the same public endpoint
+and block-pinned owner/epoch/hash sequence, without viem or retries. Metadata
+requests execute the application's live ownership path plus metadata DB reads.
+
+| Path | Sequential | Concurrency two | End-to-end elapsed range |
+| --- | --- | --- | --- |
+| Local raw JSON-RPC | 10/10 | 6/6 | 1245-1367 ms |
+| Local actual viem `readOwnership` | 10/10 | 6/6 | 1242-1331 ms |
+| Local metadata HTTP | 10/10 | 6/6 | 2229-3754 ms |
+| Vercel production metadata HTTP | 10/10 | 6/6 | 1300-3620 ms |
+
+- **64/64 passed, zero observed ownership errors** in these samples. Requests
+  were no-store, with unique production application request IDs. Example final
+  concurrent request: `6eff0627-7e19-459f-a50f-2b154b9aef71`, Vercel
+  `fra1::iad1::47f2z-1790345799312-1985ba5618ce`.
+- Read-only authenticated QA browser probes: local mobile **1 passed** (four
+  pages); production desktop/mobile **2 passed** (eight pages). Workbench,
+  Submit Finding, Review and Membership all rendered actual authenticated
+  content, with completed HTTP 200 responses. Production page times were
+  3206-11746 ms; these include auth, database, peer enrichment and rendering,
+  not only RPC time. No full mutation journey was rerun or claimed.
+- Production Membership request IDs: desktop
+  `fra1::iad1::8bdfc-1790345848558-f8d23270e6c4`; mobile
+  `fra1::iad1::cfgnb-1790345876806-541a48a66170`.
+- Vercel `grindly.request_failure` query for this deployment/probe window
+  returned no events. This establishes no reproduced final error, not proof
+  that no transient retry occurred or that future availability is guaranteed.
+- Local and production populated mobile sidebar height **67px** on all four
+  pages; no horizontal overflow. Foundation Chrome tests cover short denied
+  screens across all six routes. Short Workbench and populated Workbench/
+  Membership screenshots inspected. CSS change is only mobile
+  `.app-shell { grid-template-rows: max-content 1fr; }`.
+- `pnpm check`: **PASS**, 120 unit, 122 embedded database, 11 contract tests,
+  lint, types, generated database type drift and build. Chrome `pnpm test:e2e`:
+  **38 passed**. Added probe harness also passed lint/typecheck. `git diff
+  --check`: **PASS**. TLS verification retained throughout.
+- Safe per-request reports remain under ignored `.local/reliability-probes/`;
+  screenshots under ignored `test-results/`. QA fixture OTP generation is not
+  real inbox delivery. No genuine research data was changed.
+
+### Diagnosis and limits
+
+**E: still insufficient evidence.** The historical production ownership failure
+did not reproduce. A provider availability issue, B Vercel/network behavior,
+C application/client defect and D concurrency sensitivity are not established
+or excluded by this bounded sample. In particular, no failure increase appeared
+at concurrency two; this is not a load test. No application-side ownership
+reliability fix is justified; instrumentation and the requested CSS fix only.
+
+Previous transfer-back A and security passes stand. Phase 1 B invalidation/
+return, C full genuine-inbox lifecycle and D hosted issuance recovery remain
+deferred. Real reviewer/steward staffing and human assessment are still needed.
+Annotation and supervised isolated demo use can proceed; genuine-user
+reliability sign-off remains withheld while intermittent failures remain
+unexplained. No production-ready or customer-validation claim.
+
+Reproduction commands (existing isolated fixtures and services required):
+
+```powershell
+$env:NODE_USE_SYSTEM_CA='1'
+$env:GRINDLY_PROBE='1'
+# Run each mode separately: raw, direct, local, production
+node --conditions=react-server --import tsx --env-file=.env.local scripts/probe-ownership.ts raw
+pnpm exec playwright test --config playwright.research.config.ts ownership-probe --project mobile
+$env:RESEARCH_TEST_URL='https://grindly-woad.vercel.app'
+pnpm exec playwright test --config playwright.research.config.ts ownership-probe
+```

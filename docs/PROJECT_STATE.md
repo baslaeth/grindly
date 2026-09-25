@@ -1,4 +1,4 @@
-# Grindly: QA05 research remediation checkpoint
+# Grindly: production ownership diagnostic checkpoint
 
 Updated 2026-09-25. The owner authorized research implementation despite the
 deferred live promotion-invalidation test. **Not fully Phase 1 verified or
@@ -39,6 +39,9 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
 
 ## QA05 remediation
 
+- Owner reports Chat 05 independently passed every previous High/Medium finding;
+  no new critical/high/medium application defect was confirmed. The original
+  review document remains historical evidence, not the current defect status.
 - Migration 011 checks demo/real compatibility before dispute/usefulness/routing/
   promotion writes. Historical incompatible usefulness remains attributed and
   visible, labeled, and non-qualifying. Promotion insertion also has a DB guard.
@@ -78,8 +81,8 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
 - Repository `baslaeth/grindly`, branch `codex/phase-1`; `git rev-parse HEAD` gives
   the exact checkout. Executable deployment identity: `deployments/app-testnet.json`.
 - Local app: http://localhost:3000/workbench. Stable production URL:
-  https://grindly-woad.vercel.app. Executable source `e8b7426` is deployed READY as
-  `dpl_BQVfPZSGTsCvgsNXy9XzLHjMvthe`; later evidence-only commits do not alter
+  https://grindly-woad.vercel.app. Executable source `a89e4d5` is deployed READY as
+  `dpl_ENeKY144qwEBSAKxbJ73RUYwRUvx`; later evidence-only commits do not alter
   the deployed application. See the latest verification entry for CI/live results.
 - Supabase `errbtterppmvtlfltgzp`: all eleven migrations applied via dashboard;
   repair CLI migration history before `db push` (see runbook).
@@ -89,8 +92,9 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
   findings wait visibly; the app never promotes specialties/tiers into authority.
 - No real customer/funder commitment, settlement or paid-work evidence. Demo
   compensation is testnet-only with no monetary value.
-- Independent Chat 05 re-review, human research assessment, actual Silver
-  progression/peer-request use and deferred Phase 1 live checks remain outstanding.
+- Human research assessment, actual Silver progression/peer-request use and
+  deferred Phase 1 live checks remain outstanding. Prior High/Medium remediation
+  re-review passed per the owner; this diagnostic increment is available for QA.
 - Chat 05 independently passed local desktop/mobile and production desktop on
   `fa03134`; that supersedes the earlier missing clean rerun, not its historical
   failures. The old ownership 503 cause remains unknown and was not reproduced.
@@ -100,8 +104,32 @@ production-ready.** Stop at independent QA and UI annotation, not new workflows.
   correction entry and Membership respectively. Safe Vercel diagnostics show
   `ownership.owner / rpc_transport`; provider-level cause remains unknown.
   A clean full production desktop journey on `e8b7426` is still unverified.
-  Annotation on labeled data and Chat 05 re-review can proceed; supervised
-  genuine-user testing should wait for availability resolution and QA sign-off.
+  Those historical failures remain failures, not retroactively passing runs.
+
+## Focused reliability pass (2026-09-25)
+
+- Added bounded, allowlisted failure fields: numeric JSON-RPC response code,
+  upstream HTTP status, transport/error type, actual per-stage HTTP attempts,
+  elapsed milliseconds and request correlation. No upstream text/payloads,
+  URLs, cookies, signatures or secrets. API metadata now returns X-Request-ID.
+- Local and Vercel diagnostics confirm the same documented public testnet RPC.
+  Direct raw RPC, local viem ownership, local metadata and production metadata
+  each passed 10 sequential plus 6 concurrency-two reads: **64/64** total.
+- Authenticated read-only QA probes: local mobile **4/4 pages**, production
+  desktop/mobile **8/8 pages**, no research mutations. These are not new full
+  mutation journeys or genuine-inbox authentication evidence.
+- **Diagnosis E: insufficient evidence.** No failure reproduced; no new Vercel
+  failure event found in the probe window. Evidence does not distinguish provider,
+  Vercel/network, application client or concurrency sensitivity. Historical
+  intermittent availability is unresolved, not fixed by these passing samples.
+- No ownership reliability workaround was justified or added. Fail-closed gates,
+  same-block checks, confirmation depth, 10-second timeout and retry count remain.
+- Mobile shell rows now `max-content 1fr`. Short denied pages and populated
+  Workbench/Membership screenshots inspected; populated mobile sidebar is 67px,
+  with no horizontal overflow. No redesign or new feature.
+- UI annotation and isolated supervised demo testing can proceed. Genuine-user
+  reliability sign-off remains withheld while intermittent failures are unexplained;
+  reviewer/steward staffing and the documented live gaps also remain.
 
 ## Verification commands
 
@@ -116,8 +144,8 @@ git diff --check
 pnpm exec playwright test --config playwright.research.config.ts
 ```
 
-Latest completed local suites: 110 unit, 122 database, 11 contract, 38 foundation
-browser tests. Focused regressions: 24 unit and 26 research database tests. See the
+Latest completed local suites: 120 unit, 122 database, 11 contract, 38 foundation
+browser tests, plus the read-only live probes above. See the
 latest verification entry for final reruns and deployed results. Embedded SQL
 tests are single-connection, not a hosted contention benchmark.
 
