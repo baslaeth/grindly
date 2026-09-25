@@ -20,6 +20,8 @@ The temporary Silver/steward fixture is retired with its history preserved.
 - `src/server/research/service.ts`, `src/app/api/research/route.ts`:
   session-derived actor, writable cookies, live NFT gate, exact origin, request
   limits, fresh Silver and candidate ownership checks. No browser service key.
+- `src/proxy.ts`, `tests/unit/research-session-routes.test.ts`: all six screens,
+  including new dynamic finding routes, match the existing cookie-refresh proxy.
 - `src/research/model.ts`, `input.ts`: strict validation, accepted-current-only
   brief, canonical source lineage, ledger-derived totals, no universal score.
 - `src/components/research-forms.tsx`, `research-views.tsx`, `research-screen.tsx`:
@@ -63,3 +65,9 @@ pnpm exec playwright test --config playwright.research.config.ts --project deskt
 - Assignment remains unfunded. No payment or customer-validation claim.
 - UI is ready for functional annotation; independent security review and the
   explicitly deferred live tests are not complete.
+
+The first production fixture OTP assertion failed before research, with no safe
+error-code diagnostic in that initial test. A rerun passed the complete hosted
+journey; diagnostic status/code reporting was added without logging codes or
+cookies. The original cause is not established, and the complete real-inbox/
+expired-session production auth lifecycle remains unverified.

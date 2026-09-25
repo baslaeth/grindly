@@ -344,3 +344,25 @@ Independent review of `2d46ca7` confirmed five defects. The following are correc
   not fully verified and the product is not declared production-ready.
 - Deployment and post-deployment evidence follow below once the tracked release
   is ready. Independent re-review instructions: `QA05_RESEARCH_HANDOFF.md`.
+
+### Deployment verification and session-route follow-up
+
+- Deployed tracked `fd87bcae44f8f2495939a223b279bbfbfa91bcbb` as READY
+  `dpl_13AKXSAj9y8VkrdVaBSibnRNHe19`. GitHub CI for that exact source passed:
+  https://github.com/baslaeth/grindly/actions/runs/36131815941. The runner reports
+  an existing Node-action runtime deprecation warning, not a failing check.
+- Production anonymous `/api/research` returned 401 `AUTH_REQUIRED`. The first
+  fixture OTP verification assertion failed before research; its error code was
+  not captured. Added safe status/code diagnostics (no OTP/cookie output). A rerun
+  then passed the whole production desktop journey in 2.0 minutes: finding
+  `f99ec88a-f5e6-400a-bfaa-c4178d8d6daf`. The initial cause is not established;
+  success is not a claim that the deferred real-inbox/auth lifecycle is complete.
+- Final inspection found the new `/findings/*` routes missing from the existing
+  session-refresh proxy matcher. Added the matcher and a regression using the
+  installed Next.js matcher utility. The utility is still exported under its
+  middleware name despite the bundled guide's proxy name; adjusted the test and
+  server-only marker mock after initial type/import failures. No production auth
+  check or membership gate was weakened.
+- Full `pnpm check` after this correction passed **100 unit**, **111 database**,
+  **11 contract** tests, lint/types/type drift/build. The final deployment below
+  supersedes `fd87bca` and includes the route correction.

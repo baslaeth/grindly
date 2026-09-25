@@ -44,6 +44,7 @@ export const config = {
   matcher: [
     "/join",
     "/workbench",
+    "/findings/:path*",
     "/submit",
     "/review",
     "/contribution",

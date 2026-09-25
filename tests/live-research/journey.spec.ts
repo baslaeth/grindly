@@ -47,12 +47,13 @@ test("labeled specialists collaborate, correct, independently accept and receive
         email: f.email,
       });
       if (otp.error) throw new Error("Fixture OTP generation failed");
+      const verification = await c.request.post("/api/auth/verify", {
+        data: { code: otp.data.properties.email_otp },
+      });
+      const result = await verification.json();
       expect(
-        (
-          await c.request.post("/api/auth/verify", {
-            data: { code: otp.data.properties.email_otp },
-          })
-        ).ok(),
+        verification.ok(),
+        `Fixture verification: ${verification.status()} ${result.error?.code ?? "ok"}`,
       ).toBe(true);
     }
     const author = fixtures[0]!;
