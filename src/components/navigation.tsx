@@ -48,7 +48,14 @@ export function Navigation() {
               key={screen.href}
               href={screen.href}
               onClick={() => setOpen(false)}
-              aria-current={pathname === screen.href ? "page" : undefined}
+              aria-current={
+                pathname === screen.href ||
+                (screen.icon === "contribution" &&
+                  pathname.startsWith("/findings/") &&
+                  pathname !== "/findings/new")
+                  ? "page"
+                  : undefined
+              }
             >
               <Icon size={18} aria-hidden="true" />
               <span>{screen.title}</span>

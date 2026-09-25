@@ -24,13 +24,14 @@ export default function RootLayout({
           <aside className="sidebar">
             <Link className="brand" href="/join">
               <Image
-                src="/brand/grindly/grindly-logo-black-transparent.png"
+                src="/brand/grindly/grindly-logo.svg"
                 alt=""
                 width={32}
                 height={32}
               />
               <span>Grindly</span>
             </Link>
+            <div className="sidebar-heading">Your research workspace</div>
             <Navigation />
             <div className="network">
               <span className="status-dot" />
@@ -39,7 +40,10 @@ export default function RootLayout({
           </aside>
           <div className="main-column">
             <div className="topbar">
-              <span>Private research exchange</span>
+              <span>
+                Specialist exchange <span className="topbar-divider">/</span>{" "}
+                Research, together
+              </span>
               <span className="testnet-label">Testnet</span>
             </div>
             <main id="main" tabIndex={-1}>

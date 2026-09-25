@@ -1,5 +1,5 @@
 "use client";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Send, Save, Check, FilePlus2, RefreshCw } from "lucide-react";
 import { specialties, type ResearchData } from "@/research/model";
@@ -35,9 +35,15 @@ function Field({
 }) {
   return (
     <label className="field">
-      {label}
+      <span className="field-heading">
+        {label}
+        <span className="required-marker" aria-hidden="true">
+          {required ? "Required" : "Optional"}
+        </span>
+      </span>
       {multiline ? (
         <textarea
+          aria-label={label}
           name={name}
           defaultValue={value}
           required={required}
@@ -46,6 +52,7 @@ function Field({
         />
       ) : (
         <input
+          aria-label={label}
           name={name}
           type={type}
           defaultValue={value}
@@ -251,97 +258,119 @@ export function ResearchForm({
   if (kind === "submit")
     fields = (
       <>
-        <Field
-          label="Main claim"
-          name="claim"
-          value={version?.claim}
-          multiline
-        />
-        <SpecialtySelect value={version?.specialty ?? profile?.specialty} />
-        <Field
-          label="Evidence URLs (one per line)"
-          name="sources"
-          multiline
-          max={4000}
-          value={
-            Array.isArray(version?.sources)
-              ? version.sources
-                  .map((s) =>
-                    s && typeof s === "object" && "url" in s ? s.url : "",
-                  )
-                  .join("\n")
-              : ""
-          }
-        />
-        <Field
-          label="What you added"
-          name="addition"
-          multiline
-          value={version?.addition}
-          max={2000}
-        />
-        <Field
-          label="Important limitations"
-          name="limitations"
-          multiline
-          value={version?.limitations}
-        />
-        <Field
-          label="Observation time (your local time)"
-          name="observedAt"
-          type="datetime-local"
-        />
-        <label className="field">
-          Related contribution
-          <select
-            name="relatedVersion"
-            defaultValue={version?.related_version ?? ""}
-          >
-            <option value="">None</option>
-            {data?.findings
-              .filter((f) => f.id !== finding?.id)
-              .map((f) => {
-                const v = data.versions.find((v) => v.id === f.current_version);
-                return (
-                  v && (
-                    <option value={v.id} key={v.id}>
-                      {v.claim} ({f.visibility})
-                    </option>
-                  )
-                );
-              })}
-          </select>
-        </label>
-        {finding ? (
-          <p>
-            Permissions retained:{" "}
-            {finding.visibility === "members"
-              ? "All members"
-              : "Author + scoped review team"}
-          </p>
-        ) : (
-          <label className="field">
-            Permissions
-            <select name="visibility" defaultValue="members">
-              <option value="members">All members</option>
-              <option value="reviewers">
-                Author + scoped review team only
-              </option>
-            </select>
-          </label>
-        )}
-        {version && (
+        <div className="form-step">
+          <h3>
+            <span>01</span>Claim and specialty
+          </h3>
           <Field
-            label="What this correction changes"
-            name="correction"
+            label="Main claim"
+            name="claim"
+            value={version?.claim}
             multiline
           />
-        )}
-        <label className="check-field">
-          <input required type="checkbox" /> I have permission to share these
-          sources and have distinguished my work from others&apos;
-          contributions.
-        </label>
+          <SpecialtySelect value={version?.specialty ?? profile?.specialty} />
+        </div>
+        <div className="form-step">
+          <h3>
+            <span>02</span>Evidence and your contribution
+          </h3>
+          <Field
+            label="Evidence URLs (one per line)"
+            name="sources"
+            multiline
+            max={4000}
+            value={
+              Array.isArray(version?.sources)
+                ? version.sources
+                    .map((s) =>
+                      s && typeof s === "object" && "url" in s ? s.url : "",
+                    )
+                    .join("\n")
+                : ""
+            }
+          />
+          <Field
+            label="What you added"
+            name="addition"
+            multiline
+            value={version?.addition}
+            max={2000}
+          />
+          <Field
+            label="Important limitations"
+            name="limitations"
+            multiline
+            value={version?.limitations}
+          />
+        </div>
+        <div className="form-step">
+          <h3>
+            <span>03</span>Time, lineage and permissions
+          </h3>
+          <Field
+            label="Observation time (your local time)"
+            name="observedAt"
+            type="datetime-local"
+          />
+          <label className="field">
+            Related contribution
+            <select
+              name="relatedVersion"
+              defaultValue={version?.related_version ?? ""}
+            >
+              <option value="">None</option>
+              {data?.findings
+                .filter((f) => f.id !== finding?.id)
+                .map((f) => {
+                  const v = data.versions.find(
+                    (v) => v.id === f.current_version,
+                  );
+                  return (
+                    v && (
+                      <option value={v.id} key={v.id}>
+                        {v.claim} ({f.visibility})
+                      </option>
+                    )
+                  );
+                })}
+            </select>
+          </label>
+          {finding ? (
+            <p>
+              Permissions retained:{" "}
+              {finding.visibility === "members"
+                ? "All members"
+                : "Author + scoped review team"}
+            </p>
+          ) : (
+            <label className="field">
+              Permissions
+              <select name="visibility" defaultValue="members">
+                <option value="members">All members</option>
+                <option value="reviewers">
+                  Author + scoped review team only
+                </option>
+              </select>
+            </label>
+          )}
+          {version && (
+            <Field
+              label="What this correction changes"
+              name="correction"
+              multiline
+            />
+          )}
+        </div>
+        <div className="form-step">
+          <h3>
+            <span>04</span>Submit an attributable version
+          </h3>
+          <label className="check-field">
+            <input required type="checkbox" /> I have permission to share these
+            sources and have distinguished my work from others&apos;
+            contributions.
+          </label>
+        </div>
       </>
     );
   if (kind === "review")
@@ -349,7 +378,10 @@ export function ResearchForm({
       <>
         <label className="field">
           Decision
-          <select name="decision">
+          <select name="decision" required defaultValue="">
+            <option value="" disabled>
+              Choose a decision
+            </option>
             <option value="accept">
               Accept this exact version within assigned scope
             </option>
@@ -398,7 +430,7 @@ export function ResearchForm({
           ? Check
           : Save;
   return (
-    <form className="research-form" onSubmit={submit}>
+    <form className="research-form" onSubmit={submit} aria-busy={pending}>
       <fieldset disabled={pending}>
         {fields}
         <button className="button" type="submit">
@@ -438,12 +470,15 @@ export function ResearchForm({
 }
 export function RefreshResearch() {
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
   return (
     <button
       className="button secondary icon-button"
       title="Refresh research"
       aria-label="Refresh research"
-      onClick={() => router.refresh()}
+      disabled={pending}
+      aria-busy={pending}
+      onClick={() => startTransition(() => router.refresh())}
     >
       <RefreshCw size={18} />
     </button>

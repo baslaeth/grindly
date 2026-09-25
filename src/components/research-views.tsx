@@ -4,7 +4,15 @@ import {
   FilePlus2,
   MessageSquare,
   ExternalLink,
+  Search,
+  ScanLine,
+  ListChecks,
+  CheckCircle2,
+  Clock3,
+  CircleAlert,
+  Fingerprint,
 } from "lucide-react";
+import { WorkbenchSections, DiscussionHistory } from "./workbench-sections";
 import { ResearchForm, RefreshResearch } from "./research-forms";
 import {
   credit,
@@ -48,18 +56,36 @@ function Identity({
       {profile?.is_demo && (
         <span className="sample-label">Illustrative QA persona</span>
       )}
-      <span className={`specialty ${specialty ?? profile?.specialty}`}>
-        {specialtyLabel(specialty ?? profile?.specialty ?? "")}
-      </span>
-      <span className="status-label">
+      <Specialty value={specialty ?? profile?.specialty ?? ""} />
+      <span className="rank-label">
+        <Fingerprint size={13} aria-hidden="true" />
         {data.tiers[id] ?? "Membership not checked"}
       </span>
     </div>
   );
 }
-function Status({ value }: { value: string }) {
+function Specialty({ value }: { value: string }) {
+  const Icon =
+    value === "operations" ? ListChecks : value === "risk" ? ScanLine : Search;
   return (
-    <span className={`status-label ${value}`}>
+    <span className={`specialty ${value}`}>
+      <Icon size={14} aria-hidden="true" />
+      {specialtyLabel(value)}
+    </span>
+  );
+}
+function Status({ value }: { value: string }) {
+  const Icon =
+    value === "accepted"
+      ? CheckCircle2
+      : ["needs_correction", "disputed"].includes(value)
+        ? CircleAlert
+        : Clock3;
+  return (
+    <span
+      className={`status-label ${["pending", "accepted", "needs_correction", "disputed"].includes(value) ? value : ""}`}
+    >
+      <Icon size={13} aria-hidden="true" />
       {(
         {
           pending: "Pending review",
@@ -84,9 +110,7 @@ export function IllustrativeScenario() {
         {illustration.map((p) => (
           <article className="specialist" key={p.name}>
             <h3>{p.name}</h3>
-            <span className={`specialty ${p.specialty}`}>
-              {specialtyLabel(p.specialty)}
-            </span>
+            <Specialty value={p.specialty} />
             <p>{p.claim}</p>
             <p className="muted">{p.added}</p>
             <p>{p.use}</p>
@@ -118,6 +142,7 @@ export function Workbench({ data }: { data: ResearchData }) {
   return (
     <>
       <section className="section question">
+        <p className="eyebrow">One shared research question</p>
         <div className="section-heading">
           <h2>{data.question.title}</h2>
           <RefreshResearch />
@@ -132,10 +157,15 @@ export function Workbench({ data }: { data: ResearchData }) {
             Current accepted evidence brief <ArrowRight size={16} />
           </a>
         </p>
-        <dl className="coverage">
+        <dl
+          className="coverage"
+          aria-label="Specialty coverage and open questions"
+        >
           {Object.entries(gaps).map(([key, gap]) => (
             <div key={key}>
-              <dt>{specialtyLabel(key)}</dt>
+              <dt>
+                <Specialty value={key} />
+              </dt>
               <dd>{gap}</dd>
               <dd>
                 <Status
@@ -159,206 +189,252 @@ export function Workbench({ data }: { data: ResearchData }) {
           ))}
         </dl>
       </section>
-      <section className="section">
-        <h2>Participants</h2>
-        {data.profiles.length ? (
-          data.profiles.map((p) => (
-            <Identity key={p.member_id} data={data} id={p.member_id} />
-          ))
-        ) : (
-          <p className="muted">No member profiles yet.</p>
-        )}
-        <details open={!profile}>
-          <summary>
-            {profile
-              ? "Edit your specialist profile"
-              : "Set your name and specialty"}
-          </summary>
-          <ResearchForm kind="profile" data={data} />
-        </details>
-      </section>
-      <section className="section" aria-label="Specialist discussion">
-        <div className="section-heading">
-          <h2>Specialist discussion</h2>
-          <span className="muted">Messages are not reviewed findings</span>
-        </div>
-        {data.messages.length === 0 && (
-          <p>No messages yet. Which gap can you help resolve?</p>
-        )}
-        {data.messages.map((m) => (
-          <article
-            className={`message ${m.reply_to ? "reply" : ""}`}
-            id={`message-${m.id}`}
-            key={m.id}
-          >
-            <Identity data={data} id={m.author_id} specialty={m.specialty} />
-            <time dateTime={m.created_at}>{date(m.created_at)}</time>
-            {m.reply_to && (
-              <a className="inline-link" href={`#message-${m.reply_to}`}>
-                Reply to{" "}
-                {person(
-                  data,
-                  data.messages.find((p) => p.id === m.reply_to)?.author_id ??
-                    "",
-                )}
-              </a>
+      <WorkbenchSections
+        participants={
+          <section className="section">
+            <h2>Participants</h2>
+            <p className="muted">
+              Specialty is a self-described focus. Membership rank and assigned
+              review authority are separate.
+            </p>
+            {data.profiles.length ? (
+              data.profiles.map((p) => (
+                <Identity key={p.member_id} data={data} id={p.member_id} />
+              ))
+            ) : (
+              <p className="muted">No member profiles yet.</p>
             )}
-            <p className="preserve-lines">{m.body}</p>
-            <SourceLinks value={m.sources} />
-            <div className="form-actions">
-              <Link
-                className="inline-link"
-                href={`/findings/new?message=${m.id}`}
-              >
-                <FilePlus2 size={15} />
-                Develop a finding
-              </Link>
-              <details>
-                <summary>
-                  <MessageSquare size={15} />
-                  Reply
-                </summary>
-                <ResearchForm kind="message" replyId={m.id} />
-              </details>
+            <details open={!profile}>
+              <summary>
+                {profile
+                  ? "Edit your specialist profile"
+                  : "Set your name and specialty"}
+              </summary>
+              <ResearchForm kind="profile" data={data} />
+            </details>
+          </section>
+        }
+        discussion={
+          <section
+            className="section"
+            aria-label="Specialist discussion"
+            id="discussion"
+          >
+            <div className="section-heading">
+              <h2>Specialist discussion</h2>
+              <span className="muted">Messages are not reviewed findings</span>
             </div>
-            {data.versions
-              .filter((v) => v.source_message === m.id)
-              .map((v) => (
-                <p key={v.id}>
-                  <Link
-                    className="inline-link"
-                    href={`/findings/${v.finding_id}`}
-                  >
-                    Linked finding v{v.version}: {v.claim}
-                  </Link>
-                </p>
+            {data.messages.length === 0 && (
+              <p>No messages yet. Which gap can you help resolve?</p>
+            )}
+            <DiscussionHistory>
+              {data.messages.map((m) => (
+                <article
+                  className={`message ${m.reply_to ? "reply" : ""}`}
+                  id={`message-${m.id}`}
+                  key={m.id}
+                >
+                  <Identity
+                    data={data}
+                    id={m.author_id}
+                    specialty={m.specialty}
+                  />
+                  <time dateTime={m.created_at}>{date(m.created_at)}</time>
+                  {m.reply_to && (
+                    <a className="inline-link" href={`#message-${m.reply_to}`}>
+                      Reply to{" "}
+                      {person(
+                        data,
+                        data.messages.find((p) => p.id === m.reply_to)
+                          ?.author_id ?? "",
+                      )}
+                    </a>
+                  )}
+                  <p className="preserve-lines">{m.body}</p>
+                  <SourceLinks value={m.sources} />
+                  <div className="form-actions">
+                    <Link
+                      className="inline-link"
+                      href={`/findings/new?message=${m.id}`}
+                    >
+                      <FilePlus2 size={15} />
+                      Develop a finding
+                    </Link>
+                    <details>
+                      <summary>
+                        <MessageSquare size={15} />
+                        Reply
+                      </summary>
+                      <ResearchForm kind="message" replyId={m.id} />
+                    </details>
+                  </div>
+                  {data.versions
+                    .filter((v) => v.source_message === m.id)
+                    .map((v) => (
+                      <p key={v.id}>
+                        <Link
+                          className="inline-link"
+                          href={`/findings/${v.finding_id}`}
+                        >
+                          Linked finding v{v.version}: {v.claim}
+                        </Link>
+                      </p>
+                    ))}
+                </article>
               ))}
-          </article>
-        ))}
-        {profile ? (
-          <ResearchForm kind="message" />
-        ) : (
-          <p className="notice">Set your profile above before posting.</p>
-        )}
-      </section>
-      <section
-        className="section"
-        aria-label="Grind Intelligence evidence brief"
-        id="evidence-brief"
-      >
-        <h2>Grind Intelligence</h2>
-        {brief.accepted.some(
-          (a) =>
-            data.profiles.find((p) => p.member_id === a.finding.author_id)
-              ?.is_demo,
-        ) && (
-          <p className="sample-label">
-            Includes illustrative QA records, not real research outcomes or
-            customer validation.
-          </p>
-        )}
-        <p className="muted">Accepted evidence brief</p>
-        {!brief.accepted.length && (
-          <p>
-            No accepted findings visible yet. Discussion remains separate from
-            evidence.
-          </p>
-        )}
-        {brief.accepted.map(({ finding: f, version: v, uses }) => (
-          <article className="record" key={f.id}>
-            <Status value="accepted" />
-            <h3>
-              <Link href={`/findings/${f.id}`}>{v.claim}</Link>
-            </h3>
-            <Identity data={data} id={f.author_id} specialty={v.specialty} />
-            <p>{v.addition}</p>
-            <SourceLinks value={v.sources} />
-            <p className="muted">Limitations: {v.limitations}</p>
-            {v.correction && <p>Correction: {v.correction}</p>}
-            {uses.map((u) => (
-              <p key={u.id}>
-                Used by {person(data, u.member_id)} (
-                {specialtyLabel(u.specialty)}): {u.detail}
-                {u.is_demo && (
-                  <span className="sample-label">
-                    Illustrative QA usefulness
-                  </span>
-                )}
-                {!u.qualifies && (
-                  <span className="muted">
-                    {" "}
-                    Historical attribution only; not qualifying promotion
-                    evidence.
-                  </span>
-                )}
+            </DiscussionHistory>
+            {profile ? (
+              <ResearchForm kind="message" />
+            ) : (
+              <p className="notice">Set your profile above before posting.</p>
+            )}
+          </section>
+        }
+        evidence={
+          <section
+            className="section"
+            aria-label="Grind Intelligence evidence brief"
+            id="evidence-brief"
+          >
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Accepted work, connected</p>
+                <h2>Grind Intelligence</h2>
+              </div>
+              <span className="muted">
+                Sources and people, not an AI verdict
+              </span>
+            </div>
+            {brief.accepted.some(
+              (a) =>
+                data.profiles.find((p) => p.member_id === a.finding.author_id)
+                  ?.is_demo,
+            ) && (
+              <p className="sample-label">
+                Includes illustrative QA records, not real research outcomes or
+                customer validation.
+              </p>
+            )}
+            <p className="muted">
+              Accepted evidence brief. Assembled from permitted, currently
+              accepted findings. Discussion is not evidence until independently
+              reviewed.
+            </p>
+            {!brief.accepted.length && (
+              <p>
+                No accepted findings visible yet. Discussion remains separate
+                from evidence.
+              </p>
+            )}
+            {brief.accepted.map(({ finding: f, version: v, uses }) => (
+              <article className="record" key={f.id}>
+                <Status value="accepted" />
+                <h3>
+                  <Link href={`/findings/${f.id}`}>{v.claim}</Link>
+                </h3>
+                <Identity
+                  data={data}
+                  id={f.author_id}
+                  specialty={v.specialty}
+                />
+                <p>{v.addition}</p>
+                <SourceLinks value={v.sources} />
+                <p className="muted">Limitations: {v.limitations}</p>
+                {v.correction && <p>Correction: {v.correction}</p>}
+                {uses.map((u) => (
+                  <p key={u.id}>
+                    Used by {person(data, u.member_id)} (
+                    {specialtyLabel(u.specialty)}): {u.detail}
+                    {u.is_demo && (
+                      <span className="sample-label">
+                        Illustrative QA usefulness
+                      </span>
+                    )}
+                    {!u.qualifies && (
+                      <span className="muted">
+                        {" "}
+                        Historical attribution only; not qualifying promotion
+                        evidence.
+                      </span>
+                    )}
+                  </p>
+                ))}
+              </article>
+            ))}
+            {brief.lineage.length > 0 && (
+              <>
+                <h3>Source lineage</h3>
+                <ul>
+                  {brief.lineage.map((l) => (
+                    <li key={l.url}>
+                      <a
+                        href={l.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-link"
+                      >
+                        {new URL(l.url).hostname}
+                      </a>
+                      : {l.findings.length} linked finding(s), one source
+                      family. Repetition is not independent confirmation.
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {brief.corrections.map((f) => (
+              <p key={f.id}>
+                <Link className="inline-link" href={`/findings/${f.id}`}>
+                  Unresolved:{" "}
+                  {data.versions.find((v) => v.id === f.current_version)?.claim}
+                </Link>{" "}
+                <Status value={f.status} />
               </p>
             ))}
-          </article>
-        ))}
-        {brief.lineage.length > 0 && (
+            <h3>Remaining questions</h3>
+            {brief.open.length ? (
+              <ul>
+                {brief.open.map((s) => (
+                  <li key={s}>
+                    {specialtyLabel(s)}: {gaps[s]}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                All specialties have accepted coverage. Each finding&apos;s
+                limitations still apply.
+              </p>
+            )}
+          </section>
+        }
+        record={
+          <section className="section">
+            <h2>Contribution record</h2>
+            {data.findings.length ? (
+              data.findings.map((f) => (
+                <p key={f.id}>
+                  <Status value={f.status} />{" "}
+                  <Link className="inline-link" href={`/findings/${f.id}`}>
+                    {
+                      data.versions.find((v) => v.id === f.current_version)
+                        ?.claim
+                    }
+                  </Link>
+                </p>
+              ))
+            ) : (
+              <p>No submitted contributions yet.</p>
+            )}
+          </section>
+        }
+        opportunities={
           <>
-            <h3>Source lineage</h3>
-            <ul>
-              {brief.lineage.map((l) => (
-                <li key={l.url}>
-                  <a
-                    href={l.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-link"
-                  >
-                    {new URL(l.url).hostname}
-                  </a>
-                  : {l.findings.length} linked finding(s), one source family.
-                  Repetition is not independent confirmation.
-                </li>
-              ))}
-            </ul>
+            <Assignment data={data} />
+            <PeerRequests data={data} />
           </>
-        )}
-        {brief.corrections.map((f) => (
-          <p key={f.id}>
-            <Link className="inline-link" href={`/findings/${f.id}`}>
-              Unresolved:{" "}
-              {data.versions.find((v) => v.id === f.current_version)?.claim}
-            </Link>{" "}
-            <Status value={f.status} />
-          </p>
-        ))}
-        <h3>Remaining questions</h3>
-        {brief.open.length ? (
-          <ul>
-            {brief.open.map((s) => (
-              <li key={s}>
-                {specialtyLabel(s)}: {gaps[s]}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>
-            All specialties have accepted coverage. Each finding&apos;s
-            limitations still apply.
-          </p>
-        )}
-      </section>
-      <section className="section">
-        <h2>Contribution record</h2>
-        {data.findings.length ? (
-          data.findings.map((f) => (
-            <p key={f.id}>
-              <Status value={f.status} />{" "}
-              <Link className="inline-link" href={`/findings/${f.id}`}>
-                {data.versions.find((v) => v.id === f.current_version)?.claim}
-              </Link>
-            </p>
-          ))
-        ) : (
-          <p>No submitted contributions yet.</p>
-        )}
-      </section>
-      <Assignment data={data} />
-      <PeerRequests data={data} />
-      <IllustrativeScenario />
+        }
+      />
     </>
   );
 }
@@ -396,6 +472,11 @@ export function FindingEditor({
           ? `Correct version ${version.version}`
           : "Address a gap with evidence"}
       </h2>
+      <p className="muted">
+        {version
+          ? "A correction creates a new linked version. Earlier claims, sources and review decisions remain in the record."
+          : "A useful finding makes one claim, supports it with sources, and makes your own contribution clear."}
+      </p>
       {message && (
         <blockquote>
           Discussion by {person(data, message.author_id)}: {message.body}
@@ -405,12 +486,30 @@ export function FindingEditor({
           </p>
         </blockquote>
       )}
-      <ResearchForm
-        kind="submit"
-        data={data}
-        sourceMessage={sourceMessage}
-        versionId={revise}
-      />
+      <div className="editor-layout">
+        <ResearchForm
+          kind="submit"
+          data={data}
+          sourceMessage={sourceMessage}
+          versionId={revise}
+        />
+        <aside className="editor-aside">
+          <h3>From contribution to credit</h3>
+          <ol>
+            <li>A submitted version is a record, not accepted evidence.</li>
+            <li>
+              An assigned independent reviewer checks its scope and limitations.
+            </li>
+            <li>
+              Acceptance records credit once. Corrections retain the earlier
+              history.
+            </li>
+          </ol>
+          <Link className="inline-link" href="/workbench">
+            Return to the research question
+          </Link>
+        </aside>
+      </div>
     </section>
   );
 }
@@ -443,6 +542,15 @@ export function FindingRecord({
       <section className="section">
         <Status value={finding.status} />
         <h2 className="record-title">{current.claim}</h2>
+        <p className="notice">
+          {finding.status === "needs_correction"
+            ? "Next: the author submits a corrected version for independent review."
+            : finding.status === "accepted"
+              ? "Accepted within the recorded review scope. Use the sources, note the limitations, and document how this helps your specialty."
+              : finding.status === "disputed"
+                ? "Next: an independent authorized reviewer assesses the dispute. This work is not currently accepted evidence."
+                : "Next: an assigned authorized reviewer assesses this exact version. No acceptance credit is confirmed yet."}
+        </p>
         <Identity
           data={data}
           id={finding.author_id}
@@ -473,6 +581,12 @@ export function FindingRecord({
           </details>
         )}
       </section>
+      <div className="section-heading">
+        <h2>Evidence and version history</h2>
+        <span className="muted">
+          Current version first. Earlier records remain intact.
+        </span>
+      </div>
       {versions.map((v) => (
         <section className="section" key={v.id}>
           <div className="section-heading">
@@ -565,6 +679,10 @@ export function FindingRecord({
       {own && (
         <section className="section">
           <h2>Recognition</h2>
+          <p className="muted">
+            Acceptance credit is not payment or automatic promotion. Review
+            scope and documented usefulness remain part of the record.
+          </p>
           {data.awards
             .filter((a) => a.finding_id === finding.id)
             .map((a) => (
@@ -614,6 +732,10 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
       )}
       <section className="section">
         <h2>Your assigned reviews</h2>
+        <p className="muted">
+          Assess the exact claim and its evidence within your assigned scope.
+          Request a correction when an important gap remains.
+        </p>
         {!pending.length && (
           <p>
             No assigned reviews. A specialty or Silver tier alone does not grant
@@ -639,8 +761,12 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
                   {v.claim} (v{v.version})
                 </Link>
               </h3>
-              <p>Assigned scope: {a.scope}</p>
+              <p className="decision-context">
+                <strong>Assigned scope:</strong> {a.scope}
+              </p>
+              <h3>What the contributor added</h3>
               <p>{v.addition}</p>
+              <h3>Evidence</h3>
               <SourceLinks value={v.sources} />
               <p>Limitations: {v.limitations}</p>
               <ResearchForm
@@ -782,7 +908,16 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
   return (
     <>
       <section className="section">
-        <h2>{data.token.tier}</h2>
+        <p className="eyebrow">Current membership / live ownership verified</p>
+        <div className="membership-heading">
+          <Fingerprint aria-hidden="true" />
+          <div>
+            <h2>{data.token.tier}</h2>
+            <span className="muted">
+              Your access credential. Your history stays with you.
+            </span>
+          </div>
+        </div>
         <div className="form-actions">
           <a
             className="inline-link"
@@ -832,17 +967,41 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
       </section>
       <section className="section">
         <h2>Silver: published demo requirements</h2>
-        <ul>
+        <ul className="progress-criteria">
           <li>
-            {c.xp} / {data.policy.silver_xp} lifetime XP
+            <span>
+              {c.xp} / {data.policy.silver_xp} lifetime XP
+            </span>
+            <progress
+              aria-label="Silver lifetime XP prerequisite"
+              max={data.policy.silver_xp}
+              value={Math.min(c.xp, data.policy.silver_xp)}
+            />
           </li>
           <li>
-            {promotionEligible.length} / {data.policy.silver_findings} currently
-            accepted member-visible findings
+            <span>
+              {promotionEligible.length} / {data.policy.silver_findings}{" "}
+              currently accepted member-visible findings
+            </span>
+            <progress
+              aria-label="Silver accepted findings prerequisite"
+              max={data.policy.silver_findings}
+              value={Math.min(
+                promotionEligible.length,
+                data.policy.silver_findings,
+              )}
+            />
           </li>
           <li>
-            {uses.length} / {data.policy.silver_uses} documented cross-specialty
-            uses
+            <span>
+              {uses.length} / {data.policy.silver_uses} documented
+              cross-specialty uses
+            </span>
+            <progress
+              aria-label="Silver usefulness prerequisite"
+              max={data.policy.silver_uses}
+              value={Math.min(uses.length, data.policy.silver_uses)}
+            />
           </li>
           <li>
             Independent steward assessment of evidence, limitations and
@@ -853,6 +1012,11 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           Qualifying does not promote you automatically. A steward must approve
           the current member, token and ownership epoch. Silver enables a
           follow-up peer request.
+        </p>
+        <p className="notice">
+          Silver&apos;s implemented benefit: initiate a scoped peer request for
+          complementary expertise. Higher-tier capabilities are future scope,
+          not available services.
         </p>
         <p className="muted">
           Demo award: {data.policy.acceptance_xp} XP and{" "}

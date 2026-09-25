@@ -185,6 +185,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
         (await page.locator(".sidebar").boundingBox())!.height,
       ).toBeLessThan(90);
     }
+    await page.getByRole("tab", { name: "Discussion", exact: true }).click();
     const thread = page.locator(`#message-${message.id}`);
     await expect(thread).toContainText("Illustrative QA persona");
     await thread.locator("summary").click();
