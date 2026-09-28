@@ -1087,3 +1087,25 @@ authenticated writes and captures use the existing isolated QA identities.
   Media storage has bounded validation/rate/size limits but no automatic orphan
   purge; capacity/retention must be planned before growth. Phase 1 and production
   readiness are not declared complete.
+
+### Saved and pushed checkpoint
+
+- Final added-browser-test lint/typecheck passed; `git diff --check` and staged
+  diff check passed. Outgoing changes since `origin/codex/mvp-rank-spaces` were
+  scanned against configured secret values and private-key markers: no hits;
+  no added personal-email lines. Only selected code/docs and 12 guarded screenshots
+  staged. `.env.local`, `.local/`, test failure output and unrelated brand exports
+  remain excluded.
+- Three outgoing commits: preserved annotations `ce19a1f`, backend `5eac06e`,
+  connected UI/evidence `7c7e4c08b567e62e9eece68d75597a8bd089e290`. Normal push to
+  `baslaeth/grindly:codex/connected-member-experience` succeeded;
+  `git ls-remote --heads origin codex/connected-member-experience` independently
+  returned that exact executable hash. No merge, force-push or deployment.
+- The running in-app browser at http://localhost:3000/ was reloaded and inspected
+  after rendering: Home, Opportunities, Activity, Enter Hub and top-right profile
+  link present. The first immediate DOM probe occurred before streamed content
+  finished and was not counted as a rendering failure or success. The final
+  inspection was read-only; no genuine research was changed.
+- This documentation-only follow-up records the saved result. Unrelated untracked
+  brand assets are preserved. Independent review target is feature-branch HEAD;
+  see `QA05_CONNECTED_MEMBER_HANDOFF.md` and the explicit feature matrix.

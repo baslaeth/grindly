@@ -3,6 +3,9 @@
 Review `codex/connected-member-experience`, based on annotation commit `ce19a1f`.
 Executable review is local: http://localhost:3000/. Production is unchanged.
 Authority: `connected-member-experience.md`; this is not an economics decision.
+Tested executable `7c7e4c08b567e62e9eece68d75597a8bd089e290` is pushed and remote
+verified; the following documentation-only commit records the outcome. Review
+feature-branch HEAD, including backend `5eac06e` and preserved annotations `ce19a1f`.
 
 ## Review targets
 

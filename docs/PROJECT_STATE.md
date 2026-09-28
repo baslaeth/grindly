@@ -37,8 +37,11 @@ Verified checkpoint: `pnpm check` passes **149 unit / 173 database / 11 contract
 plus lint/typecheck/type drift/build; Chrome foundation **48 passed**; actual
 local desktop/mobile journeys **12 passed, 2 operator skips**; older hosted
 read-only compatibility **1 passed**. Evidence is under
-`docs/member-experience-review/`. Backend increment is `5eac06e`; final UI/evidence
-checkpoint is the feature-branch HEAD recorded in the handoff/push evidence.
+`docs/member-experience-review/`. Backend increment is `5eac06e`; tested UI
+executable is `7c7e4c08b567e62e9eece68d75597a8bd089e290`, pushed to
+`baslaeth/grindly` on `codex/connected-member-experience` and independently matched
+with `git ls-remote`. This documentation-only follow-up records that result;
+review the feature-branch HEAD. No merge, force-push or production deployment.
 No isolated steward exists, so opportunity editor browser verification is blocked
 without an owner-designated account. No genuine partner campaign was created.
 Feature-by-feature classification is in `connected-member-experience.md`.
