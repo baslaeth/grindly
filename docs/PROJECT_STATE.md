@@ -5,8 +5,11 @@ reset-to-Bronze-on-transfer rule and conflicting single-space assumptions.
 Feature branch `codex/mvp-rank-spaces` starts at UI checkpoint `1862bb3`, also
 saved as `codex/checkpoint-ui-1862bb3`. Unrelated brand exports remain untracked
 and unchanged. This remains a local executable review: no production deployment.
-The owner now authorizes pushing `codex/mvp-rank-spaces` to `baslaeth/grindly`
+The owner authorized pushing `codex/mvp-rank-spaces` to `baslaeth/grindly`
 after this repair's checks; no merge, force-push or production deployment.
+Repair executable/evidence commit `443ab2358add952b45589e15cc4d2a6ade3d2cdb`
+was pushed and verified on the remote branch. The following documentation-only
+commit records that result; review the feature-branch HEAD.
 
 ## Current repair
 

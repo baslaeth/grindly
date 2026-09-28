@@ -935,3 +935,9 @@ genuine research mutation. Local review: http://localhost:3000/workbench.
   private-key markers and token-like strings: no hits. No added personal-email
   lines. Untracked brand exports, `.env.local`, QA journal and failure artifacts
   are excluded. Only the unchanged approved tracked logo is carried forward.
+- Commit `443ab2358add952b45589e15cc4d2a6ade3d2cdb` pushed successfully to
+  `baslaeth/grindly`, branch `codex/mvp-rank-spaces`; `git ls-remote --heads`
+  independently returned that exact hash. This documentation-only follow-up
+  records the push. No force-push, merge or production deployment performed.
+  Tracked working tree was clean after commit; unrelated brand exports remained
+  untracked and unchanged. Port 3000 still serves the verified local checkout.

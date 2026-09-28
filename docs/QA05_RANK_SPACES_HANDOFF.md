@@ -11,6 +11,9 @@ history and author/owner attribution. `rank-click-path.spec.ts` verifies real
 navigation and persistence rather than jumping directly to room/profile URLs.
 New screenshots: `docs/rank-chat-repair/{desktop,mobile}/`. The owner authorizes
 feature-branch push only, not production deployment or merge.
+Repair code/screenshots are in `443ab23`; its documentation-only follow-up
+records the verified push. Review `5c88ec4..HEAD` for the bounded repair, or
+`1862bb3..HEAD` for the complete rank-spaces change.
 
 ## High-signal targets
 
