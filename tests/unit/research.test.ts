@@ -21,7 +21,7 @@ beforeEach(() => {
 it("derives mutation identity from the checked server session and writes refresh cookies", async () => {
   mocks.access.mockResolvedValue({
     member: { id: "verified" },
-    binding: { token_id: "1" },
+    binding: { id: "verified-binding", token_id: "1" },
     ownership: {},
   });
   mocks.rpc.mockResolvedValue({ data: { saved: true }, error: null });
@@ -31,7 +31,8 @@ it("derives mutation identity from the checked server session and writes refresh
     specialty: "risk",
   });
   expect(mocks.access).toHaveBeenCalledWith(true);
-  expect(mocks.rpc).toHaveBeenCalledWith("research_mutate", {
+  expect(mocks.rpc).toHaveBeenCalledWith("research_mutate_v2", {
+    p_binding: "verified-binding",
     p_member: "verified",
     p_action: "profile",
     p_data: { name: "Test Specialist", specialty: "risk" },
@@ -87,6 +88,21 @@ it("rejects actor spoofing, unsafe links, future observations and blank evidence
       .success,
   ).toBe(false);
 });
+it.each(["author_id", "delegate", "owner", "nft_xp", "rank"])(
+  "rejects unimplemented delegation or authority injection: %s",
+  (key) => {
+    expect(
+      researchInput.safeParse({
+        action: "message",
+        body: "TEST personally authored message",
+        sources: [],
+        reply: null,
+        room: "testnet-readiness",
+        [key]: "another-person",
+      }).success,
+    ).toBe(false);
+  },
+);
 it("assembles only accepted current versions; corrections withdraw support", () => {
   const s = {
     findings: [

@@ -25,7 +25,30 @@ export type Snapshot = {
   requests: Row<"peer_requests">[];
   roles: string[];
   policy: Row<"research_policy">;
-  assignment: Row<"research_assignment">;
+  assignment: Row<"research_assignment"> | null;
+  rooms?: Row<"research_questions">[];
+  directory?: SpaceMember[];
+  personalCredit?: { xp: number; points: number };
+  demoProfiles?: Row<"rank_demo_profiles">[];
+  demoMessages?: Row<"rank_demo_messages">[];
+  demoDelegations?: Row<"rank_demo_delegations">[];
+};
+export type SpaceMember = {
+  id: string;
+  name: string;
+  bio: string;
+  specialty: string;
+  is_demo: boolean;
+  tier: string;
+  token: string;
+  contract: string;
+  bound_at: string;
+  personal_xp: number;
+  acquisitions: {
+    kind: "newly_issued" | "purchased" | "unknown";
+    at: string;
+  }[];
+  progression: { kind: "progressed"; at: string; tier: string }[];
 };
 export type ResearchData = Snapshot & {
   memberId: string;
@@ -54,11 +77,31 @@ export function person(data: Snapshot, id: string) {
   );
 }
 export function credit(data: Snapshot) {
+  if (data.personalCredit) return data.personalCredit;
   return {
     xp: data.awards.reduce((n, a) => n + a.xp, 0),
     points: data.awards
       .filter((a) => a.season === data.policy.season)
       .reduce((n, a) => n + a.points, 0),
+  };
+}
+
+export function roomData(data: ResearchData): ResearchData {
+  const findings = data.findings.filter(
+    (f) => f.question_id === data.question.id,
+  );
+  const versions = data.versions.filter((v) =>
+    findings.some((f) => f.id === v.finding_id),
+  );
+  return {
+    ...data,
+    findings,
+    versions,
+    messages: data.messages.filter((m) => m.question_id === data.question.id),
+    uses: data.uses.filter((u) => versions.some((v) => v.id === u.version_id)),
+    requests: data.requests.filter((r) => r.question_id === data.question.id),
+    assignment:
+      data.question.id === "testnet-readiness" ? data.assignment : null,
   };
 }
 

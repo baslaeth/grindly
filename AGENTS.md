@@ -10,6 +10,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+The 2026-09-28 bounded owner brief in `docs/mvp-rank-spaces.md` supersedes
+conflicting rank assumptions for this checkpoint. Bronze/Silver are exact-rank
+spaces; NFT tier persists on transfer, personal XP does not transfer. No new
+manual NFT transfer, economics finalization, delegation activation or production
+deployment is authorized. See `docs/QA05_RANK_SPACES_HANDOFF.md` for review.
+
 Read these before changing scope or implementation:
 - `docs/frozen-p0.md`: approved product scope.
 - `docs/frozen-technical-architecture.md`: supplied architecture and source-completeness warning. Missing approved sections must not be invented.
@@ -21,6 +27,8 @@ Read these before changing scope or implementation:
 - `docs/ui-direction.md`: owner-authorized six-screen redesign and local-only UI
   review on `codex/ui-specialist-workspace`. Do not deploy this UI checkpoint
   to production without a new instruction. Preserve the reliability/security base.
+- `docs/mvp-rank-spaces.md`: current bounded rooms/profiles/tier authorization;
+  feature branch `codex/mvp-rank-spaces` retains the approved UI checkpoint.
 
 The 2026-09-25 owner authorization permits the research collaboration journey;
 see `docs/research-scope.md`. Stop at its QA/UI-annotation checkpoint. Phase 1

@@ -7,16 +7,33 @@ import { ServiceError } from "../errors";
 import type { ResearchInput } from "@/research/input";
 import type { ResearchData, Snapshot } from "@/research/model";
 
+export type ResearchContext = {
+  room?: string;
+  finding?: string;
+  version?: string;
+  message?: string;
+  profile?: string;
+};
 export async function readResearch(
   writableCookies = false,
-  enrichPeers = false,
+  context: ResearchContext = {},
 ): Promise<ResearchData> {
   const active = await requireActiveMembership(writableCookies);
   const db = createDataClient();
-  const result = await db.rpc("research_snapshot", {
+  const result = await db.rpc("research_snapshot_v2", {
     p_member: active.member.id,
+    p_binding: active.binding.id,
+    p_room: context.room,
   });
-  if (result.error) throw result.error;
+  if (result.error) {
+    if (result.error.message.startsWith("research:"))
+      throw new ServiceError(
+        "SPACE_UNAVAILABLE",
+        "This space or record is not available to your membership.",
+        403,
+      );
+    throw result.error;
+  }
   if (!result.data)
     throw new ServiceError(
       "RESEARCH_UNAVAILABLE",
@@ -26,48 +43,52 @@ export async function readResearch(
     );
   const snapshot = result.data as unknown as Snapshot;
   const tier = await tokenTier(active.binding.token_id, active.ownership);
-  const tiers: Record<string, string> = { [active.member.id]: tier };
-  // Display tiers are fresh ownership-derived facts, never a profile/specialty flag.
-  const ids = snapshot.profiles
-    .map((p) => p.member_id)
-    .filter((id) => id !== active.member.id);
-  if (enrichPeers && ids.length) {
-    const bindings = await db
-      .from("membership_bindings")
-      .select("member_id,token_id,wallet_binding_id,ownership_epoch")
-      .in("member_id", ids)
-      .eq("contract_address", active.binding.contract_address)
-      .is("revoked_at", null);
-    if (bindings.error) throw bindings.error;
-    for (const id of ids) tiers[id] = "No active membership";
-    await Promise.all(
-      bindings.data.map(async (binding) => {
-        try {
-          const ownership = await readOwnership(
-            BigInt(binding.token_id),
-            BigInt(active.ownership.block),
-          );
-          const wallet = await db
-            .from("wallet_bindings")
-            .select("address")
-            .eq("id", binding.wallet_binding_id)
-            .is("revoked_at", null)
-            .maybeSingle();
-          if (wallet.error) throw wallet.error;
-          if (
-            ownership.epoch === binding.ownership_epoch &&
-            ownership.owner === wallet.data?.address
-          )
-            tiers[binding.member_id] = await tokenTier(
-              binding.token_id,
-              ownership,
-            );
-        } catch {
-          tiers[binding.member_id] = "Tier check unavailable";
-        }
-      }),
+  if (snapshot.question?.rank && snapshot.question.rank !== tier)
+    throw new ServiceError(
+      "RANK_CHANGED",
+      "Membership changed. Reload to continue.",
+      409,
+      true,
     );
+  let questionId: string | undefined;
+  if (context.finding && context.finding !== "latest") {
+    const finding = snapshot.findings.find((f) => f.id === context.finding);
+    if (!finding)
+      throw new ServiceError("RECORD_UNAVAILABLE", "Record unavailable.", 404);
+    questionId = finding.question_id;
   }
+  if (context.version) {
+    const version = snapshot.versions.find((v) => v.id === context.version);
+    const finding = snapshot.findings.find((f) => f.id === version?.finding_id);
+    if (!finding)
+      throw new ServiceError("RECORD_UNAVAILABLE", "Record unavailable.", 404);
+    questionId = finding.question_id;
+  }
+  if (context.message) {
+    const message = snapshot.messages.find((m) => m.id === context.message);
+    if (!message)
+      throw new ServiceError("RECORD_UNAVAILABLE", "Record unavailable.", 404);
+    questionId = message.question_id;
+  }
+  if (questionId && snapshot.rooms) {
+    const question = snapshot.rooms.find((q) => q.id === questionId);
+    if (!question || (context.room && question.id !== context.room))
+      throw new ServiceError("RECORD_UNAVAILABLE", "Record unavailable.", 404);
+    snapshot.question = question;
+  }
+  if (
+    context.profile &&
+    !snapshot.directory?.some((p) => p.id === context.profile) &&
+    !snapshot.demoProfiles?.some((p) => "demo-" + p.id === context.profile)
+  )
+    throw new ServiceError(
+      "PROFILE_UNAVAILABLE",
+      "Profile unavailable in this space.",
+      404,
+    );
+  // Directory labels use recorded bindings, not decorative per-profile RPCs.
+  const tiers: Record<string, string> = { [active.member.id]: tier };
+  for (const member of snapshot.directory ?? []) tiers[member.id] = member.tier;
   const mint = await db
     .from("chain_operations")
     .select("transaction_hash")
@@ -149,7 +170,8 @@ export async function mutateResearch(input: ResearchInput) {
       );
     Object.assign(data, { binding: target.data.id });
   }
-  const result = await createDataClient().rpc("research_mutate", {
+  const result = await createDataClient().rpc("research_mutate_v2", {
+    p_binding: active.binding.id,
     p_member: active.member.id,
     p_action: action,
     p_data: data,

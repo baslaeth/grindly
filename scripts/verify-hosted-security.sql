@@ -10,8 +10,8 @@ begin
     join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relkind = 'r'
       and c.relrowsecurity and c.relforcerowsecurity;
-  if protected_count <> 24 then
-    raise exception 'Expected 24 forced-RLS tables, found %', protected_count;
+  if protected_count <> 29 then
+    raise exception 'Expected 29 forced-RLS tables, found %', protected_count;
   end if;
   foreach browser_role in array array['anon', 'authenticated'] loop
     if has_schema_privilege(browser_role, 'public', 'CREATE') then
@@ -22,7 +22,8 @@ begin
       'membership_bindings', 'promotion_decisions', 'audit_events',
       'research_questions','research_profiles','research_reviewer_scopes','discussion_messages',
       'findings','finding_versions','review_assignments','review_decisions','research_policy',
-      'award_ledger','finding_usefulness','finding_disputes','peer_requests','research_assignment'] loop
+      'award_ledger','finding_usefulness','finding_disputes','peer_requests','research_assignment',
+      'nft_tier_events','nft_acquisition_events','rank_demo_profiles','rank_demo_messages','rank_demo_delegations'] loop
       if has_table_privilege(browser_role, 'public.' || table_name,
         'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') then
         raise exception 'Browser role % has privileges on %', browser_role, table_name;
@@ -39,6 +40,10 @@ begin
     if has_function_privilege(browser_role, 'public.redeem_invitation(text,uuid)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.reserve_invitation_otp(text,text,integer,integer)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_snapshot(uuid)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_snapshot_v2(uuid,uuid,text)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_mutate_v2(uuid,uuid,text,jsonb)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.research_rank(uuid)', 'EXECUTE')
+      or has_function_privilege(browser_role, 'public.nft_tier(text,text)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_compatible(uuid,uuid)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_use_qualifies(uuid)', 'EXECUTE')
       or has_function_privilege(browser_role, 'public.research_promotion_boundary()', 'EXECUTE')
@@ -49,5 +54,5 @@ begin
   end loop;
 end;
 $$;
-select 'PASS: 24 forced-RLS tables; both browser roles denied table access and invitation/research RPCs' as verification;
+select 'PASS: 29 forced-RLS tables; both browser roles denied table access and invitation/research RPCs' as verification;
 rollback;

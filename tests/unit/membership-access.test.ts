@@ -91,16 +91,17 @@ it("propagates retryable RPC failure without trusting stored membership", async 
 it("returns Bronze without an approved promotion", async () => {
   expect(await tokenTier("1", ownership)).toBe("Bronze");
 });
-it("requires a current steward and current token owner for Silver", async () => {
+it("persists recorded NFT tier independently of current owner and steward roster", async () => {
   tables.promotion_decisions = { approved_by: "steward" };
   expect(await tokenTier("1", ownership)).toBe("Bronze");
-  tables.member_roles = { member_id: "steward" };
+  tables.nft_tier_events = { tier: "Silver" };
   expect(await tokenTier("1", ownership)).toBe("Silver");
   expect(await tokenTier("1", { ...ownership, owner: "recipient" })).toBe(
-    "Bronze",
+    "Silver",
   );
 });
 it("does not expose wallet or member identity in metadata", async () => {
+  tables.nft_tier_events = null;
   const response = await GET(new Request("https://example.test"), {
     params: Promise.resolve({ tokenId: "1" }),
   });

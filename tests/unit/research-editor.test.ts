@@ -25,6 +25,7 @@ vi.mock("@/server/supabase", () => ({
 }));
 import { ResearchScreen } from "@/components/research-screen";
 import { ServiceError } from "@/server/errors";
+import { readResearch } from "@/server/research/service";
 
 const snapshot = {
   profiles: [
@@ -128,4 +129,36 @@ it("shows the author's correction next action instead of awaiting a reviewer", a
   expect(html).toContain("The author must submit a corrected version.");
   expect(html).toContain("/findings/new?revise=version");
   expect(html).not.toContain("Awaiting an available scoped reviewer");
+});
+it.each([
+  { room: "silver-general" },
+  { profile: "hidden-member" },
+  { finding: "hidden-finding" },
+  { version: "hidden-version" },
+  { message: "hidden-message" },
+])(
+  "fails closed for a direct inaccessible research context %j",
+  async (context) => {
+    if (context.room)
+      mocks.rpc.mockResolvedValue({
+        data: null,
+        error: { message: "research: rank denied" },
+      });
+    await expect(readResearch(true, context)).rejects.toMatchObject({
+      status: context.room ? 403 : 404,
+    });
+    expect(mocks.access).toHaveBeenCalledWith(true);
+    expect(mocks.peer).not.toHaveBeenCalled();
+  },
+);
+it("rejects a rank changed between snapshot and tier read", async () => {
+  mocks.rpc.mockResolvedValue({
+    data: { ...snapshot, question: { rank: "Bronze" } },
+    error: null,
+  });
+  mocks.tier.mockResolvedValue("Silver");
+  await expect(readResearch()).rejects.toMatchObject({
+    code: "RANK_CHANGED",
+    status: 409,
+  });
 });

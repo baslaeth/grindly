@@ -2,6 +2,7 @@ import { beforeAll, afterAll, beforeEach, afterEach, expect, it } from "vitest";
 import { createTestDatabase } from "./database";
 import { evidenceBrief } from "../../src/research/model";
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
+let bindings: Record<string, string>;
 const author = "11111111-1111-4111-8111-111111111111";
 const reviewer = "22222222-2222-4222-8222-222222222222";
 const other = "33333333-3333-4333-8333-333333333333";
@@ -13,6 +14,7 @@ afterAll(async () => {
 });
 beforeEach(async () => {
   await db.exec("begin");
+  bindings = {};
   for (const [id, specialty] of [
     [author, "project"],
     [reviewer, "risk"],
@@ -30,6 +32,11 @@ beforeEach(async () => {
       "insert into public.research_profiles(member_id,display_name,specialty) values($1,$2,$3)",
       [id, `TEST ${specialty}`, specialty],
     );
+    await db.query("insert into public.wallet_challenges(id,member_id,address,nonce,domain,uri,message,expires_at) values($1,$1,$2,$3,'localhost','http://localhost','proof',now()+interval '5 minutes')",
+      [id, `0x${id![0]!.repeat(40)}`, id]);
+    await db.query("select public.bind_verified_wallet($1,$1,'proof')", [id]);
+    bindings[id!] = (await db.query<{ id: string }>("select public.bind_owned_token($1,$2,$3,'1','1',$4) id",
+      [id, `0x${'c'.repeat(40)}`, id![0], `0x${'e'.repeat(64)}`])).rows[0]!.id;
   }
   await db.query(
     "insert into public.member_roles(member_id,role) values($1,'reviewer'),($2,'reviewer')",
@@ -50,16 +57,16 @@ async function mutate(
   data: Record<string, unknown> = {},
 ) {
   const result = await db.query<{ result: { id: string } }>(
-    "select public.research_mutate($1,$2,$3::jsonb) as result",
-    [member, action, JSON.stringify(data)],
+    "select public.research_mutate_v2($1,$4,$2,$3::jsonb) as result",
+    [member, action, JSON.stringify(data), bindings[member]],
   );
   return result.rows[0]!.result;
 }
 async function snapshot(member = author) {
   return (
     await db.query<{ s: import("../../src/research/model").Snapshot }>(
-      "select public.research_snapshot($1) s",
-      [member],
+      "select public.research_snapshot_v2($1,$2) s",
+      [member, bindings[member]],
     )
   ).rows[0]!.s;
 }
@@ -139,7 +146,8 @@ it("filters private records, profiles, awards, reviews and counts before assembl
   expect(hidden.findings).toHaveLength(0);
   expect(hidden.versions).toHaveLength(0);
   expect(hidden.assignments).toHaveLength(0);
-  expect(hidden.profiles.map((p) => p.member_id)).not.toContain(author);
+  // The rank directory intentionally lists members even without shared work.
+  expect(hidden.profiles.map((p) => p.member_id)).toContain(author);
   expect((await snapshot(reviewer)).findings).toHaveLength(1);
 });
 it("forbids a member-visible finding linking private evidence", async () => {
@@ -291,15 +299,15 @@ it("separates specialty, authority, Silver entitlement, work acceptance and paym
   await mutate(author, "deliverAssignment", { version: s.versions[0]!.id });
   await review(f.id);
   s = await snapshot();
-  expect(s.assignment.work_status).toBe("accepted");
-  expect(s.assignment.payment_status).toBe("unfunded");
+  expect(s.assignment!.work_status).toBe("accepted");
+  expect(s.assignment!.payment_status).toBe("unfunded");
   await submit({
     finding: f.id,
     previous: s.versions[0]!.id,
     correction: "TEST correcting a previously accepted deliverable",
   });
-  expect((await snapshot()).assignment.work_status).toBe("needs_correction");
-  expect((await snapshot()).assignment.payment_status).toBe("unfunded");
+  expect((await snapshot()).assignment!.work_status).toBe("needs_correction");
+  expect((await snapshot()).assignment!.payment_status).toBe("unfunded");
   await reject(
     () => mutate(author, "deliverAssignment", { version: s.versions[0]!.id }),
     /current member-visible contribution/,
@@ -307,7 +315,7 @@ it("separates specialty, authority, Silver entitlement, work acceptance and paym
   const corrected = (await snapshot()).findings[0]!.current_version;
   await review(f.id, "correct");
   await mutate(author, "deliverAssignment", { version: corrected });
-  expect((await snapshot()).assignment.work_status).toBe("needs_correction");
+  expect((await snapshot()).assignment!.work_status).toBe("needs_correction");
   await reject(
     () =>
       db.exec("update public.research_assignment set payment_status='paid'"),
@@ -403,24 +411,16 @@ it("binds an assessed promotion to evidence, member, token and epoch without dup
     "insert into public.member_roles(member_id,role) values($1,'steward')",
     [reviewer],
   );
-  await db.query(
-    "insert into public.wallet_challenges(id,member_id,address,nonce,domain,uri,message,expires_at) values($1,$1,$2,$3,'localhost','http://localhost','proof',now()+interval '5 minutes')",
-    [author, `0x${"a".repeat(40)}`, author],
-  );
-  await db.query("select public.bind_verified_wallet($1,$1,'proof')", [author]);
-  const binding = (
-    await db.query<{ id: string }>(
-      "select public.bind_owned_token($1,$2,'1','1','10',$3) id",
-      [author, `0x${"c".repeat(40)}`, `0x${"e".repeat(64)}`],
-    )
-  ).rows[0]!.id;
+  const binding = bindings[author];
   const payload = {
     member: author,
     binding,
     reason: "TEST explicit independent evidence assessment; demonstration only",
   };
   await mutate(reviewer, "promote", payload);
-  await mutate(reviewer, "promote", payload);
+  // Promotion changes exact-rank access. A Bronze steward cannot act on the
+  // now-Silver candidate; a retry must still produce no duplicate decision.
+  await reject(() => mutate(reviewer, "promote", payload), /rank/);
   const decisions = (
     await db.query<{
       evidence: unknown[];
@@ -476,7 +476,7 @@ it.each([false, true])(
         await db.query("select * from public.audit_events order by id"),
       ).toEqual(audit);
     }
-    expect(before.assignment.work_status).toBe("accepted");
+    expect(before.assignment!.work_status).toBe("accepted");
   },
 );
 

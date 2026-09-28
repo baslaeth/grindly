@@ -180,7 +180,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
       page.getByRole("link", { name: "Current accepted evidence brief" }),
     ).toBeVisible();
     if (info.project.name.includes("mobile")) {
-      await expect(page.getByRole("navigation")).toBeHidden();
+      await expect(
+        page.getByRole("navigation", { name: "Main navigation" }),
+      ).toBeHidden();
       expect(
         (await page.locator(".sidebar").boundingBox())!.height,
       ).toBeLessThan(90);

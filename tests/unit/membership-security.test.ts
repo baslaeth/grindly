@@ -26,7 +26,8 @@ type Table =
   | "membership_bindings"
   | "wallet_bindings"
   | "promotion_decisions"
-  | "member_roles";
+  | "member_roles"
+  | "nft_tier_events";
 let tables: Record<Table, Row[]>;
 const owned = {
   owner: "alice-wallet",
@@ -71,6 +72,14 @@ beforeEach(() => {
       },
     ],
     member_roles: [{ member_id: "steward", role: "steward" }],
+    nft_tier_events: [
+      {
+        chain_id: 46630,
+        contract_address: "contract",
+        token_id: "1",
+        tier: "Silver",
+      },
+    ],
   };
   // Honor every query predicate so stale member/token/epoch tests can detect
   // missing server-side filters instead of returning a canned promotion.
@@ -143,43 +152,36 @@ it("does not report a successful action when audit persistence fails", async () 
   mocks.insert.mockResolvedValue({ error: new Error("database failure") });
   expect((await POST(request())).status).toBe(503);
 });
-it("a matching steward-approved promotion is Silver", async () => {
+
+it("a recorded steward-approved NFT progression is Silver", async () => {
   expect(await tokenTier("1", owned)).toBe("Silver");
 });
 it.each([
-  ["member_id", "bob"],
-  ["membership_binding_id", "old-binding"],
+  ["chain_id", 1],
   ["contract_address", "other-contract"],
   ["token_id", "2"],
-  ["ownership_epoch", "0"],
-  ["revoked_at", "yesterday"],
-])("ignores a promotion with stale or mismatched %s", async (key, value) => {
-  tables.promotion_decisions[0]![key] = value;
+])(
+  "does not apply another NFT's tier with mismatched %s",
+  async (key, value) => {
+    tables.nft_tier_events[0]![key] = value;
+    expect(await tokenTier("1", owned)).toBe("Bronze");
+  },
+);
+it("new tokens are Bronze and unrecorded legacy approvals are not invented", async () => {
+  tables.nft_tier_events = [];
   expect(await tokenTier("1", owned)).toBe("Bronze");
 });
-it("transfer-back does not revive an old promotion after fresh binding", async () => {
-  tables.membership_bindings[0] = {
-    ...tables.membership_bindings[0],
-    id: "a3",
-    ownership_epoch: "3",
-  };
-  expect(await tokenTier("1", { ...owned, epoch: "3" })).toBe("Bronze");
+it("transfer-back retains the NFT's Silver tier but stale ownership is still denied", async () => {
+  mocks.owned.mockResolvedValue({ ...owned, epoch: "3" });
+  expect((await POST(request())).status).toBe(403);
+  expect(await tokenTier("1", { ...owned, epoch: "3" })).toBe("Silver");
 });
-it("a recipient cannot inherit the sender's promotion", async () => {
-  tables.membership_bindings[0] = {
-    ...tables.membership_bindings[0],
-    id: "b2",
-    member_id: "bob",
-    wallet_binding_id: "bw",
-    ownership_epoch: "2",
-  };
-  tables.wallet_bindings.push({
-    id: "bw",
-    member_id: "bob",
-    address: "bob-wallet",
-    revoked_at: null,
-  });
+it("recipient inherits NFT tier, not the sender's identity or protected access", async () => {
+  mocks.owned.mockResolvedValue({ ...owned, owner: "bob-wallet", epoch: "2" });
+  expect((await POST(request())).status).toBe(403);
+  expect(mocks.insert).not.toHaveBeenCalled();
   expect(
     await tokenTier("1", { ...owned, owner: "bob-wallet", epoch: "2" }),
-  ).toBe("Bronze");
+  ).toBe("Silver");
+  expect(tables.promotion_decisions[0]!.member_id).toBe("alice");
 });

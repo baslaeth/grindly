@@ -1,6 +1,59 @@
-# Grindly: local UI redesign checkpoint
+# Grindly: local Bronze/Silver rank-spaces checkpoint
 
-Updated 2026-09-25. The owner authorized research implementation despite the
+Updated 2026-09-28. Current authority: `mvp-rank-spaces.md`, superseding the old
+reset-to-Bronze-on-transfer rule and conflicting single-space assumptions.
+Feature branch `codex/mvp-rank-spaces` starts at UI checkpoint `1862bb3`, also
+saved as `codex/checkpoint-ui-1862bb3`. Unrelated brand exports remain untracked
+and unchanged. This is a local review checkpoint: no production executable
+deployment; the feature branch has not been pushed.
+
+## Current implementation
+
+- Review http://localhost:3000/workbench using existing membership. Twenty
+  persistent rooms share one interface: ten Bronze and ten Silver. Access is
+  exact-rank, never hierarchical, on server reads, writes and linked records.
+- Current-rank directory and profile drawer; private findings excluded from
+  profile history. Personal XP is ledger-derived across the person's history,
+  without exposing another rank's record IDs. No presence claims or decorative
+  per-profile blockchain reads. Acting-member live ownership remains mandatory.
+- Nine fictional display profiles (five Bronze/four Silver), not auth accounts.
+  A few labeled General-room conversations show complementary help and separate
+  Alex/delegate versus David/NFT-owner attribution. Fictional delegated credit
+  never enters the real award ledger. No operational delegation is activated.
+- `nft_tier_events` records durable NFT progression independently of member,
+  binding and epoch. Newly issued tokens default Bronze; Silver persists through
+  transfer. Acquisition events distinguish issuance from unknown provenance;
+  a transfer alone never establishes purchase. No personal credit transfers.
+- Existing review, corrections, permission-filtered briefs, duplicate-award
+  protection and demo/genuine boundaries remain. Reviewers must also belong to
+  the finding's current rank; changed rank invalidates open assignments on routing.
+- Production upgrade thresholds, rewards and burn costs remain unconfigured.
+  Existing configurable award/promotion values are explicitly illustrative.
+- Migrations 012-015 applied atomically to the existing Supabase project.
+  Preservation digests passed for 12 existing identity/role/audit/research tables.
+  Hosted check passed: 29 forced-RLS tables and protected RPCs deny browser roles.
+  **Shared database changed; production executable did not.** Legacy research
+  endpoints now use rank filtering for Bronze and fail closed for Silver, so
+  the old deployed executable cannot expose new Silver records. Production
+  remains `a89e4d5` at https://grindly-woad.vercel.app.
+- Automated and browser evidence, final totals and gaps are appended to
+  `verification.md`; focused review targets: `QA05_RANK_SPACES_HANDOFF.md`.
+
+## Current limits
+
+- No live NFT transfer was performed for this rule change. Earlier transfer-back
+  A remains passed. The old B reset/invalidation expectation is superseded,
+  not retroactively passed. New Silver continuity is simulated, not live evidence.
+- Genuine inbox/session lifecycle C and hosted issuance recovery D remain deferred.
+  Prior intermittent RPC availability diagnosis remains insufficient evidence.
+- No new wallet/account setup or permanent QA promotion is needed for the nine
+  fictional examples. Their ranks and XP are labeled illustrations, not chain data.
+- Genuine reviewer/steward staffing remains unresolved. This checkpoint does not
+  establish production readiness, real expertise, customer validation or income.
+
+## Prior UI checkpoint (historical)
+
+At the 2026-09-25 checkpoint, the owner authorized research implementation despite the
 deferred live promotion-invalidation test. **Not fully Phase 1 verified or
 production-ready.** The latest owner instruction authorizes a cohesive UI
 redesign, not new workflows. Stop at local review before production deployment.

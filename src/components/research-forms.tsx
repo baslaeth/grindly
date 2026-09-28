@@ -3,6 +3,7 @@ import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Send, Save, Check, FilePlus2, RefreshCw } from "lucide-react";
 import { specialties, type ResearchData } from "@/research/model";
+import { categories } from "@/research/spaces";
 
 type Kind =
   | "promote"
@@ -116,13 +117,18 @@ export function ResearchForm({
     const form = event.currentTarget;
     const fields = new FormData(form);
     const get = (key: string) => String(fields.get(key) ?? "").trim();
-    let payload: Record<string, unknown> = { action: kind };
+    let payload: Record<string, unknown> = {
+      action: kind,
+      ...(data?.question?.id ? { room: data.question.id } : {}),
+    };
     try {
       if (kind === "profile")
         payload = {
           ...payload,
           name: get("name"),
           specialty: get("specialty"),
+          bio: get("bio"),
+          interest: get("interest"),
         };
       if (kind === "promote")
         payload = { ...payload, member: get("member"), reason: get("reason") };
@@ -232,6 +238,25 @@ export function ResearchForm({
           max={60}
         />
         <SpecialtySelect value={profile?.specialty} />
+        <label className="field">
+          Category interest
+          <select
+            name="interest"
+            defaultValue={profile?.interest ?? "Project Analysts"}
+          >
+            {categories.map((category) => (
+              <option key={category}>{category}</option>
+            ))}
+          </select>
+        </label>
+        <Field
+          label="Short bio"
+          name="bio"
+          multiline
+          required={false}
+          max={300}
+          value={profile?.bio}
+        />
         <p className="muted">
           Self-described focus. Review authority is assigned separately.
         </p>
@@ -339,14 +364,14 @@ export function ResearchForm({
             <p>
               Permissions retained:{" "}
               {finding.visibility === "members"
-                ? "All members"
+                ? "Members in this rank"
                 : "Author + scoped review team"}
             </p>
           ) : (
             <label className="field">
               Permissions
               <select name="visibility" defaultValue="members">
-                <option value="members">All members</option>
+                <option value="members">Members in this rank</option>
                 <option value="reviewers">
                   Author + scoped review team only
                 </option>

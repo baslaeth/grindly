@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { categories } from "./spaces";
 const id = z.uuid();
 const specialty = z.enum(["operations", "project", "risk"]);
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
@@ -14,7 +15,7 @@ const source = z
       ),
   })
   .strict();
-export const researchInput = z.discriminatedUnion("action", [
+const actions = [
   z
     .object({
       action: z.literal("promote"),
@@ -23,7 +24,13 @@ export const researchInput = z.discriminatedUnion("action", [
     })
     .strict(),
   z
-    .object({ action: z.literal("profile"), name: text(2, 60), specialty })
+    .object({
+      action: z.literal("profile"),
+      name: text(2, 60),
+      specialty,
+      bio: z.string().trim().max(300).optional(),
+      interest: z.enum(categories).optional(),
+    })
     .strict(),
   z
     .object({
@@ -90,5 +97,20 @@ export const researchInput = z.discriminatedUnion("action", [
       request: text(10, 1000),
     })
     .strict(),
-]);
+] as const;
+const scopedActions = actions.map((action) =>
+  action.extend({
+    room: z
+      .string()
+      .regex(/^[a-z0-9-]{1,80}$/)
+      .optional(),
+  }),
+);
+export const researchInput = z.discriminatedUnion(
+  "action",
+  scopedActions as [
+    (typeof scopedActions)[number],
+    ...(typeof scopedActions)[number][],
+  ],
+);
 export type ResearchInput = z.infer<typeof researchInput>;

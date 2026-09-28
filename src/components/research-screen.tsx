@@ -3,6 +3,7 @@ import { readResearch } from "@/server/research/service";
 import { ServiceError } from "@/server/errors";
 import { getEnvironment } from "@/server/environment";
 import { reportFailure } from "@/server/diagnostics";
+import Link from "next/link";
 import {
   Workbench,
   FindingEditor,
@@ -15,11 +16,15 @@ export async function ResearchScreen({
   id,
   message,
   revise,
+  room,
+  profile,
 }: {
   view: "workbench" | "new" | "record" | "review" | "membership";
   id?: string;
   message?: string;
   revise?: string;
+  room?: string;
+  profile?: string;
 }) {
   const title = {
     workbench: "Research Workbench",
@@ -30,15 +35,26 @@ export async function ResearchScreen({
   }[view];
   let data;
   let denied = false;
+  let unavailable = false;
   if (getEnvironment().GRINDLY_STAGE !== "membership") denied = true;
   else
     try {
-      data = await readResearch(
-        false,
-        view === "workbench" || view === "record",
-      );
+      data = await readResearch(false, {
+        room,
+        profile,
+        finding: id,
+        version: revise,
+        message,
+      });
     } catch (error) {
       reportFailure(`research.render.${view}`, error);
+      unavailable =
+        error instanceof ServiceError &&
+        [
+          "SPACE_UNAVAILABLE",
+          "PROFILE_UNAVAILABLE",
+          "RECORD_UNAVAILABLE",
+        ].includes(error.code);
       denied =
         error instanceof ServiceError && [401, 403, 404].includes(error.status);
     }
@@ -51,7 +67,12 @@ export async function ResearchScreen({
         </p>
       )}
       {!data ? (
-        denied ? (
+        unavailable ? (
+          <p className="notice" role="alert">
+            This space or record is not available to your membership.{" "}
+            <Link href="/workbench">Return to your space</Link>
+          </p>
+        ) : denied ? (
           <MembershipRequired />
         ) : (
           <p className="notice" role="alert">
@@ -59,7 +80,7 @@ export async function ResearchScreen({
           </p>
         )
       ) : view === "workbench" ? (
-        <Workbench data={data} />
+        <Workbench data={data} profileId={profile} />
       ) : view === "new" ? (
         <FindingEditor data={data} sourceMessage={message} revise={revise} />
       ) : view === "record" ? (

@@ -653,6 +653,76 @@ export type Database = {
           },
         ];
       };
+      nft_acquisition_events: {
+        Row: {
+          id: string;
+          binding_id: string;
+          kind: string;
+          evidence: string | null;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          binding_id: string;
+          kind: string;
+          evidence?: string | null;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          binding_id?: string;
+          kind?: string;
+          evidence?: string | null;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "nft_acquisition_events_binding_id_fkey";
+            columns: ["binding_id"];
+            isOneToOne: true;
+            referencedRelation: "membership_bindings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      nft_tier_events: {
+        Row: {
+          id: string;
+          chain_id: number;
+          contract_address: string;
+          token_id: string;
+          tier: string;
+          promotion_id: string;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: number;
+          contract_address: string;
+          token_id: string;
+          tier: string;
+          promotion_id: string;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: number;
+          contract_address?: string;
+          token_id?: string;
+          tier?: string;
+          promotion_id?: string;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "nft_tier_events_promotion_id_fkey";
+            columns: ["promotion_id"];
+            isOneToOne: true;
+            referencedRelation: "promotion_decisions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       peer_requests: {
         Row: {
           id: string;
@@ -779,6 +849,134 @@ export type Database = {
           },
         ];
       };
+      rank_demo_delegations: {
+        Row: {
+          id: string;
+          delegate_id: string;
+          owner_id: string;
+          status: string;
+          nft_xp: number;
+        };
+        Insert: {
+          id: string;
+          delegate_id: string;
+          owner_id: string;
+          status: string;
+          nft_xp: number;
+        };
+        Update: {
+          id?: string;
+          delegate_id?: string;
+          owner_id?: string;
+          status?: string;
+          nft_xp?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rank_demo_delegations_delegate_id_fkey";
+            columns: ["delegate_id"];
+            isOneToOne: false;
+            referencedRelation: "rank_demo_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rank_demo_delegations_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "rank_demo_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rank_demo_messages: {
+        Row: {
+          id: string;
+          question_id: string;
+          author_id: string;
+          body: string;
+          reply_to: string | null;
+          delegation_id: string | null;
+          sequence: number;
+        };
+        Insert: {
+          id: string;
+          question_id: string;
+          author_id: string;
+          body: string;
+          reply_to?: string | null;
+          delegation_id?: string | null;
+          sequence: number;
+        };
+        Update: {
+          id?: string;
+          question_id?: string;
+          author_id?: string;
+          body?: string;
+          reply_to?: string | null;
+          delegation_id?: string | null;
+          sequence?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rank_demo_messages_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "rank_demo_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rank_demo_messages_delegation_id_fkey";
+            columns: ["delegation_id"];
+            isOneToOne: false;
+            referencedRelation: "rank_demo_delegations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rank_demo_messages_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rank_demo_messages_reply_to_fkey";
+            columns: ["reply_to"];
+            isOneToOne: false;
+            referencedRelation: "rank_demo_messages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rank_demo_profiles: {
+        Row: {
+          id: string;
+          name: string;
+          rank: string;
+          specialty: string;
+          bio: string;
+          personal_xp: number;
+          acquisition: string;
+        };
+        Insert: {
+          id: string;
+          name: string;
+          rank: string;
+          specialty: string;
+          bio: string;
+          personal_xp: number;
+          acquisition: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          rank?: string;
+          specialty?: string;
+          bio?: string;
+          personal_xp?: number;
+          acquisition?: string;
+        };
+        Relationships: [];
+      };
       research_assignment: {
         Row: {
           id: boolean;
@@ -876,6 +1074,8 @@ export type Database = {
           specialty: string;
           updated_at: string;
           is_demo: boolean;
+          bio: string;
+          interest: string;
         };
         Insert: {
           member_id: string;
@@ -883,6 +1083,8 @@ export type Database = {
           specialty: string;
           updated_at?: string;
           is_demo?: boolean;
+          bio?: string;
+          interest?: string;
         };
         Update: {
           member_id?: string;
@@ -890,6 +1092,8 @@ export type Database = {
           specialty?: string;
           updated_at?: string;
           is_demo?: boolean;
+          bio?: string;
+          interest?: string;
         };
         Relationships: [
           {
@@ -907,18 +1111,24 @@ export type Database = {
           title: string;
           purpose: string;
           gaps: Json;
+          rank: string;
+          category: string;
         };
         Insert: {
           id: string;
           title: string;
           purpose: string;
           gaps: Json;
+          rank?: string;
+          category?: string;
         };
         Update: {
           id?: string;
           title?: string;
           purpose?: string;
           gaps?: Json;
+          rank?: string;
+          category?: string;
         };
         Relationships: [];
       };
@@ -1209,6 +1419,13 @@ export type Database = {
         };
         Returns: string;
       };
+      nft_tier: {
+        Args: {
+          p_contract: string;
+          p_token: string;
+        };
+        Returns: string;
+      };
       persist_mint_transaction: {
         Args: {
           p_operation: string;
@@ -1231,7 +1448,21 @@ export type Database = {
         };
         Returns: undefined;
       };
+      research_assign_v2: {
+        Args: {
+          p_version: string;
+          p_kind?: string;
+        };
+        Returns: undefined;
+      };
       research_can_view: {
+        Args: {
+          p_member: string;
+          p_finding: string;
+        };
+        Returns: boolean;
+      };
+      research_can_view_v2: {
         Args: {
           p_member: string;
           p_finding: string;
@@ -1253,9 +1484,32 @@ export type Database = {
         };
         Returns: Json;
       };
+      research_mutate_v2: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_action: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      research_rank: {
+        Args: {
+          p_member: string;
+        };
+        Returns: string;
+      };
       research_snapshot: {
         Args: {
           p_member: string;
+        };
+        Returns: Json;
+      };
+      research_snapshot_v2: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
         };
         Returns: Json;
       };

@@ -27,6 +27,11 @@ const tables = [
   "finding_disputes",
   "peer_requests",
   "research_assignment",
+  "nft_tier_events",
+  "nft_acquisition_events",
+  "rank_demo_profiles",
+  "rank_demo_messages",
+  "rank_demo_delegations",
 ];
 
 beforeAll(async () => {

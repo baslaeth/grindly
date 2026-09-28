@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { WorkbenchSections, DiscussionHistory } from "./workbench-sections";
 import { ResearchForm, RefreshResearch } from "./research-forms";
+import { RankSpace, DemoConversation, profileHref } from "./rank-space";
 import {
   credit,
+  roomData,
   evidenceBrief,
   person,
   sources,
@@ -52,7 +54,13 @@ function Identity({
   const profile = data.profiles.find((p) => p.member_id === id);
   return (
     <div className="byline">
-      <strong>{person(data, id)}</strong>
+      {data.directory?.some((p) => p.id === id) ? (
+        <Link href={profileHref(data.question.id, id)}>
+          <strong>{person(data, id)}</strong>
+        </Link>
+      ) : (
+        <strong>{person(data, id)}</strong>
+      )}
       {profile?.is_demo && (
         <span className="sample-label">Illustrative QA persona</span>
       )}
@@ -135,7 +143,20 @@ export function IllustrativeScenario() {
     </section>
   );
 }
-export function Workbench({ data }: { data: ResearchData }) {
+export function Workbench({
+  data,
+  profileId,
+}: {
+  data: ResearchData;
+  profileId?: string;
+}) {
+  return (
+    <RankSpace data={data} profileId={profileId}>
+      <RoomWorkbench data={roomData(data)} />
+    </RankSpace>
+  );
+}
+function RoomWorkbench({ data }: { data: ResearchData }) {
   const brief = evidenceBrief(data);
   const profile = data.profiles.find((p) => p.member_id === data.memberId);
   const gaps = data.question.gaps as Record<string, string>;
@@ -148,7 +169,10 @@ export function Workbench({ data }: { data: ResearchData }) {
           <RefreshResearch />
         </div>
         <p>{data.question.purpose}</p>
-        <Link href="/findings/new" className="button">
+        <Link
+          href={`/findings/new?room=${data.question.id}`}
+          className="button"
+        >
           <FilePlus2 size={16} />
           Contribute evidence
         </Link>
@@ -227,6 +251,7 @@ export function Workbench({ data }: { data: ResearchData }) {
             {data.messages.length === 0 && (
               <p>No messages yet. Which gap can you help resolve?</p>
             )}
+            <DemoConversation data={data} />
             <DiscussionHistory>
               {data.messages.map((m) => (
                 <article
@@ -265,7 +290,7 @@ export function Workbench({ data }: { data: ResearchData }) {
                         <MessageSquare size={15} />
                         Reply
                       </summary>
-                      <ResearchForm kind="message" replyId={m.id} />
+                      <ResearchForm kind="message" replyId={m.id} data={data} />
                     </details>
                   </div>
                   {data.versions
@@ -284,7 +309,7 @@ export function Workbench({ data }: { data: ResearchData }) {
               ))}
             </DiscussionHistory>
             {profile ? (
-              <ResearchForm kind="message" />
+              <ResearchForm kind="message" data={data} />
             ) : (
               <p className="notice">
                 Set your profile in Specialists before posting.
@@ -699,7 +724,7 @@ export function FindingRecord({
           )}
         </section>
       )}
-      {data.assignment.assignee_id === data.memberId && own && (
+      {data.assignment?.assignee_id === data.memberId && own && (
         <section className="section">
           <h2>Assignment deliverable</h2>
           <ResearchForm kind="deliverAssignment" versionId={current.id} />
@@ -825,6 +850,13 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
 }
 function Assignment({ data }: { data: ResearchData }) {
   const a = data.assignment;
+  if (!a)
+    return (
+      <section className="section">
+        <h2>Scoped assignment</h2>
+        <p>No assignment is configured in this room.</p>
+      </section>
+    );
   return (
     <section className="section">
       <div className="section-heading">
@@ -884,7 +916,7 @@ function PeerRequests({ data }: { data: ResearchData }) {
         </article>
       ))}
       {data.token.tier === "Silver" ? (
-        <ResearchForm kind="peerRequest" />
+        <ResearchForm kind="peerRequest" data={data} />
       ) : (
         <p className="muted">
           Silver members can initiate a scoped peer request.{" "}
@@ -963,12 +995,19 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           </div>
         </dl>
         <p className="muted">
-          Credit belongs to your member identity, not the transferable NFT. No
-          cash or token conversion is promised.
+          Credit belongs to your member identity, not the transferable NFT. The
+          NFT retains its tier when sold; its buyer does not inherit your
+          personal XP, contributions or earned balances. No cash or token
+          conversion is promised.
         </p>
       </section>
       <section className="section">
-        <h2>Silver: published demo requirements</h2>
+        <h2>Silver: illustrative assessment settings</h2>
+        <p className="notice">
+          Production upgrade thresholds, rewards and burn costs are
+          unconfigured. These existing settings are a demo, not finalized
+          economics.
+        </p>
         <ul className="progress-criteria">
           <li>
             <span>
@@ -1012,8 +1051,9 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         </ul>
         <p>
           Qualifying does not promote you automatically. A steward must approve
-          the current member, token and ownership epoch. Silver enables a
-          follow-up peer request.
+          the current owner and evidence. The recorded NFT tier then persists
+          across transfers. Silver opens Silver rooms and peer requests, not
+          Bronze rooms.
         </p>
         <p className="notice">
           Silver&apos;s implemented benefit: initiate a scoped peer request for
@@ -1028,7 +1068,11 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         </p>
       </section>
       <section className="section">
-        <h2>Your contribution history</h2>
+        <h2>Your contribution history in this rank</h2>
+        <p className="muted">
+          Personal XP includes your recorded lifetime credit. Other-rank records
+          remain preserved but are not exposed in this space.
+        </p>
         {!own.length && (
           <p>Your first contribution starts with an evidence gap.</p>
         )}

@@ -1,0 +1,397 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { Users, ArrowRight, Fingerprint, Hash } from "lucide-react";
+import { credit, type ResearchData } from "@/research/model";
+import { acquisitionLabel } from "@/research/spaces";
+import { ProfileDrawer, RoomSelector } from "./space-controls";
+
+export const profileHref = (room: string, id: string) =>
+  `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
+function Avatar({ name }: { name: string }) {
+  return (
+    <span className="profile-avatar" aria-hidden="true">
+      {name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")}
+    </span>
+  );
+}
+export function MemberDirectory({ data }: { data: ResearchData }) {
+  const people = data.directory ?? [];
+  const genuine = people.filter((p) => !p.is_demo).length;
+  const qa = people.length - genuine;
+  return (
+    <section className="section" id="space-members" aria-label="Space members">
+      <h2>
+        <Users size={18} aria-hidden="true" /> {data.token.tier} members
+      </h2>
+      <p>
+        {genuine} member{genuine === 1 ? "" : "s"}
+        {qa > 0 && ` + ${qa} labeled QA account${qa === 1 ? "" : "s"}`}
+      </p>
+      <p className="muted">
+        Recorded membership directory, not online presence. Access is checked
+        against live ownership on every request.
+      </p>
+      <ul className="member-directory">
+        {people.map((p) => (
+          <li key={p.id}>
+            <Link
+              href={profileHref(data.question.id, p.id)}
+              className="member-link"
+            >
+              <Avatar name={p.name} />
+              <span>
+                <strong>{p.name}</strong>
+                <span>{p.specialty}</span>
+              </span>
+            </Link>
+            <span className="rank-label">{p.tier} NFT</span>
+            {p.is_demo && <span className="sample-label">QA account</span>}
+          </li>
+        ))}
+      </ul>
+      <h3>Fictional specialist examples</h3>
+      <p className="sample-label">
+        {data.demoProfiles?.length ?? 0} demo profiles in this space. Not
+        members, traction or earned credit.
+      </p>
+      <ul className="member-directory">
+        {data.demoProfiles?.map((p) => (
+          <li key={p.id}>
+            <Link
+              className="member-link"
+              href={profileHref(data.question.id, `demo-${p.id}`)}
+            >
+              <Avatar name={p.name} />
+              <span>
+                <strong>{p.name}</strong>
+                <span>{p.specialty}</span>
+              </span>
+            </Link>
+            <span className="sample-label">Fictional {p.rank}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+export function DemoConversation({ data }: { data: ResearchData }) {
+  const messages =
+    data.demoMessages?.filter((m) => m.question_id === data.question.id) ?? [];
+  if (!messages.length) return null;
+  return (
+    <details className="demo-conversation" open>
+      <summary>
+        Illustrative specialist exchange{" "}
+        <span className="sample-label">Fictional conversation</span>
+      </summary>
+      <p className="muted">
+        An example of complementary help. These messages are not findings and
+        earn no XP.
+      </p>
+      {messages.map((m) => {
+        const author = data.demoProfiles!.find((p) => p.id === m.author_id)!;
+        const grant = data.demoDelegations?.find(
+          (d) => d.id === m.delegation_id && d.delegate_id === m.author_id,
+        );
+        const owner = data.demoProfiles?.find((p) => p.id === grant?.owner_id);
+        return (
+          <article
+            className={`message ${m.reply_to ? "reply" : ""}`}
+            key={m.id}
+          >
+            <div className="byline">
+              <Link href={profileHref(data.question.id, `demo-${author.id}`)}>
+                <strong>{author.name}</strong>
+              </Link>
+              {owner && (
+                <span>
+                  {" "}
+                  - working for{" "}
+                  <Link
+                    href={profileHref(data.question.id, `demo-${owner.id}`)}
+                  >
+                    {owner.name}&apos;s NFT
+                  </Link>
+                </span>
+              )}
+              <span className="specialty">{author.specialty}</span>
+              <span className="sample-label">Demo</span>
+            </div>
+            {m.reply_to && (
+              <span className="muted">
+                Reply to{" "}
+                {
+                  data.demoProfiles?.find(
+                    (p) =>
+                      p.id ===
+                      messages.find((parent) => parent.id === m.reply_to)
+                        ?.author_id,
+                  )?.name
+                }
+              </span>
+            )}
+            <p>{m.body}</p>
+          </article>
+        );
+      })}
+    </details>
+  );
+}
+function Profile({ data, id }: { data: ResearchData; id: string }) {
+  const example = data.demoProfiles?.find((p) => `demo-${p.id}` === id);
+  const member = data.directory?.find((p) => p.id === id);
+  if (!member && !example) return null;
+  const name = example?.name ?? member!.name;
+  const grants = example
+    ? (data.demoDelegations?.filter(
+        (d) => d.owner_id === example.id || d.delegate_id === example.id,
+      ) ?? [])
+    : [];
+  const contributed = example
+    ? grants
+        .filter((d) => d.delegate_id === example.id)
+        .reduce((n, d) => n + d.nft_xp, 0)
+    : 0;
+  const towardNFT = example
+    ? grants
+        .filter((d) => d.owner_id === example.id)
+        .reduce((n, d) => n + d.nft_xp, 0)
+    : 0;
+  const history = member
+    ? data.findings.filter(
+        (f) => f.author_id === member.id && f.visibility === "members",
+      )
+    : [];
+  return (
+    <ProfileDrawer
+      key={id}
+      back={`/workbench?room=${encodeURIComponent(data.question.id)}#space-members`}
+    >
+      <Avatar name={name} />
+      <h2 id="profile-title">{name}</h2>
+      {(example || member?.is_demo) && (
+        <p className="sample-label">
+          {example
+            ? "Fictional profile, XP and NFT history"
+            : "Isolated QA account and test activity"}
+        </p>
+      )}
+      <p>{(example?.bio ?? member!.bio) || "No bio shared yet."}</p>
+      <p className="specialty">{example?.specialty ?? member!.specialty}</p>
+      <p className="muted">
+        Self-described specialty, not reviewer authority or proof of expertise.
+      </p>
+      <section className="section">
+        <h3>
+          <Fingerprint size={18} /> {example?.rank ?? member!.tier} NFT
+        </h3>
+        {member ? (
+          <a
+            className="inline-link"
+            href={`https://explorer.testnet.chain.robinhood.com/token/${member.contract}/instance/${member.token}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Inspect NFT #{member.token}
+          </a>
+        ) : (
+          <p>Illustrative NFT owned by {name}; not an on-chain token.</p>
+        )}
+        <h4>Recorded acquisition and NFT progression</h4>
+        {example ? (
+          <p>
+            {
+              acquisitionLabel[
+                example.acquisition as keyof typeof acquisitionLabel
+              ]
+            }{" "}
+            (illustrative)
+          </p>
+        ) : (
+          <ul>
+            {member!.acquisitions.map((e, i) => (
+              <li key={i}>
+                {acquisitionLabel[e.kind]} - {e.at.slice(0, 10)}
+              </li>
+            ))}
+            {member!.progression.map((e, i) => (
+              <li key={`p${i}`}>
+                NFT progressed to {e.tier} - {e.at.slice(0, 10)}. This is NFT
+                history, not an achievement inherited by its buyer.
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="muted">
+          Tier stays with the NFT on sale. Personal work, XP and earned balances
+          do not.
+        </p>
+      </section>
+      <section className="section">
+        <h3>
+          {example
+            ? "Illustrative credit attribution"
+            : "Recorded personal credit"}
+        </h3>
+        <dl className="metrics">
+          <div>
+            <dt>Personally earned XP</dt>
+            <dd>{example?.personal_xp ?? member!.personal_xp}</dd>
+          </div>
+          <div>
+            <dt>Delegated XP toward this NFT</dt>
+            <dd>{towardNFT}</dd>
+          </div>
+          <div>
+            <dt>Work toward another NFT</dt>
+            <dd>{contributed}</dd>
+          </div>
+        </dl>
+        <p className="muted">
+          Delegated progress is separate, never added to the owner&apos;s
+          personal XP.{" "}
+          {example
+            ? "All numbers in this profile are fictional examples."
+            : "Delegated-work accounting is not active; no delegated XP has been awarded."}
+        </p>
+        <h4>Current and past delegates</h4>
+        {grants.length ? (
+          grants.map((d) => {
+            const delegate = data.demoProfiles!.find(
+              (p) => p.id === d.delegate_id,
+            )!;
+            const owner = data.demoProfiles!.find((p) => p.id === d.owner_id)!;
+            return (
+              <p key={d.id}>
+                <span className="sample-label">{d.status} demo</span>{" "}
+                <Link
+                  href={profileHref(data.question.id, `demo-${delegate.id}`)}
+                >
+                  {delegate.name}
+                </Link>{" "}
+                - working for{" "}
+                <Link href={profileHref(data.question.id, `demo-${owner.id}`)}>
+                  {owner.name}&apos;s NFT
+                </Link>
+                . {d.nft_xp} illustrative NFT XP.
+              </p>
+            );
+          })
+        ) : (
+          <p>
+            No delegation recorded. Live delegation and reward splits are not
+            active.
+          </p>
+        )}
+      </section>
+      <section className="section">
+        <h3>Attributed work in this space</h3>
+        {history.map((f) => (
+          <p key={f.id}>
+            <span className="status-label">
+              {f.status.replaceAll("_", " ")}
+            </span>{" "}
+            <Link href={`/findings/${f.id}`}>
+              {data.versions.find((v) => v.id === f.current_version)?.claim}
+            </Link>
+          </p>
+        ))}
+        {!history.length && (
+          <p>
+            {example
+              ? "Conversation examples only. No accepted findings or earned review outcomes are claimed."
+              : "No shared contributions visible in this rank yet."}
+          </p>
+        )}
+        {example &&
+          data.demoMessages
+            ?.filter((m) => m.author_id === example.id)
+            .map((m) => (
+              <blockquote key={m.id}>
+                {m.body}
+                <p className="sample-label">
+                  Illustrative discussion; not reviewed evidence
+                </p>
+              </blockquote>
+            ))}
+        <p className="muted">
+          Private records and another rank&apos;s conversations are not
+          included.
+        </p>
+      </section>
+    </ProfileDrawer>
+  );
+}
+export function RankSpace({
+  data,
+  profileId,
+  children,
+}: {
+  data: ResearchData;
+  profileId?: string;
+  children: ReactNode;
+}) {
+  const c = credit(data);
+  const directory = data.directory ?? [];
+  return (
+    <>
+      <header className="rank-space-heading">
+        <div>
+          <p className="eyebrow">{data.token.tier} space / exact-rank access</p>
+          <h2>{data.question.category}</h2>
+          <a className="inline-link" href="#space-members">
+            <Users size={15} />
+            {directory.filter((p) => !p.is_demo).length} members
+            {directory.some((p) => p.is_demo) &&
+              ` + ${directory.filter((p) => p.is_demo).length} QA accounts`}
+          </a>
+        </div>
+        <aside className="space-progress" aria-label="Your progress">
+          <h3>Your progress</h3>
+          <strong>{c.xp} personally earned XP</strong>
+          <p>
+            {c.points} {data.policy.season} points
+          </p>
+          <Link className="inline-link" href="/membership">
+            Your recorded history <ArrowRight size={14} />
+          </Link>
+          <p className="muted">
+            Production upgrade thresholds, rewards and burn costs are
+            unconfigured. Existing award values are illustrative.
+          </p>
+        </aside>
+      </header>
+      <div className="rank-room-layout">
+        <aside className="room-sidebar">
+          <h3>Rooms</h3>
+          <nav aria-label={`${data.token.tier} rooms`}>
+            {data.rooms?.map((r) => (
+              <Link
+                key={r.id}
+                href={`/workbench?room=${r.id}`}
+                aria-current={r.id === data.question.id ? "page" : undefined}
+              >
+                <Hash size={14} />
+                <span>{r.category}</span>
+              </Link>
+            ))}
+          </nav>
+          <p className="muted">
+            Specialties do not restrict rooms within your rank.
+          </p>
+          <p className="muted">Gold, Platinum, Diamond: future spaces.</p>
+        </aside>
+        <div className="room-content">
+          <RoomSelector rooms={data.rooms ?? []} selected={data.question.id} />
+          {children}
+        </div>
+      </div>
+      <MemberDirectory data={data} />
+      {profileId && <Profile data={data} id={profileId} />}
+    </>
+  );
+}

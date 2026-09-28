@@ -9,10 +9,19 @@ import {
 import { getEnvironment } from "@/server/environment";
 import { reportFailure, withRequestDiagnostics } from "@/server/diagnostics";
 export const dynamic = "force-dynamic";
-export async function GET() {
+export async function GET(request: Request) {
   return withRequestDiagnostics(async () => {
     try {
-      return jsonResponse(await readResearch(true));
+      const query = new URL(request.url).searchParams;
+      return jsonResponse(
+        await readResearch(true, {
+          room: query.get("room") ?? undefined,
+          profile: query.get("profile") ?? undefined,
+          finding: query.get("finding") ?? undefined,
+          version: query.get("version") ?? undefined,
+          message: query.get("message") ?? undefined,
+        }),
+      );
     } catch (error) {
       reportFailure("research.read", error);
       return errorResponse(error);
