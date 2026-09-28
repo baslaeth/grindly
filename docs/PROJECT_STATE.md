@@ -38,12 +38,20 @@ deployment; the feature branch has not been pushed.
   remains `a89e4d5` at https://grindly-woad.vercel.app.
 - Automated and browser evidence, final totals and gaps are appended to
   `verification.md`; focused review targets: `QA05_RANK_SPACES_HANDOFF.md`.
+- Implementation commit `f11482f`; final evidence/copy checkpoint is the branch
+  HEAD. `pnpm check`: 129 unit, 143 database, 11 contract tests and build passed.
+  Chrome foundation suite: 46 passed. Local authenticated contribution journey:
+  desktop/mobile passed; rank/profile boundary and screenshot journey: both passed.
+  Sixteen responsive screenshots saved in `rank-spaces-review/`.
 
 ## Current limits
 
 - No live NFT transfer was performed for this rule change. Earlier transfer-back
   A remains passed. The old B reset/invalidation expectation is superseded,
   not retroactively passed. New Silver continuity is simulated, not live evidence.
+- No existing QA wallet currently has a Silver NFT. Silver positive browser
+  journey and live sale-continuity verification remain unverified; both-rank
+  read/action isolation and transfer-back are tested in isolated SQL fixtures.
 - Genuine inbox/session lifecycle C and hosted issuance recovery D remain deferred.
   Prior intermittent RPC availability diagnosis remains insufficient evidence.
 - No new wallet/account setup or permanent QA promotion is needed for the nine

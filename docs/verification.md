@@ -703,3 +703,113 @@ work as genuine inbox delivery, human specialist assessment, customer validation
 or completion of deferred live Phase 1 B/C/D. Transfer-back A remains passed.
 Historical intermittent RPC availability and genuine reviewer/steward staffing
 remain separate blockers; UI work is not production-readiness evidence.
+
+## 2026-09-28: bounded Bronze/Silver rank spaces (local executable)
+
+### Authority and preserved checkpoint
+
+- Owner brief saved in `mvp-rank-spaces.md`. Base UI commit `1862bb3` retained
+  on `codex/checkpoint-ui-1862bb3`; implementation on `codex/mvp-rank-spaces`,
+  first commit `f11482f`. Charcoal/white UI, approved logo, six routes and earlier
+  authorization/reliability fixes preserved. Unrelated untracked brand exports
+  were not staged or changed. No new animation, contract, wallet or economics.
+- The owner explicitly superseded reset-to-Bronze-on-sale. Durable NFT tier and
+  personally earned credit are now separate. Historical transfer-back A remains
+  passed. Earlier B baseline is historical; its old reset/no-revival expectation
+  is superseded, not retroactively verified. No manual transfer was requested.
+
+### Schema and security
+
+- Migrations 012-015 applied in one transaction through the authenticated
+  Supabase SQL editor. CLI access was unavailable; existing runbook migration
+  history repair remains necessary before `supabase db push`.
+- Transaction asserted unchanged complete-row digests for existing members,
+  wallet bindings, membership bindings, audit events, messages, findings,
+  versions, award ledger, review assignments/decisions, member roles and
+  promotion decisions. **PASS**. New columns/rooms/display rows and acquisition
+  history were additive; no existing research, roles or audit history deleted.
+- Result: **20 rooms**, ten per rank; **9 fictional display profiles** (5 Bronze,
+  4 Silver), not new auth/member rows. No active old promotions existed before
+  migration, so no retired QA Silver approval was revived.
+- `scripts/verify-hosted-security.sql`: **PASS**, all **29** tables forced RLS;
+  anonymous/authenticated roles denied table access and protected invitation,
+  research v1/v2, rank and tier RPCs. Same restrictions pass on empty embedded DB.
+- Shared database changed, **production executable did not**. Migration 015
+  prevents the old executable's all-record snapshot from leaking Silver data:
+  legacy Bronze calls use v2 filtering; legacy Silver research calls deny.
+  Production metadata is still the old executable until an authorized deployment.
+  This is not a claim that the new rank/tier experience is live on Vercel.
+
+### Automated results
+
+- `pnpm check`: **PASS**, **129 unit**, **143 database**, **11 contract** tests;
+  lint, typecheck, generated database-type drift and Next production build pass.
+  Old owner/epoch-reset metadata expectations were replaced with the newly
+  authorized durable-tier expectations, not retained as contradictory assertions.
+- Focused tests: `tests/database/rank-spaces.test.ts` and updated research/security
+  suites cover both directions of exact-rank reads/actions, ten-room persistence,
+  replies and original author identity, private lineage content/ID redaction,
+  reviewer rank changes/reassignment, correction propagation and one initial award.
+- Simulated Silver transfer/return retains tier, denies stale binding, leaves
+  buyer XP at zero and original contributor XP/history unchanged. Unknown
+  acquisition provenance remains unknown; no paid-purchase inference. Fixture
+  delegate/owner identities stay separate and create no real ledger/member rows.
+- Unit context regressions reject hidden room/profile/finding/version/message
+  URLs and rank races; acting ownership still gates reads. Strict input rejects
+  invented author/delegate/owner/NFT-XP/rank payload fields. Irrelevant peer RPC
+  failure/hang cannot block the correction editor.
+- Chrome `pnpm test:e2e`: **46 passed**. This is foundation-mode boundary/UI
+  coverage, not live authentication or real NFT ownership evidence.
+- An early database assertion depended on UUID ordering when messages had equal
+  transaction timestamps. Corrected it to assert author identities independent
+  of order and reply attribution explicitly; subsequent complete runs passed.
+
+### Authenticated local browser results
+
+- Existing three isolated, labeled QA members only; no genuine research writes.
+  Normal app verification with operator-generated QA OTP, plus real testnet
+  ownership reads, not genuine inbox delivery or a browser authentication bypass.
+- Full contribution journey: **2 passed**, desktop and Pixel 7 mobile emulation.
+  Discussion -> original finding -> independently requested correction -> v2 ->
+  actual newly assigned reviewer accepts -> concurrent retries give one 25-XP
+  award -> attributed usefulness -> brief and personal progress update. Records:
+  desktop `f739b11d-f58b-4596-9474-0b6b7377f009`;
+  mobile `6bc2dc04-a999-451f-8f00-73f7e957fa73`.
+- New local rank/profile journey: **2 passed**, desktop/mobile. Current-rank
+  directory has no email fields; ten Bronze rooms, labeled fictional examples,
+  Alex's profile separate from David's NFT/profile, personal/delegated quantities
+  distinct, Escape dismissal, empty room editor link and no overflow.
+- Direct Silver room API read/write, Silver demo-profile API and corresponding
+  Workbench/editor/profile URLs denied from Bronze. A denied write creates no
+  Silver message. No timeouts, chain requirements or fail-closed gates weakened.
+- Initial mobile profile check, and later desktop empty-room-editor capture,
+  failed while client navigation was finishing. The latter failure snapshot
+  already showed the form after the assertion deadline. New harness explicitly
+  waits for the destination URL using the existing journey's 30-second
+  navigation bound, then asserts the drawer/editor. Existing ownership and
+  element-assertion timeouts were not increased. Screenshot caret hiding was
+  disabled to avoid modifying form styles during development-mode hydration.
+- **16** masked desktop/mobile PNGs in `docs/rank-spaces-review/`: populated
+  Bronze General, delegation conversation, Alex/David drawers, empty room,
+  unavailable room/editor/profile. Captures refuse genuine research and mask
+  genuine directory identities. Manually inspected populated, profile and short
+  unavailable layouts; shortened the progress disclaimer and fixed singular count.
+
+### Explicitly incomplete / not claimed
+
+- Positive Silver browser journey is **unverified**: existing QA NFTs are Bronze.
+  Silver room persistence/access/transfer continuity pass isolated SQL/unit tests,
+  not a live Silver wallet exercise. No permanent synthetic promotion was added
+  merely to obtain screenshots. No live NFT sale/transfer in this task.
+- Prior genuine production auth lifecycle C, hosted issuance recovery D, genuine
+  reviewer/steward staffing and intermittent RPC availability remain unresolved
+  or deferred as recorded earlier. No production-readiness claim.
+- Delegation execution, reward splits, verified purchases, upgrade economics,
+  demotion/burn rules, native tokens/payouts, marketplace and higher-rank rooms
+  remain inactive/out of scope. Fictional XP is not traction or real expertise.
+- No Vercel deployment and no feature-branch push. Production executable remains
+  `a89e4d5`. Local review: http://localhost:3000/workbench. Chat 05 targets and
+  exact commands: `QA05_RANK_SPACES_HANDOFF.md`.
+- Final post-copy/harness checks: full `pnpm check` passed with the totals above;
+  Chrome **46/46**, refreshed rank/profile captures **2/2**, lint/typecheck and
+  `git diff --check` passed. All sixteen screenshots are from the final UI.

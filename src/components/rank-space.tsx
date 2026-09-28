@@ -337,6 +337,7 @@ export function RankSpace({
 }) {
   const c = credit(data);
   const directory = data.directory ?? [];
+  const genuineCount = directory.filter((p) => !p.is_demo).length;
   return (
     <>
       <header className="rank-space-heading">
@@ -345,7 +346,7 @@ export function RankSpace({
           <h2>{data.question.category}</h2>
           <a className="inline-link" href="#space-members">
             <Users size={15} />
-            {directory.filter((p) => !p.is_demo).length} members
+            {genuineCount} {genuineCount === 1 ? "member" : "members"}
             {directory.some((p) => p.is_demo) &&
               ` + ${directory.filter((p) => p.is_demo).length} QA accounts`}
           </a>
@@ -360,8 +361,7 @@ export function RankSpace({
             Your recorded history <ArrowRight size={14} />
           </Link>
           <p className="muted">
-            Production upgrade thresholds, rewards and burn costs are
-            unconfigured. Existing award values are illustrative.
+            Demo award values. Upgrade economics remain unconfigured.
           </p>
         </aside>
       </header>

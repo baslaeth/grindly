@@ -88,9 +88,13 @@ handoff. Do not deploy production.
 
 ## Implementation checklist
 
-- [ ] Add rank/room data and service-only permission boundaries.
-- [ ] Persist NFT tier separately from member standing and ownership epochs.
-- [ ] Connect reusable rooms, profiles and labeled delegation illustrations.
-- [ ] Preserve scoped finding/review/credit flow and actual personal progress.
-- [ ] Run security regressions, desktop/mobile journey and capture screenshots.
-- [ ] Record results/gaps, commit and hand off without production deployment.
+- [x] Add rank/room data and service-only permission boundaries.
+- [x] Persist NFT tier separately from member standing and ownership epochs.
+- [x] Connect reusable rooms, profiles and labeled delegation illustrations.
+- [x] Preserve scoped finding/review/credit flow and actual personal progress.
+- [x] Run security regressions, desktop/mobile journey and capture screenshots.
+- [x] Record results/gaps, commit and hand off without production deployment.
+
+Execution evidence and remaining live gaps are in the 2026-09-28 verification
+entry. These completion marks do not mean live Silver transfer continuity or
+the previously deferred Phase 1 checks were verified.

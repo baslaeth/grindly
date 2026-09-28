@@ -1,5 +1,31 @@
 # Research P0 operations
 
+## Current rank checkpoint
+
+Owner authority: `mvp-rank-spaces.md`. Migrations 012-015 add exact-rank rooms,
+durable NFT tier/acquisition events, profile fields and fictional display rows.
+Apply all four as one transaction after 011, including the legacy RPC guard;
+do not seed Silver records while an unfiltered legacy snapshot remains callable.
+The existing hosted project has these migrations applied through the SQL editor,
+with unchanged-record digest assertions and the 29-table security check passing.
+CLI migration history still requires the runbook's repair procedure before push.
+No production executable deployment is part of this checkpoint.
+
+Existing Bronze General is still `testnet-readiness`; other room IDs are
+`bronze-<category-slug>` / `silver-<category-slug>`. Access uses the live-checked
+binding plus exact recorded NFT tier. Legacy executable research calls deny
+Silver and use the new filtered path for Bronze. New NFTs default Bronze.
+NFT Silver does not reset on transfer or removal of a former steward role;
+personal awards stay with their original member. No demotion rule is configured.
+
+Fictional profiles are service-only display fixtures, not member accounts:
+five Bronze and four Silver. Their XP and delegation examples never enter the
+ledger. Production upgrade economics, delegation execution and purchase
+verification workflows are not configured. Unknown transfer provenance is honest.
+No new manual NFT transfer or new fixture-wallet provisioning is needed here.
+Current live checks are local Bronze QA journeys; both-rank/transfer invariants
+are isolated database/unit tests, not live Silver-wallet evidence.
+
 ## Data and access
 
 Apply migrations 007-010 in filename order after the six membership migrations.

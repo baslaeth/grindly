@@ -92,6 +92,7 @@ test("local rank rooms, permitted profiles and delegation attribution", async ({
       ).toBe(true);
       await page.screenshot({
         path: `${folder}/${name}.png`,
+        caret: "initial",
         mask: [
           page.locator(".member-directory li:not(:has(.sample-label))"),
           page.locator(".byline:not(:has(.sample-label))"),
@@ -150,6 +151,10 @@ test("local rank rooms, permitted profiles and delegation attribution", async ({
     await page
       .getByRole("link", { name: "Contribute evidence", exact: true })
       .click();
+    await expect(page).toHaveURL(
+      /\/findings\/new\?room=bronze-seed-and-early-stage-investors$/,
+      { timeout: 30000 },
+    );
     await expect(page.getByLabel("Main claim", { exact: true })).toBeVisible();
     stage = "cross_rank_denial";
     for (const path of [
