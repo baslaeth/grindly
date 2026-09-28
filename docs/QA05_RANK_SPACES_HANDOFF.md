@@ -4,6 +4,14 @@ Review `codex/mvp-rank-spaces` against saved UI base `1862bb3`.
 Current authority is `mvp-rank-spaces.md`; do not enforce the superseded
 reset-to-Bronze-on-sale expectation. No production executable deployment.
 
+Latest repair after `5c88ec4`: see `QA05_RANK_CHAT_REPAIR.md`. Review the pushed
+feature-branch HEAD for chat-first category navigation (including reselecting the
+current mobile room), explicit Members directory, permitted profile review
+history and author/owner attribution. `rank-click-path.spec.ts` verifies real
+navigation and persistence rather than jumping directly to room/profile URLs.
+New screenshots: `docs/rank-chat-repair/{desktop,mobile}/`. The owner authorizes
+feature-branch push only, not production deployment or merge.
+
 ## High-signal targets
 
 - Migrations 012-015: exact-rank service-only snapshot/mutation/routing, existing
@@ -33,6 +41,7 @@ Use Node/pnpm versions from `package.json`, `NODE_USE_SYSTEM_CA=1` on Windows.
 pnpm check
 $env:PLAYWRIGHT_CHROMIUM_CHANNEL='chrome'
 pnpm test:e2e
+$env:GRINDLY_RANK_SCREENSHOTS='.local/rank-boundary-screens'
 pnpm exec playwright test --config playwright.research.config.ts journey.spec.ts rank-spaces.spec.ts
 git diff --check
 ```

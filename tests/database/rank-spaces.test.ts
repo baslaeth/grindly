@@ -438,3 +438,18 @@ it("legacy endpoints cannot expose Silver rooms through the old executable", asy
     /rank-aware/,
   );
 });
+it("directory includes permitted non-posters and members with no specialist profile", async () => {
+  await db.exec("reset role");
+  await db.query("delete from public.research_profiles where member_id=$1", [
+    ids[1],
+  ]);
+  await db.exec("set role service_role");
+  const data = await snapshot();
+  expect(data.messages).toHaveLength(0);
+  expect(data.directory!.map((p) => p.id).sort()).toEqual(
+    ids.slice(0, 3).sort(),
+  );
+  expect(data.directory!.find((p) => p.id === ids[1])!.name).toBe("Member");
+  expect(JSON.stringify(data.directory)).not.toContain("@example.test");
+  expect(data.directory!.some((p) => ids.slice(3).includes(p.id))).toBe(false);
+});

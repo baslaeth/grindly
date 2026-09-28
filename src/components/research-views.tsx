@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { WorkbenchSections, DiscussionHistory } from "./workbench-sections";
 import { ResearchForm, RefreshResearch } from "./research-forms";
-import { RankSpace, DemoConversation, profileHref } from "./rank-space";
+import {
+  RankSpace,
+  MemberDirectory,
+  DemoConversation,
+  profileHref,
+} from "./rank-space";
 import {
   credit,
   roomData,
@@ -152,7 +157,10 @@ export function Workbench({
 }) {
   return (
     <RankSpace data={data} profileId={profileId}>
-      <RoomWorkbench data={roomData(data)} />
+      <RoomWorkbench
+        key={`${data.question.id}:${profileId ?? "chat"}`}
+        data={roomData(data)}
+      />
     </RankSpace>
   );
 }
@@ -162,72 +170,68 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
   const gaps = data.question.gaps as Record<string, string>;
   return (
     <>
-      <section className="section question">
-        <p className="eyebrow">One shared research question</p>
-        <div className="section-heading">
-          <h2>{data.question.title}</h2>
-          <RefreshResearch />
-        </div>
-        <p>{data.question.purpose}</p>
+      <div className="room-tools">
         <Link
           href={`/findings/new?room=${data.question.id}`}
-          className="button"
+          className="inline-link"
         >
           <FilePlus2 size={16} />
           Contribute evidence
         </Link>
-        <p>
-          <a className="inline-link" href="#evidence-brief">
-            Current accepted evidence brief <ArrowRight size={16} />
-          </a>
-        </p>
-        <dl
-          className="coverage"
-          aria-label="Specialty coverage and open questions"
-        >
-          {Object.entries(gaps).map(([key, gap]) => (
-            <div key={key}>
-              <dt>
-                <Specialty value={key} />
-              </dt>
-              <dd>{gap}</dd>
-              <dd>
-                <Status
-                  value={
-                    brief.open.includes(key)
-                      ? "Open question"
-                      : brief.accepted
-                            .filter((a) => a.version.specialty === key)
-                            .every(
-                              (a) =>
-                                data.profiles.find(
-                                  (p) => p.member_id === a.finding.author_id,
-                                )?.is_demo,
-                            )
-                        ? "Illustrative QA coverage only"
-                        : "Supported within stated limits"
-                  }
-                />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+        <a className="inline-link" href="#evidence-brief">
+          Current accepted evidence brief <ArrowRight size={16} />
+        </a>
+        <Link href="/review" className="inline-link">
+          <ListChecks size={16} />
+          Review Desk
+        </Link>
+      </div>
+      <details className="room-question">
+        <summary>Research question and open gaps</summary>
+        <section className="section question">
+          <p className="eyebrow">One shared research question</p>
+          <div className="section-heading">
+            <h2>{data.question.title}</h2>
+            <RefreshResearch />
+          </div>
+          <p>{data.question.purpose}</p>
+          <dl
+            className="coverage"
+            aria-label="Specialty coverage and open questions"
+          >
+            {Object.entries(gaps).map(([key, gap]) => (
+              <div key={key}>
+                <dt>
+                  <Specialty value={key} />
+                </dt>
+                <dd>{gap}</dd>
+                <dd>
+                  <Status
+                    value={
+                      brief.open.includes(key)
+                        ? "Open question"
+                        : brief.accepted
+                              .filter((a) => a.version.specialty === key)
+                              .every(
+                                (a) =>
+                                  data.profiles.find(
+                                    (p) => p.member_id === a.finding.author_id,
+                                  )?.is_demo,
+                              )
+                          ? "Illustrative QA coverage only"
+                          : "Supported within stated limits"
+                    }
+                  />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </details>
       <WorkbenchSections
         participants={
-          <section className="section">
-            <h2>Participants</h2>
-            <p className="muted">
-              Specialty is a self-described focus. Membership rank and assigned
-              review authority are separate.
-            </p>
-            {data.profiles.length ? (
-              data.profiles.map((p) => (
-                <Identity key={p.member_id} data={data} id={p.member_id} />
-              ))
-            ) : (
-              <p className="muted">No member profiles yet.</p>
-            )}
+          <>
+            <MemberDirectory data={data} />
             <details open={!profile}>
               <summary>
                 {profile
@@ -236,7 +240,7 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
               </summary>
               <ResearchForm kind="profile" data={data} />
             </details>
-          </section>
+          </>
         }
         discussion={
           <section
@@ -245,13 +249,22 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
             id="discussion"
           >
             <div className="section-heading">
-              <h2>Specialist discussion</h2>
+              <h2>
+                {data.token.tier} / {data.question.category} chat
+              </h2>
               <span className="muted">Messages are not reviewed findings</span>
             </div>
             {data.messages.length === 0 && (
-              <p>No messages yet. Which gap can you help resolve?</p>
+              <p>No messages yet in this room. Start the conversation.</p>
             )}
-            <DemoConversation data={data} />
+            {profile ? (
+              <ResearchForm key={data.question.id} kind="message" data={data} />
+            ) : (
+              <div className="notice">
+                <p>Set your name and specialty to post in this room.</p>
+                <ResearchForm kind="profile" data={data} />
+              </div>
+            )}
             <DiscussionHistory>
               {data.messages.map((m) => (
                 <article
@@ -308,13 +321,7 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
                 </article>
               ))}
             </DiscussionHistory>
-            {profile ? (
-              <ResearchForm kind="message" data={data} />
-            ) : (
-              <p className="notice">
-                Set your profile in Specialists before posting.
-              </p>
-            )}
+            <DemoConversation data={data} />
           </section>
         }
         evidence={

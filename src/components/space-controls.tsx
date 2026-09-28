@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export function RoomSelector({
   rooms,
@@ -15,13 +15,21 @@ export function RoomSelector({
     <label className="mobile-room-select">
       Room
       <select
-        value={selected}
-        onChange={(event) =>
+        aria-label="Room"
+        value=""
+        onChange={(event) => {
+          // Next preserves this component for the current room; native hash
+          // navigation also restores Chat when returning from another panel.
+          if (event.target.value === selected)
+            window.location.hash = "#discussion";
           router.push(
-            `/workbench?room=${encodeURIComponent(event.target.value)}`,
-          )
-        }
+            `/workbench?room=${encodeURIComponent(event.target.value)}#discussion`,
+          );
+        }}
       >
+        <option value="" disabled>
+          {rooms.find((r) => r.id === selected)?.category ?? "Choose room"}
+        </option>
         {rooms.map((r) => (
           <option key={r.id} value={r.id}>
             {r.category}
@@ -58,12 +66,12 @@ export function ProfileDrawer({
     >
       <button
         type="button"
-        className="button secondary icon-button profile-close"
-        aria-label="Close profile"
-        title="Close profile"
+        className="button secondary profile-close"
+        aria-label="Back to chat"
+        title="Back to chat"
         onClick={() => router.replace(back, { scroll: false })}
       >
-        <X size={18} />
+        <ArrowLeft size={18} /> Back to chat
       </button>
       {children}
     </dialog>

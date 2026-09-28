@@ -76,6 +76,25 @@ export function person(data: Snapshot, id: string) {
     data.profiles.find((p) => p.member_id === id)?.display_name ?? "Member"
   );
 }
+// Profiles are public-to-this-rank summaries, not a shortcut into reviewer-only work.
+export function profileHistory(data: Snapshot, memberId: string) {
+  const permitted = data.findings.filter((f) => f.visibility === "members");
+  const versions = data.versions.filter((v) =>
+    permitted.some((f) => f.id === v.finding_id),
+  );
+  return {
+    findings: permitted.filter((f) => f.author_id === memberId),
+    reviews: data.decisions.flatMap((decision) => {
+      const version = versions.find((v) => v.id === decision.version_id);
+      const finding = permitted.find((f) => f.id === version?.finding_id);
+      return version &&
+        finding &&
+        (finding.author_id === memberId || decision.reviewer_id === memberId)
+        ? [{ decision, version, finding }]
+        : [];
+    }),
+  };
+}
 export function credit(data: Snapshot) {
   if (data.personalCredit) return data.personalCredit;
   return {

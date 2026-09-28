@@ -82,7 +82,7 @@ test("local rank rooms, permitted profiles and delegation attribution", async ({
       data.findings.some((f) => !demos.has(f.author_id))
     )
       throw new Error("Refusing screenshots containing genuine research");
-    const folder = `docs/rank-spaces-review/${info.project.name}`;
+    const folder = `${process.env.GRINDLY_RANK_SCREENSHOTS ?? "docs/rank-spaces-review"}/${info.project.name}`;
     await mkdir(folder, { recursive: true });
     const capture = async (name: string) => {
       expect(
@@ -105,7 +105,9 @@ test("local rank rooms, permitted profiles and delegation attribution", async ({
       page.getByRole("heading", { name: "General", exact: true }),
     ).toBeVisible();
     await capture("bronze-general");
-    await page.getByRole("tab", { name: "Discussion", exact: true }).click();
+    await expect(
+      page.getByRole("tab", { name: "Chat", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
     const exchange = page.locator(".demo-conversation");
     await expect(exchange).toContainText("working for");
     await exchange.scrollIntoViewIfNeeded();
@@ -131,9 +133,9 @@ test("local rank rooms, permitted profiles and delegation attribution", async ({
     await expect(dialog).toContainText("20");
     await capture("david-profile");
     await page.keyboard.press("Escape");
-    await expect(page).toHaveURL(/#space-members$/, { timeout: 30000 });
+    await expect(page).toHaveURL(/#discussion$/, { timeout: 30000 });
     await expect(dialog).toHaveCount(0);
-    stage = "empty_room";
+    stage = "category_room";
     await page.goto("/workbench?room=bronze-seed-and-early-stage-investors");
     await expect(
       page.getByRole("heading", {

@@ -1,12 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Users, ArrowRight, Fingerprint, Hash } from "lucide-react";
-import { credit, type ResearchData } from "@/research/model";
+import {
+  credit,
+  profileHistory,
+  specialtyLabel,
+  type ResearchData,
+} from "@/research/model";
 import { acquisitionLabel } from "@/research/spaces";
 import { ProfileDrawer, RoomSelector } from "./space-controls";
 
 export const profileHref = (room: string, id: string) =>
   `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
+function recordedSpecialty(data: ResearchData, id: string, fallback: string) {
+  const profile = data.profiles.find((p) => p.member_id === id);
+  return profile ? specialtyLabel(profile.specialty) : fallback;
+}
 function Avatar({ name }: { name: string }) {
   return (
     <span className="profile-avatar" aria-hidden="true">
@@ -31,6 +40,9 @@ export function MemberDirectory({ data }: { data: ResearchData }) {
         {genuine} member{genuine === 1 ? "" : "s"}
         {qa > 0 && ` + ${qa} labeled QA account${qa === 1 ? "" : "s"}`}
       </p>
+      <a className="inline-link" href="#discussion">
+        Back to chat <ArrowRight size={14} />
+      </a>
       <p className="muted">
         Recorded membership directory, not online presence. Access is checked
         against live ownership on every request.
@@ -45,7 +57,7 @@ export function MemberDirectory({ data }: { data: ResearchData }) {
               <Avatar name={p.name} />
               <span>
                 <strong>{p.name}</strong>
-                <span>{p.specialty}</span>
+                <span>{recordedSpecialty(data, p.id, p.specialty)}</span>
               </span>
             </Link>
             <span className="rank-label">{p.tier} NFT</span>
@@ -162,14 +174,12 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
         .reduce((n, d) => n + d.nft_xp, 0)
     : 0;
   const history = member
-    ? data.findings.filter(
-        (f) => f.author_id === member.id && f.visibility === "members",
-      )
-    : [];
+    ? profileHistory(data, member.id)
+    : { findings: [], reviews: [] };
   return (
     <ProfileDrawer
       key={id}
-      back={`/workbench?room=${encodeURIComponent(data.question.id)}#space-members`}
+      back={`/workbench?room=${encodeURIComponent(data.question.id)}#discussion`}
     >
       <Avatar name={name} />
       <h2 id="profile-title">{name}</h2>
@@ -181,7 +191,10 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
         </p>
       )}
       <p>{(example?.bio ?? member!.bio) || "No bio shared yet."}</p>
-      <p className="specialty">{example?.specialty ?? member!.specialty}</p>
+      <p className="specialty">
+        {example?.specialty ??
+          recordedSpecialty(data, member!.id, member!.specialty)}
+      </p>
       <p className="muted">
         Self-described specialty, not reviewer authority or proof of expertise.
       </p>
@@ -213,6 +226,12 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
           </p>
         ) : (
           <ul>
+            {!member!.acquisitions.length && !member!.progression.length && (
+              <li>
+                No acquisition or progression history recorded. Provenance is
+                unknown.
+              </li>
+            )}
             {member!.acquisitions.map((e, i) => (
               <li key={i}>
                 {acquisitionLabel[e.kind]} - {e.at.slice(0, 10)}
@@ -290,7 +309,7 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
       </section>
       <section className="section">
         <h3>Attributed work in this space</h3>
-        {history.map((f) => (
+        {history.findings.map((f) => (
           <p key={f.id}>
             <span className="status-label">
               {f.status.replaceAll("_", " ")}
@@ -300,13 +319,62 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
             </Link>
           </p>
         ))}
-        {!history.length && (
+        {!history.findings.length && (
           <p>
             {example
               ? "Conversation examples only. No accepted findings or earned review outcomes are claimed."
               : "No shared contributions visible in this rank yet."}
           </p>
         )}
+        {member && (
+          <details className="profile-history">
+            <summary>Discussion contributions</summary>
+            {data.messages.filter((m) => m.author_id === member.id).length ===
+              0 && <p>No messages recorded in this rank.</p>}
+            {data.messages
+              .filter((m) => m.author_id === member.id)
+              .map((m) => (
+                <p key={m.id}>
+                  <Link
+                    href={`/workbench?room=${encodeURIComponent(m.question_id)}#message-${m.id}`}
+                  >
+                    {m.body}
+                  </Link>
+                  <span className="muted">
+                    {" "}
+                    {m.created_at.slice(0, 10)}. Discussion, not accepted
+                    evidence.
+                  </span>
+                </p>
+              ))}
+          </details>
+        )}
+        <details className="profile-history">
+          <summary>Review history</summary>
+          {history.reviews.length === 0 && (
+            <p>No permitted review history recorded in this rank.</p>
+          )}
+          {history.reviews.map(({ decision, version, finding }) => (
+            <article key={decision.id} className="record">
+              <p>
+                {decision.reviewer_id === member?.id
+                  ? "Reviewed by this member"
+                  : "Review of this member's work"}
+              </p>
+              <Link href={`/findings/${finding.id}`}>
+                {version.claim} (v{version.version})
+              </Link>
+              <p>
+                {decision.decision === "accept"
+                  ? "Accepted within scope"
+                  : "Correction requested"}{" "}
+                - {decision.created_at.slice(0, 10)}
+              </p>
+              <p>{decision.scope}</p>
+              <p>{decision.reason}</p>
+            </article>
+          ))}
+        </details>
         {example &&
           data.demoMessages
             ?.filter((m) => m.author_id === example.id)
@@ -344,11 +412,14 @@ export function RankSpace({
         <div>
           <p className="eyebrow">{data.token.tier} space / exact-rank access</p>
           <h2>{data.question.category}</h2>
-          <a className="inline-link" href="#space-members">
-            <Users size={15} />
+          <p className="member-count" aria-label="Current rank member count">
             {genuineCount} {genuineCount === 1 ? "member" : "members"}
             {directory.some((p) => p.is_demo) &&
               ` + ${directory.filter((p) => p.is_demo).length} QA accounts`}
+          </p>
+          <a className="button secondary" href="#space-members">
+            <Users size={16} />
+            Members
           </a>
         </div>
         <aside className="space-progress" aria-label="Your progress">
@@ -372,7 +443,8 @@ export function RankSpace({
             {data.rooms?.map((r) => (
               <Link
                 key={r.id}
-                href={`/workbench?room=${r.id}`}
+                href={`/workbench?room=${r.id}#discussion`}
+                prefetch={false}
                 aria-current={r.id === data.question.id ? "page" : undefined}
               >
                 <Hash size={14} />
@@ -390,7 +462,6 @@ export function RankSpace({
           {children}
         </div>
       </div>
-      <MemberDirectory data={data} />
       {profileId && <Profile data={data} id={profileId} />}
     </>
   );

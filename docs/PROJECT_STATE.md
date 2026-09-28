@@ -1,11 +1,42 @@
-# Grindly: local Bronze/Silver rank-spaces checkpoint
+# Grindly: rank-chat repair checkpoint
 
 Updated 2026-09-28. Current authority: `mvp-rank-spaces.md`, superseding the old
 reset-to-Bronze-on-transfer rule and conflicting single-space assumptions.
 Feature branch `codex/mvp-rank-spaces` starts at UI checkpoint `1862bb3`, also
 saved as `codex/checkpoint-ui-1862bb3`. Unrelated brand exports remain untracked
-and unchanged. This is a local review checkpoint: no production executable
-deployment; the feature branch has not been pushed.
+and unchanged. This remains a local executable review: no production deployment.
+The owner now authorizes pushing `codex/mvp-rank-spaces` to `baslaeth/grindly`
+after this repair's checks; no merge, force-push or production deployment.
+
+## Current repair
+
+- Correct server confirmed: port 3000 runs this repository's Next dev process,
+  not an old checkout. Review http://localhost:3000/workbench. The prior gap was
+  evidence-first room selection and a buried member directory, not a stale build.
+- Room selection now opens Chat directly with rank/category, composer, retained
+  history and empty state. Research tools are secondary, not removed. Selecting
+  the current room on mobile also restores Chat from Members or another panel.
+- Explicit member count and Members action; all permitted recorded members,
+  including non-posters/profileless members, plus separately labeled examples.
+  Shared drawers expose only permitted histories, exact-version reviews,
+  recorded personal credit and separately labeled illustrative delegated credit.
+- Grinder, owner and owner's own-post links are distinct; Back to chat retains
+  the room. No delegation/reward activation or authorization changes.
+- Focused report and commands: `QA05_RANK_CHAT_REPAIR.md`; independent review
+  targets: `QA05_RANK_SPACES_HANDOFF.md`. Final results are in `verification.md`.
+- Read-only production compatibility: old Bronze snapshot remains filtered;
+  Workbench, Submit Finding, Review, Membership and metadata passed on the repeat.
+  First Membership page returned the generic ownership/research unavailable state.
+  A repeated local mobile profile read also failed closed with the generic
+  unavailable page. Intermittent availability remains unresolved; no provider or
+  schema cause established. No hosted migration/configuration or genuine research
+  change here.
+- Repair verification: `pnpm check` **130 unit / 144 database / 11 contract**,
+  lint/typecheck/type drift/build passed; Chrome foundation **46** passed. Six
+  unique desktop/mobile click-path cases passed across focused runs, rank-boundary
+  **2**, full contribution/review/credit journey **2**, hosted compatibility repeat
+  **1**. Earlier failures remain recorded, not overwritten by those passes.
+  Fourteen sanitized screenshots: `docs/rank-chat-repair/`.
 
 ## Current implementation
 
@@ -38,8 +69,8 @@ deployment; the feature branch has not been pushed.
   remains `a89e4d5` at https://grindly-woad.vercel.app.
 - Automated and browser evidence, final totals and gaps are appended to
   `verification.md`; focused review targets: `QA05_RANK_SPACES_HANDOFF.md`.
-- Implementation commit `f11482f`; final evidence/copy checkpoint is the branch
-  HEAD. `pnpm check`: 129 unit, 143 database, 11 contract tests and build passed.
+- Original implementation commit `f11482f`, original evidence checkpoint `5c88ec4`.
+  Before this repair, `pnpm check`: 129 unit, 143 database, 11 contract tests and build passed.
   Chrome foundation suite: 46 passed. Local authenticated contribution journey:
   desktop/mobile passed; rank/profile boundary and screenshot journey: both passed.
   Sixteen responsive screenshots saved in `rank-spaces-review/`.

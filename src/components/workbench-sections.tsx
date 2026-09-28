@@ -9,20 +9,21 @@ import {
 } from "lucide-react";
 
 const sections = [
+  { id: "discussion", label: "Chat", icon: MessageSquare },
   { id: "evidence", label: "Evidence brief", icon: BookOpen },
-  { id: "discussion", label: "Discussion", icon: MessageSquare },
   { id: "opportunities", label: "Next opportunities", icon: ArrowUpRight },
   { id: "record", label: "Contribution record", icon: History },
-  { id: "participants", label: "Specialists", icon: Users },
+  { id: "participants", label: "Members", icon: Users },
 ] as const;
 type Section = (typeof sections)[number]["id"];
 
 export function WorkbenchSections(props: Record<Section, ReactNode>) {
-  const [active, setActive] = useState<Section>("evidence");
+  const [active, setActive] = useState<Section>("discussion");
   const [targetHash, setTargetHash] = useState("");
   useEffect(() => {
     const follow = (hash: string) => {
       if (hash === "#evidence-brief") setActive("evidence");
+      if (hash === "#space-members") setActive("participants");
       if (hash.startsWith("#message-") || hash === "#discussion")
         setActive("discussion");
       setTargetHash(hash);
@@ -33,8 +34,14 @@ export function WorkbenchSections(props: Record<Section, ReactNode>) {
         event.target instanceof Element
           ? event.target.closest("a")?.getAttribute("href")
           : null;
-      if (href === "#evidence-brief" || href?.startsWith("#message-"))
-        follow(href);
+      const hash = href ? new URL(href, window.location.href).hash : "";
+      if (
+        hash === "#evidence-brief" ||
+        hash === "#space-members" ||
+        hash === "#discussion" ||
+        hash.startsWith("#message-")
+      )
+        follow(hash);
     };
     followHash();
     window.addEventListener("hashchange", followHash);

@@ -15,6 +15,9 @@ conflicting rank assumptions for this checkpoint. Bronze/Silver are exact-rank
 spaces; NFT tier persists on transfer, personal XP does not transfer. No new
 manual NFT transfer, economics finalization, delegation activation or production
 deployment is authorized. See `docs/QA05_RANK_SPACES_HANDOFF.md` for review.
+The subsequent chat/profile discoverability repair is documented in
+`docs/QA05_RANK_CHAT_REPAIR.md`. Feature-branch push to `baslaeth/grindly` is
+authorized; merge, force-push and production deployment are not.
 
 Read these before changing scope or implementation:
 - `docs/frozen-p0.md`: approved product scope.

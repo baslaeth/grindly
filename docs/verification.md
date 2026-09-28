@@ -813,3 +813,125 @@ remain separate blockers; UI work is not production-readiness evidence.
 - Final post-copy/harness checks: full `pnpm check` passed with the totals above;
   Chrome **46/46**, refreshed rank/profile captures **2/2**, lint/typecheck and
   `git diff --check` passed. All sixteen screenshots are from the final UI.
+
+## 2026-09-28: actual rank-chat click-path repair
+
+Owner-authorized repair from `5c88ec4` on `codex/mvp-rank-spaces`, not a new
+product phase. No reset, migration, contract change, production deployment or
+genuine research mutation. Local review: http://localhost:3000/workbench.
+
+### Build and interface
+
+- Port 3000 listener was traced to this checkout's Next dev process (PID 46504,
+  parent command `next dev --hostname 127.0.0.1 --port 3000`). The actual DOM
+  before repair confirmed the evidence-first default; it was not an older app.
+- Chat now opens on category selection. The room title, composer, history and
+  honest empty state are together; research tools remain secondary. Members is
+  an explicit action, with recorded real/QA counts separated from demo examples.
+- Profiles retain permitted contribution/review history and separate personal XP
+  from illustrative NFT-delegated progress. Original author and owner links stay
+  distinct. No new per-profile RPC reads or authorization fallbacks.
+- The current-room mobile selector initially changed the URL but left Members
+  selected. This **real defect was reproduced**, then fixed using native hash
+  navigation for in-place selection and a reusable current-room prompt. Final
+  mobile routing run passed all ten room selections without a Chat-tab click.
+- Earlier browser failures also identified an incorrectly nested test locator
+  for David's own post and the selector's implicit accessible name. Corrected
+  locator and explicit Room name; neither assertion deadlines nor permission
+  assertions were relaxed.
+
+### Deterministic and boundary evidence
+
+- `pnpm check`: **PASS**, **130 unit**, **144 database**, **11 contract** tests;
+  lint, typecheck, generated type drift and Next build pass.
+- Chrome foundation `pnpm test:e2e`: **46 passed**. Foundation mode is not live
+  OTP/NFT evidence. `git diff --check`: **PASS**.
+- New unit regression checks public exact-version reviews/corrections while
+  excluding private findings, hidden versions and inaccessible decision IDs.
+- New SQL regression includes every permitted active rank member in the
+  directory, including non-posters and a member with no research profile;
+  opposite-rank members and emails are excluded. Existing rank, lineage,
+  demo/genuine, duplicate-award and NFT-continuity regressions still pass.
+- Existing authenticated rank boundary suite: **2 passed**, desktop/mobile.
+  Direct Silver room read/write and profile/Workbench/editor URLs denied from
+  Bronze. These negative direct-URL checks are separate from navigation proof.
+  Captures from this repeat use `.local/rank-boundary-screens/` so prior dated
+  screenshots are preserved, not silently replaced after room content changes.
+
+### Hosted compatibility, not a deployment
+
+- `hosted-rank-compat.spec.ts` uses an existing labeled QA identity with normal
+  app verification, operator-generated QA OTP and real ownership reads. No
+  genuine browser session is copied. No hosted research writes or schema changes.
+- Older deployed executable returned ten Bronze rooms, Bronze-only directory
+  and examples, no emails, and message/finding room IDs confined to that rank.
+- First run: Workbench, Submit Finding and Review rendered with authenticated QA
+  content. Membership returned HTTP 200 with the safe research/ownership
+  unavailable page, **not a successful protected read**. This run failed.
+- Explicit repeat: **1 passed**; Workbench, Submit Finding, Review, Membership
+  and metadata succeeded, no page errors or personal metadata. Intermittent
+  hosted availability remains unresolved; a passing repeat does not erase it or
+  identify its cause. No speculative provider/network diagnosis made here.
+- Production remains the older executable `a89e4d5`. Shared migrations 012-015
+  were already applied before this repair; no unrelated hosted changes made.
+
+### Evidence boundaries
+
+- Only existing isolated QA identities and visibly fictional examples are used.
+  Positive live Silver and NFT-transfer/tier-continuity checks remain unverified;
+  no manual transfer, temporary promotion or new wallet setup in this repair.
+- Earlier completed live transfer-back remains passed, not rerun. Genuine inbox
+  lifecycle, hosted issuance recovery and genuine reviewer/steward staffing remain
+  deferred/unresolved as previously recorded. No production-readiness claim.
+- Current reports/targets: `QA05_RANK_CHAT_REPAIR.md` and
+  `QA05_RANK_SPACES_HANDOFF.md`. Feature-branch push is owner-authorized;
+  production deployment, merge and force-push are not.
+
+### Local click-path evidence
+
+- Desktop and mobile routing tests **passed** all ten categories via the actual
+  sidebar links/mobile selector, deliberately starting on Members each time.
+  Correct category, Chat selection, composer, exact room message IDs and empty
+  states were asserted. No direct room URL navigation substitutes for these clicks.
+- Desktop and mobile persistence tests **passed**: one clearly labeled QA message
+  per room posted through the UI, retained on refresh and absent from the next
+  room. Traders reply also persisted; actual QA author click opened their profile
+  with recorded personal/empty delegated credit, then returned to Traders chat.
+  Posting/replies left the personal XP/points aggregate unchanged.
+- Directory tests include every returned member/example link, not only posters;
+  all three QA and all five permitted Bronze fictional profiles were clicked.
+  Genuine entries are checked for presence but neither opened nor captured.
+  Alex -> David's NFT, David's own post -> David, and Back to chat are separate
+  browser clicks. Both viewport directory tests passed before the capture repeat.
+- A later repeat failed on the local mobile QA-risk profile: HTTP 200 rendered
+  the safe research/ownership unavailable state instead of a drawer. Safe server
+  classification was `service_unavailable`, with null RPC code/HTTP subtype and
+  no correlation ID on that render. Cause is not established. Do not erase this
+  failure or count it as an authorized successful read. Timeouts and fail-closed
+  behavior were unchanged.
+- Final focused reruns passed both viewport profile paths, including every QA
+  and fictional profile, author/owner/own-post links and returning to the same
+  chat. **Six unique click-path scenarios passed across the final focused runs**
+  (routing, persistence, directory/profile on desktop and mobile). Not a claim
+  that every earlier run passed: the failures above remain part of the evidence.
+- One additional screenshot-only assertion hit fractional device-pixel rounding
+  (99.9675% intersection rather than exactly 100%). Screenshot visibility now
+  tolerates less than 0.1% rounding; exact credit values, navigation and existing
+  timeouts remain asserted. Final mobile capture passed with all credit rows.
+- Existing full research journey: **2 passed**, desktop/mobile. Discussion ->
+  finding v1 -> independent correction request -> linked v2 -> actual reassigned
+  reviewer accepts -> one idempotent award -> usefulness -> updated brief and
+  credit. New labeled QA findings: desktop
+  `240be454-04e4-4549-8555-ae869f9d033a`, mobile
+  `0ff669fe-6a3d-4ddb-9c83-0761bc5211e0`. Not genuine customer outcomes.
+- **14** sanitized PNGs in `docs/rank-chat-repair/{desktop,mobile}/`: empty and
+  populated Traders, directory, grinder/owner profiles and their credit sections.
+  Empty-room captures predate the test posts. Capture guards reject genuine
+  research and mask genuine directory identities. Selected captures were visually
+  inspected for readable layout and privacy; existing dated screenshots retained.
+- Final code `pnpm check` passed again with **130/144/11** tests plus build;
+  Chrome foundation passed **46/46** on the repaired executable. Outgoing four
+  prior commits and staged repair text were scanned for configured secret values,
+  private-key markers and token-like strings: no hits. No added personal-email
+  lines. Untracked brand exports, `.env.local`, QA journal and failure artifacts
+  are excluded. Only the unchanged approved tracked logo is carried forward.

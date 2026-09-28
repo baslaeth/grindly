@@ -139,9 +139,9 @@ test("local UI review with isolated identity and no research writes", async ({
           await page
             .getByRole("tab", { name: "Evidence brief", exact: true })
             .focus();
-          await page.keyboard.press("ArrowRight");
+          await page.keyboard.press("ArrowLeft");
           await expect(
-            page.getByRole("tab", { name: "Discussion", exact: true }),
+            page.getByRole("tab", { name: "Chat", exact: true }),
           ).toBeFocused();
           await expect(
             page.getByRole("region", {

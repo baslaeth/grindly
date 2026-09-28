@@ -1285,6 +1285,29 @@ dd,
 .room-content {
   min-width: 0;
 }
+.room-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 18px 0 12px;
+  font-size: 12px;
+}
+.room-question {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  font-size: 13px;
+}
+.room-content #discussion > .research-form {
+  margin-bottom: 24px;
+  max-width: none;
+}
+.profile-history {
+  margin: 20px 0;
+}
+.member-count {
+  font-size: 13px;
+  margin: 8px 0 12px;
+}
 .room-content .question h2 {
   font-size: 23px;
 }
