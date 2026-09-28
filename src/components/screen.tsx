@@ -12,7 +12,6 @@ export function Screen({
   return (
     <>
       <header className="page-heading">
-        <p className="eyebrow">Specialist exchange</p>
         <h1>{title}</h1>
       </header>
       {children}

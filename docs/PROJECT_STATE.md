@@ -1,4 +1,25 @@
-# Grindly: rank-chat repair checkpoint
+# Grindly: Login annotation checkpoint
+
+## Latest local follow-up
+
+The 2026-09-28 browser annotations are implemented after pushed checkpoint
+`51186a1`, on the same `codex/mvp-rank-spaces` branch. Review
+http://localhost:3000/join. This follow-up is committed locally, not pushed or
+deployed. Routes, rank boundaries, membership checks and stored records are unchanged.
+
+Navigation now reads Login, Hub, Submit alpha, Review Desk, History and My profile.
+Marked copy and development indicator are removed; the topbar has a profile
+shortcut (generic icon, no supplied personal photo). The sidebar uses the existing
+Grindly mark and unchanged official Robinhood Chain logo. Remaining sample labels
+and the no-monetary-value footer keep the example and testnet status truthful.
+Asset provenance and decisions: `ui-direction.md`. Anonymous desktop/mobile
+captures: `docs/join-annotation-review/`.
+
+Verification: `pnpm check` passed (130 unit, 144 database, 11 contract, lint,
+typecheck, type drift and build); Chrome foundation 48 passed; targeted actual
+local-server annotation/navigation checks 2 passed. Prior live passes and deferred
+Silver/transfer/provider-availability checks below remain unchanged. No new claim
+of production readiness.
 
 Updated 2026-09-28. Current authority: `mvp-rank-spaces.md`, superseding the old
 reset-to-Bronze-on-transfer rule and conflicting single-space assumptions.

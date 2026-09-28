@@ -27,11 +27,11 @@ export async function ResearchScreen({
   profile?: string;
 }) {
   const title = {
-    workbench: "Research Workbench",
-    new: "Submit Finding",
-    record: "Contribution Record",
+    workbench: "Hub",
+    new: "Submit alpha",
+    record: "History",
     review: "Review Desk",
-    membership: "My Membership",
+    membership: "My profile",
   }[view];
   let data;
   let denied = false;

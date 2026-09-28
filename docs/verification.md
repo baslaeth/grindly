@@ -941,3 +941,32 @@ genuine research mutation. Local review: http://localhost:3000/workbench.
   records the push. No force-push, merge or production deployment performed.
   Tracked working tree was clean after commit; unrelated brand exports remained
   untracked and unchanged. Port 3000 still serves the verified local checkout.
+
+## 2026-09-28: Login browser annotations (local only)
+
+- Implemented the 21 marked copy/navigation/icon/layout changes. Existing paths,
+  auth and research behavior are preserved. A generic profile icon links to
+  `/membership`; no personal photograph was supplied. Official unchanged Robinhood
+  Chain SVG provenance is recorded in `ui-direction.md`.
+- Removed duplicate example copy while retaining the fictional-scenario label and
+  testnet no-monetary-value footer. Disabled the Next development indicator using
+  its documented configuration, without disabling runtime errors.
+- Final `pnpm check`: lint, typecheck, **130 unit / 144 database / 11 contract**,
+  generated-type drift and build all passed. Initial typecheck found the new test
+  tuple needed `as const`; corrected before the successful complete check.
+- Chrome `pnpm test:e2e`: **48 passed**. Initial run had 46 passes and 2 failures
+  because the contrast check still selected the intentionally removed sidebar
+  heading. It now checks the visible profile shortcut, retaining the contrast
+  threshold and keyboard assertions; the full suite then passed.
+- Actual development-server checks: `UI_REVIEW_URL=http://localhost:3000`,
+  `GRINDLY_ANNOTATION_CAPTURES=1`, Chrome, then
+  `pnpm exec playwright test tests/e2e/join-annotations.spec.ts`: **2 passed**.
+  Desktop/mobile anonymous contexts verify labels, unchanged routes, absence of
+  removed elements, loaded desktop logos, no horizontal overflow and the profile
+  shortcut's fail-closed anonymous destination. No authenticated session copied.
+- Captured and visually inspected `docs/join-annotation-review/desktop.png` and
+  `mobile.png`; public-only content, no credentials or member data. The in-app
+  local page was inspected read-only. No genuine records changed.
+- No live research or wallet exercise repeated for this presentation-only change.
+  Previously passed and explicitly deferred live checks remain as recorded above.
+  No hosted changes, push or deployment in this follow-up.

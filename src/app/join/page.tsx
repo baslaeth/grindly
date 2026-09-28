@@ -11,7 +11,7 @@ import { IllustrativeScenario } from "@/components/research-views";
 import { CoreLoop } from "@/components/core-loop";
 import { ArrowDown, ArrowRight } from "lucide-react";
 
-export const metadata: Metadata = { title: "Join / Membership" };
+export const metadata: Metadata = { title: "Login" };
 export const dynamic = "force-dynamic";
 
 export default async function JoinPage() {
@@ -38,20 +38,14 @@ export default async function JoinPage() {
     wallet = result.data?.address ?? null;
   }
   return (
-    <Screen title="Join / Membership">
+    <Screen title="Login">
       <section
         className="join-intro"
         aria-label="Specialist exchange introduction"
       >
-        <p className="eyebrow">An edge of your own. Expertise beyond it.</p>
         <h2>
           Contribute where you have an edge. Get help where you don&apos;t.
         </h2>
-        <p>
-          Crypto research is too broad to do well alone. Bring the work you know
-          best; connect it with specialists who see what you do not. Together,
-          turn scattered sources into reviewed evidence.
-        </p>
         <div className="form-actions">
           <a className="button" href="#invitation">
             {member ? "Continue your membership" : "Join with invitation"}
@@ -64,7 +58,6 @@ export default async function JoinPage() {
       </section>
       <section className="section access-section" id="invitation">
         <div className="access-context">
-          <p className="eyebrow">Your way into the exchange</p>
           <h2>Membership opens the door. Your work builds the history.</h2>
           <p>
             Verify your email and wallet, then mint or bind a testnet membership
@@ -117,11 +110,6 @@ export default async function JoinPage() {
         id="public-example"
         aria-label="Public sample"
       >
-        <span className="sample-label">Public example, illustrative only</span>
-        <p className="example-question">
-          A shared question: what would make a testnet research task worth
-          attempting?
-        </p>
         <IllustrativeScenario />
       </section>
     </Screen>

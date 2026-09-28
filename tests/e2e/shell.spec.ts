@@ -48,7 +48,7 @@ test("root redirects into the six-screen journey", async ({ page }) => {
 test("public sample is explicitly illustrative", async ({ page }) => {
   await page.goto("/join");
   await expect(
-    page.getByText("Public example, illustrative only"),
+    page.getByText("Illustrative scenario: fictional people and outcomes"),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", {

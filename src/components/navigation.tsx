@@ -6,8 +6,8 @@ import { useState } from "react";
 import {
   ArrowRightToLine,
   BookOpen,
-  FilePenLine,
-  Fingerprint,
+  Send,
+  CircleUserRound,
   LayoutDashboard,
   ListChecks,
   Menu,
@@ -18,10 +18,10 @@ import { screens } from "@/config/screens";
 const icons = {
   join: ArrowRightToLine,
   workbench: LayoutDashboard,
-  submit: FilePenLine,
+  submit: Send,
   review: ListChecks,
   contribution: BookOpen,
-  membership: Fingerprint,
+  membership: CircleUserRound,
 };
 
 export function Navigation() {

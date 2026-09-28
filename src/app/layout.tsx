@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { CircleUserRound } from "lucide-react";
 import { Navigation } from "@/components/navigation";
 import "./globals.css";
 
@@ -31,20 +32,44 @@ export default function RootLayout({
               />
               <span>Grindly</span>
             </Link>
-            <div className="sidebar-heading">Your research workspace</div>
             <Navigation />
-            <div className="network">
-              <span className="status-dot" />
-              Robinhood Chain testnet<span className="network-id">46630</span>
+            <div
+              className="network"
+              aria-label="Grindly on Robinhood Chain testnet"
+            >
+              <Link href="/join" title="Grindly">
+                <Image
+                  src="/brand/grindly/grindly-logo.svg"
+                  alt="Grindly"
+                  width={28}
+                  height={28}
+                />
+              </Link>
+              <a
+                href="https://docs.robinhood.com/chain/"
+                title="Robinhood Chain testnet"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Image
+                  src="/brand/robinhood-chain-white.svg"
+                  alt="Robinhood Chain"
+                  width={153}
+                  height={20}
+                />
+              </a>
             </div>
           </aside>
           <div className="main-column">
             <div className="topbar">
-              <span>
-                Specialist exchange <span className="topbar-divider">/</span>{" "}
-                Research, together
-              </span>
-              <span className="testnet-label">Testnet</span>
+              <Link
+                className="profile-shortcut"
+                href="/membership"
+                aria-label="My profile"
+                title="My profile"
+              >
+                <CircleUserRound size={28} aria-hidden="true" />
+              </Link>
             </div>
             <main id="main" tabIndex={-1}>
               {children}

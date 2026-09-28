@@ -21,7 +21,7 @@ test("local UI review with isolated identity and no research writes", async ({
   const publicPage = await anonymous.newPage();
   await publicPage.goto("/join");
   await expect(
-    publicPage.getByRole("heading", { name: "Join / Membership", exact: true }),
+    publicPage.getByRole("heading", { name: "Login", exact: true }),
   ).toBeVisible();
   await publicPage.screenshot({ path: `${folder}/join.png`, fullPage: true });
   if (phase === "after") {

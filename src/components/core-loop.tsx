@@ -16,12 +16,8 @@ export function CoreLoop() {
     >
       <div className="section-heading">
         <div>
-          <p className="eyebrow">The specialist exchange</p>
           <h2>Different edges. Shared understanding.</h2>
         </div>
-        <span className="sample-label">
-          Illustrative explainer / 18 seconds
-        </span>
       </div>
       {loaded ? (
         <Motion />

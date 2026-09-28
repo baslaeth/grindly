@@ -35,7 +35,7 @@ test("public illustration is distinct from real people, credit and reward promis
   await expect(
     page.getByText("Illustrative scenario: fictional people and outcomes"),
   ).toBeVisible();
-  await expect(page.getByText(/These examples earn no real XP/)).toBeVisible();
+  await expect(page.locator("#public-example .metrics")).toHaveCount(0);
   await expect(
     page.getByText("No eligibility, airdrop or compensation guarantee."),
   ).toBeVisible();

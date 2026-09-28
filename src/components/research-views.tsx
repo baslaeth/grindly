@@ -139,12 +139,6 @@ export function IllustrativeScenario() {
           </article>
         ))}
       </div>
-      <p className="muted">
-        Illustrative brief: combine documented dependencies, observation limits
-        and a practical checklist. Alex and Mina share a documentation source,
-        not two independent confirmations. These examples earn no real XP and
-        show no real membership tiers.
-      </p>
     </section>
   );
 }
@@ -742,7 +736,7 @@ export function FindingRecord({
         </section>
       )}
       <Link className="button secondary" href="/workbench">
-        Return to Workbench
+        Return to Hub
         <ArrowRight size={16} />
       </Link>
     </>
@@ -1092,7 +1086,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           </p>
         ))}
         <Link className="button" href="/workbench">
-          Return to Workbench
+          Return to Hub
           <ArrowRight size={16} />
         </Link>
       </section>

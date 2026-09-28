@@ -128,7 +128,7 @@ test("keyboard skip link and high contrast brand remain usable", async ({
     return [
       "body",
       ".brand",
-      ".sidebar-heading",
+      ".profile-shortcut",
       ".join-intro .button",
       ".sample-label",
       ".muted",

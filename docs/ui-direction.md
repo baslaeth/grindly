@@ -99,3 +99,25 @@ research assessment remain incomplete as documented in PROJECT_STATE.
 This redesign changes no server authorization, database policy, award rules,
 contract, payment service or deployment. It is a local UI annotation checkpoint,
 not evidence of production readiness or customer validation.
+# 2026-09-28 Login and navigation annotations
+
+The owner's 21 browser annotations remove the selected shell/Join eyebrow copy,
+introductory paragraph, duplicate example/explainer labels, question and brief
+paragraph. The remaining fictional-scenario label and testnet footer disclosure
+stay visible. This is copy and navigation presentation, not a scope/access change.
+
+- Labels: Login, Hub, Submit alpha, Review Desk, History, My profile. Route paths
+  and backend concepts are unchanged; matching page titles use the same labels.
+- Submit alpha uses the Lucide Send icon; My profile and the upper-right profile
+  shortcut use CircleUserRound. No personal photo was supplied, so the shortcut
+  is an honest generic avatar linking to the existing `/membership` screen.
+- The sidebar footer shows separate unchanged Grindly and Robinhood Chain marks,
+  not a combined partnership logo. The official white Robinhood Chain SVG was
+  copied unchanged from the [official brand assets](https://docs.robinhood.com/chain/brand-guidelines/),
+  downloaded from `https://cdn.robinhood.com/robinhood_chain/brand_assets/robinhood-chain-brand-assets-v1.zip`.
+  Local asset: `public/brand/robinhood-chain-white.svg`; SHA-256
+  `0ae4d1f6e2a933ba375c44527d17d7f81d419c2fce7e92a56cc8d3975612c584`.
+- Next's supported `devIndicators: false` hides the development badge; runtime
+  errors are not suppressed. No CSS shadow-DOM hiding or auth bypass.
+- Screenshots: `docs/join-annotation-review/`; review http://localhost:3000/join.
+  This annotation follow-up is local only, not pushed or deployed.

@@ -4,6 +4,7 @@ import { parseEnvironment } from "./src/config/environment";
 parseEnvironment(process.env);
 
 const config: NextConfig = {
+  devIndicators: false,
   poweredByHeader: false,
   reactStrictMode: true,
   async redirects() {
