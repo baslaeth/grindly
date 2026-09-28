@@ -8,7 +8,7 @@ import {
   type ResearchData,
 } from "@/research/model";
 import { acquisitionLabel } from "@/research/spaces";
-import { ProfileDrawer, RoomSelector } from "./space-controls";
+import { ProfileDrawer, RoomSelector, RoomUnread } from "./space-controls";
 
 export const profileHref = (room: string, id: string) =>
   `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
@@ -38,15 +38,11 @@ export function MemberDirectory({ data }: { data: ResearchData }) {
       </h2>
       <p>
         {genuine} member{genuine === 1 ? "" : "s"}
-        {qa > 0 && ` + ${qa} labeled QA account${qa === 1 ? "" : "s"}`}
+        {qa > 0 && `; ${qa} isolated sample account${qa === 1 ? "" : "s"}`}
       </p>
       <a className="inline-link" href="#discussion">
         Back to chat <ArrowRight size={14} />
       </a>
-      <p className="muted">
-        Recorded membership directory, not online presence. Access is checked
-        against live ownership on every request.
-      </p>
       <ul className="member-directory">
         {people.map((p) => (
           <li key={p.id}>
@@ -61,32 +57,36 @@ export function MemberDirectory({ data }: { data: ResearchData }) {
               </span>
             </Link>
             <span className="rank-label">{p.tier} NFT</span>
-            {p.is_demo && <span className="sample-label">QA account</span>}
+            {p.is_demo && <span className="sample-label">Isolated sample</span>}
           </li>
         ))}
       </ul>
-      <h3>Fictional specialist examples</h3>
-      <p className="sample-label">
-        {data.demoProfiles?.length ?? 0} demo profiles in this space. Not
-        members, traction or earned credit.
-      </p>
-      <ul className="member-directory">
-        {data.demoProfiles?.map((p) => (
-          <li key={p.id}>
-            <Link
-              className="member-link"
-              href={profileHref(data.question.id, `demo-${p.id}`)}
-            >
-              <Avatar name={p.name} />
-              <span>
-                <strong>{p.name}</strong>
-                <span>{p.specialty}</span>
-              </span>
-            </Link>
-            <span className="sample-label">Fictional {p.rank}</span>
-          </li>
-        ))}
-      </ul>
+      {!!data.demoProfiles?.length && (
+        <>
+          <h3>Fictional specialist examples</h3>
+          <p className="sample-label">
+            {data.demoProfiles?.length ?? 0} demo profiles in this space. Not
+            members, traction or earned credit.
+          </p>
+          <ul className="member-directory">
+            {data.demoProfiles?.map((p) => (
+              <li key={p.id}>
+                <Link
+                  className="member-link"
+                  href={profileHref(data.question.id, `demo-${p.id}`)}
+                >
+                  <Avatar name={p.name} />
+                  <span>
+                    <strong>{p.name}</strong>
+                    <span>{p.specialty}</span>
+                  </span>
+                </Link>
+                <span className="sample-label">Fictional {p.rank}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   );
 }
@@ -187,7 +187,7 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
         <p className="sample-label">
           {example
             ? "Fictional profile, XP and NFT history"
-            : "Isolated QA account and test activity"}
+            : "Isolated sample account and test activity"}
         </p>
       )}
       <p>{(example?.bio ?? member!.bio) || "No bio shared yet."}</p>
@@ -410,12 +410,12 @@ export function RankSpace({
     <>
       <header className="rank-space-heading">
         <div>
-          <p className="eyebrow">{data.token.tier} space / exact-rank access</p>
+          <p className="eyebrow">{data.token.tier} space</p>
           <h2>{data.question.category}</h2>
           <p className="member-count" aria-label="Current rank member count">
             {genuineCount} {genuineCount === 1 ? "member" : "members"}
             {directory.some((p) => p.is_demo) &&
-              ` + ${directory.filter((p) => p.is_demo).length} QA accounts`}
+              `; ${directory.filter((p) => p.is_demo).length} isolated sample accounts`}
           </p>
           <a className="button secondary" href="#space-members">
             <Users size={16} />
@@ -425,15 +425,9 @@ export function RankSpace({
         <aside className="space-progress" aria-label="Your progress">
           <h3>Your progress</h3>
           <strong>{c.xp} personally earned XP</strong>
-          <p>
-            {c.points} {data.policy.season} points
-          </p>
           <Link className="inline-link" href="/membership">
             Your recorded history <ArrowRight size={14} />
           </Link>
-          <p className="muted">
-            Demo award values. Upgrade economics remain unconfigured.
-          </p>
         </aside>
       </header>
       <div className="rank-room-layout">
@@ -449,13 +443,13 @@ export function RankSpace({
               >
                 <Hash size={14} />
                 <span>{r.category}</span>
+                <RoomUnread room={r.id} />
               </Link>
             ))}
           </nav>
           <p className="muted">
             Specialties do not restrict rooms within your rank.
           </p>
-          <p className="muted">Gold, Platinum, Diamond: future spaces.</p>
         </aside>
         <div className="room-content">
           <RoomSelector rooms={data.rooms ?? []} selected={data.question.id} />

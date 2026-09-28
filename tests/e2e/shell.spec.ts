@@ -19,12 +19,12 @@ for (const screen of screens) {
       await expect(page.getByRole("navigation")).toBeHidden();
       await toggle.click();
       await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
-        6,
+        4,
       );
       await page.getByRole("button", { name: "Close navigation" }).click();
     } else {
       await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
-        6,
+        4,
       );
     }
     expect(
@@ -40,9 +40,24 @@ for (const screen of screens) {
   });
 }
 
-test("root redirects into the six-screen journey", async ({ page }) => {
+test("Home is the public entry with protected community links", async ({
+  page,
+}) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/join$/);
+  await expect(
+    page.getByRole("heading", { name: "Home", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Enter Hub" })).toHaveCount(0);
+  await expect(
+    page.locator(".topbar").getByRole("link", { name: "My profile" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Review Desk" })).toHaveCount(0);
+  await page
+    .getByRole("link", { name: "Explore sample opportunities" })
+    .click();
+  await expect(
+    page.getByText("Separate sample experience.", { exact: false }),
+  ).toBeVisible();
 });
 
 test("public sample is explicitly illustrative", async ({ page }) => {

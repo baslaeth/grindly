@@ -9,7 +9,6 @@ const config: NextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
-      { source: "/", destination: "/join", permanent: false },
       { source: "/submit", destination: "/findings/new", permanent: true },
       {
         source: "/contribution",

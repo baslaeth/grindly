@@ -3,10 +3,21 @@ export const dynamic = "force-dynamic";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string; revise?: string; room?: string }>;
+  searchParams: Promise<{
+    message?: string;
+    revise?: string;
+    room?: string;
+    sourceRevision?: string;
+  }>;
 }) {
-  const { message, revise, room } = await searchParams;
+  const { message, revise, room, sourceRevision } = await searchParams;
   return (
-    <ResearchScreen view="new" message={message} revise={revise} room={room} />
+    <ResearchScreen
+      view="new"
+      message={message}
+      revise={revise}
+      room={room}
+      sourceRevision={sourceRevision}
+    />
   );
 }

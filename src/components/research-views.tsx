@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   FilePlus2,
-  MessageSquare,
   ExternalLink,
   Search,
   ScanLine,
@@ -12,14 +11,12 @@ import {
   CircleAlert,
   Fingerprint,
 } from "lucide-react";
-import { WorkbenchSections, DiscussionHistory } from "./workbench-sections";
+import { WorkbenchSections } from "./workbench-sections";
+import { RoomChat } from "./room-chat";
+import { nextRank } from "@/research/spaces";
+import { MemberActivity } from "./member-activity";
 import { ResearchForm, RefreshResearch } from "./research-forms";
-import {
-  RankSpace,
-  MemberDirectory,
-  DemoConversation,
-  profileHref,
-} from "./rank-space";
+import { RankSpace, MemberDirectory, profileHref } from "./rank-space";
 import {
   credit,
   roomData,
@@ -101,7 +98,7 @@ function Status({ value }: { value: string }) {
       <Icon size={13} aria-hidden="true" />
       {(
         {
-          pending: "Pending review",
+          pending: "Pending evaluation",
           needs_correction: "Needs correction",
           accepted: "Accepted",
           disputed: "Independent review",
@@ -151,10 +148,7 @@ export function Workbench({
 }) {
   return (
     <RankSpace data={data} profileId={profileId}>
-      <RoomWorkbench
-        key={`${data.question.id}:${profileId ?? "chat"}`}
-        data={roomData(data)}
-      />
+      <RoomWorkbench key={data.question.id} data={roomData(data)} />
     </RankSpace>
   );
 }
@@ -170,15 +164,17 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
           className="inline-link"
         >
           <FilePlus2 size={16} />
-          Contribute evidence
+          Submit alpha
         </Link>
         <a className="inline-link" href="#evidence-brief">
           Current accepted evidence brief <ArrowRight size={16} />
         </a>
-        <Link href="/review" className="inline-link">
-          <ListChecks size={16} />
-          Review Desk
-        </Link>
+        {data.roles.includes("reviewer") && (
+          <Link href="/review" className="inline-link">
+            <ListChecks size={16} />
+            Review Desk
+          </Link>
+        )}
       </div>
       <details className="room-question">
         <summary>Research question and open gaps</summary>
@@ -237,86 +233,14 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
           </>
         }
         discussion={
-          <section
-            className="section"
-            aria-label="Specialist discussion"
-            id="discussion"
-          >
-            <div className="section-heading">
-              <h2>
-                {data.token.tier} / {data.question.category} chat
-              </h2>
-              <span className="muted">Messages are not reviewed findings</span>
-            </div>
-            {data.messages.length === 0 && (
-              <p>No messages yet in this room. Start the conversation.</p>
-            )}
-            {profile ? (
-              <ResearchForm key={data.question.id} kind="message" data={data} />
-            ) : (
-              <div className="notice">
-                <p>Set your name and specialty to post in this room.</p>
-                <ResearchForm kind="profile" data={data} />
-              </div>
-            )}
-            <DiscussionHistory>
-              {data.messages.map((m) => (
-                <article
-                  className={`message ${m.reply_to ? "reply" : ""}`}
-                  id={`message-${m.id}`}
-                  key={m.id}
-                >
-                  <Identity
-                    data={data}
-                    id={m.author_id}
-                    specialty={m.specialty}
-                  />
-                  <time dateTime={m.created_at}>{date(m.created_at)}</time>
-                  {m.reply_to && (
-                    <a className="inline-link" href={`#message-${m.reply_to}`}>
-                      Reply to{" "}
-                      {person(
-                        data,
-                        data.messages.find((p) => p.id === m.reply_to)
-                          ?.author_id ?? "",
-                      )}
-                    </a>
-                  )}
-                  <p className="preserve-lines">{m.body}</p>
-                  <SourceLinks value={m.sources} />
-                  <div className="form-actions">
-                    <Link
-                      className="inline-link"
-                      href={`/findings/new?message=${m.id}`}
-                    >
-                      <FilePlus2 size={15} />
-                      Develop a finding
-                    </Link>
-                    <details>
-                      <summary>
-                        <MessageSquare size={15} />
-                        Reply
-                      </summary>
-                      <ResearchForm kind="message" replyId={m.id} data={data} />
-                    </details>
-                  </div>
-                  {data.versions
-                    .filter((v) => v.source_message === m.id)
-                    .map((v) => (
-                      <p key={v.id}>
-                        <Link
-                          className="inline-link"
-                          href={`/findings/${v.finding_id}`}
-                        >
-                          Linked finding v{v.version}: {v.claim}
-                        </Link>
-                      </p>
-                    ))}
-                </article>
-              ))}
-            </DiscussionHistory>
-            <DemoConversation data={data} />
-          </section>
+          <RoomChat
+            key={`${data.memberId}:${data.question.id}`}
+            room={data.question.id}
+            memberId={data.memberId}
+            rank={data.token.tier}
+            category={data.question.category}
+            canPost={!!profile}
+          />
         }
         evidence={
           <section
@@ -458,7 +382,7 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
         }
         opportunities={
           <>
-            <Assignment data={data} />
+            {data.assignment && <Assignment data={data} />}
             <PeerRequests data={data} />
           </>
         }
@@ -642,12 +566,34 @@ export function FindingRecord({
             <p>
               <Link
                 className="inline-link"
-                href={`/workbench#message-${v.source_message}`}
+                href={`/workbench?room=${data.question.id}#message-${v.source_message}`}
               >
                 Original discussion and author
               </Link>
             </p>
           )}
+          {data.sourceSnapshots
+            ?.filter((s) => s.version === v.id)
+            .map((s) => (
+              <blockquote key={s.revision}>
+                <p>Source version by {person(data, s.author)}</p>
+                <p>{s.body}</p>
+                {s.attachments?.map((a) => (
+                  <p key={a.id}>
+                    <a
+                      className="inline-link"
+                      href={`/api/chat/media?id=${a.id}&version=${v.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View preserved source{" "}
+                      {a.type === "image/gif" ? "GIF" : "image"}
+                    </a>
+                  </p>
+                ))}
+                <small>Preserved when this alpha version was submitted.</small>
+              </blockquote>
+            ))}
           {v.related_version && (
             <p>
               <Link
@@ -933,15 +879,20 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
   const c = credit(data);
   const own = data.findings.filter((f) => f.author_id === data.memberId);
   const accepted = own.filter((f) => f.status === "accepted");
-  const promotionEligible = accepted.filter((f) => f.visibility === "members");
-  const uses = data.uses.filter(
-    (u) =>
-      u.qualifies &&
-      promotionEligible.some((f) => f.current_version === u.version_id),
-  );
+  const profile = data.profiles.find((p) => p.member_id === data.memberId);
+  const next = nextRank(data.token.tier);
   const explorer = "https://explorer.testnet.chain.robinhood.com";
   return (
     <>
+      <section className="section profile-intro">
+        <h2>{profile?.display_name ?? "Your profile"}</h2>
+        <p>{profile?.bio || "No bio shared yet."}</p>
+        <p>{profile?.interest ?? "Interests not set"}</p>
+        <details>
+          <summary>Edit profile</summary>
+          <ResearchForm kind="profile" data={data} />
+        </details>
+      </section>
       <section className="section">
         <p className="eyebrow">Current membership / live ownership verified</p>
         <div className="membership-heading">
@@ -987,7 +938,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             <dd>{c.xp}</dd>
           </div>
           <div>
-            <dt>{data.policy.season} points</dt>
+            <dt>Seasonal points</dt>
             <dd>{c.points}</dd>
           </div>
           <div>
@@ -1003,71 +954,67 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         </p>
       </section>
       <section className="section">
-        <h2>Silver: illustrative assessment settings</h2>
-        <p className="notice">
-          Production upgrade thresholds, rewards and burn costs are
-          unconfigured. These existing settings are a demo, not finalized
-          economics.
-        </p>
-        <ul className="progress-criteria">
-          <li>
-            <span>
-              {c.xp} / {data.policy.silver_xp} lifetime XP
-            </span>
-            <progress
-              aria-label="Silver lifetime XP prerequisite"
-              max={data.policy.silver_xp}
-              value={Math.min(c.xp, data.policy.silver_xp)}
-            />
-          </li>
-          <li>
-            <span>
-              {promotionEligible.length} / {data.policy.silver_findings}{" "}
-              currently accepted member-visible findings
-            </span>
-            <progress
-              aria-label="Silver accepted findings prerequisite"
-              max={data.policy.silver_findings}
-              value={Math.min(
-                promotionEligible.length,
-                data.policy.silver_findings,
-              )}
-            />
-          </li>
-          <li>
-            <span>
-              {uses.length} / {data.policy.silver_uses} documented
-              cross-specialty uses
-            </span>
-            <progress
-              aria-label="Silver usefulness prerequisite"
-              max={data.policy.silver_uses}
-              value={Math.min(uses.length, data.policy.silver_uses)}
-            />
-          </li>
-          <li>
-            Independent steward assessment of evidence, limitations and
-            attribution
-          </li>
-        </ul>
+        <h2>Your NFT progression</h2>
+        <div className="tier-path">
+          <div>
+            <Fingerprint size={24} />
+            <strong>{data.token.tier}</strong>
+            <span>Current NFT</span>
+          </div>
+          {next && (
+            <>
+              <ArrowRight aria-hidden="true" />
+              <div>
+                <strong>{next}</strong>
+                <span>Next tier</span>
+              </div>
+            </>
+          )}
+        </div>
+        {next ? (
+          <dl className="metrics">
+            <div>
+              <dt>XP threshold</dt>
+              <dd>To finalize</dd>
+            </div>
+            <div>
+              <dt>Token burn</dt>
+              <dd>To finalize</dd>
+            </div>
+          </dl>
+        ) : (
+          <p>Diamond is the final rank. No further rank is configured.</p>
+        )}
         <p>
-          Qualifying does not promote you automatically. A steward must approve
-          the current owner and evidence. The recorded NFT tier then persists
-          across transfers. Silver opens Silver rooms and peer requests, not
-          Bronze rooms.
+          Progression is a human decision. No automatic upgrade or token
+          transaction is active.
         </p>
-        <p className="notice">
-          Silver&apos;s implemented benefit: initiate a scoped peer request for
-          complementary expertise. Higher-tier capabilities are future scope,
-          not available services.
+        <p>
+          Silver members can initiate a peer request for complementary
+          expertise.
         </p>
         <p className="muted">
-          Demo award: {data.policy.acceptance_xp} XP and{" "}
-          {data.policy.acceptance_points} seasonal points for the first accepted
-          version of a finding. Routine revisions, messages and likes earn no
-          additional award.
+          Personal XP and delegated NFT progress are separate. No delegated
+          credit or current delegates are recorded for this account.
         </p>
+        <details>
+          <summary>Evaluation award policy</summary>
+          <p>
+            Existing illustrative policy: {data.policy.acceptance_xp} XP and{" "}
+            {data.policy.acceptance_points} seasonal points on the first
+            accepted version. Corrections, messages and reactions do not
+            duplicate this award. Production economics remain to finalize.
+          </p>
+        </details>
       </section>
+      <section className="section">
+        <h2>Claim $GRIND</h2>
+        <button className="button" disabled aria-describedby="claims-inactive">
+          Claim $GRIND
+        </button>
+        <p id="claims-inactive">Claims are not active yet.</p>
+      </section>
+      <MemberActivity data={data} />
       <section className="section">
         <h2>Your contribution history in this rank</h2>
         <p className="muted">

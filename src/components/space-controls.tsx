@@ -1,7 +1,28 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+
+function useUnread() {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const update = (event: Event) => {
+      const detail = (event as CustomEvent<Record<string, number>>).detail;
+      setCounts((previous) => ({ ...previous, ...detail }));
+    };
+    window.addEventListener("grindly:unread", update);
+    return () => window.removeEventListener("grindly:unread", update);
+  }, []);
+  return counts;
+}
+export function RoomUnread({ room }: { room: string }) {
+  const count = useUnread()[room] ?? 0;
+  return count > 0 ? (
+    <span className="room-unread" aria-label={`${count} unread messages`}>
+      {count}
+    </span>
+  ) : null;
+}
 
 export function RoomSelector({
   rooms,
@@ -11,6 +32,7 @@ export function RoomSelector({
   selected: string;
 }) {
   const router = useRouter();
+  const unread = useUnread();
   return (
     <label className="mobile-room-select">
       Room
@@ -33,6 +55,7 @@ export function RoomSelector({
         {rooms.map((r) => (
           <option key={r.id} value={r.id}>
             {r.category}
+            {unread[r.id] ? ` (${unread[r.id]} unread)` : ""}
           </option>
         ))}
       </select>

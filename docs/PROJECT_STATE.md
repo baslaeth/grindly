@@ -1,4 +1,55 @@
-# Grindly: Login annotation checkpoint
+# Grindly: Connected member experience
+
+## Current local checkpoint (2026-09-29)
+
+Branch `codex/connected-member-experience` starts at saved annotation commit
+`ce19a1f`. Latest authority: `connected-member-experience.md`. Review starts at
+http://localhost:3000/ (Home), not the unchanged older production website.
+My Profile remains top-right; approved charcoal/white styling, logos and annotation
+changes are preserved. No merge or production deployment is authorized.
+
+- Home has public cards, a separate fictional sample experience, own activity,
+  and existing-steward opportunity management. No genuine partner campaign has
+  been published or invented. Eligibility is independent of room rank access.
+- Hub recognizes five exact ranks, each with ten persistent rooms; only the
+  acting member's verified rank is returned. Unverified sessions are not Bronze.
+- Compact chat supports persistent replies/reactions, private validated image/GIF
+  attachments, author revisions/deletion, idempotent sends, account/room drafts,
+  older history and incremental updates. Immutable submitted source versions
+  include permission-checked attachment access after chat deletion.
+- Demo/QA identities are isolated from genuine snapshots, histories and member
+  counts. Existing records remain; no genuine member research was edited.
+- Existing independent evaluation and award ledger generate atomic, idempotent
+  activity. Personal XP is not NFT/delegated expertise. Progression thresholds
+  and burn costs say "To finalize"; Claim $GRIND is visibly disabled.
+- Migrations 016-022 applied to the shared Supabase database. 016-018 applied in
+  one transaction with 13 existing-table preservation digests and forced-RLS /
+  browser-denial assertions. 019-020 only add gated source-media reads and correct
+  the attachment-only edit indicator. 021 requires operator verification for stated
+  additional participation requirements; 022 binds verification to the assessed
+  requirement text so changed terms cannot reuse an earlier approval. Legacy research functions remain compatible;
+  the production executable has not changed.
+- Final test/evidence and push status are recorded in `verification.md` and
+  `QA05_CONNECTED_MEMBER_HANDOFF.md`. Historical checkpoints below remain evidence,
+  not current instructions to stop development or expose old QA examples.
+
+Verified checkpoint: `pnpm check` passes **149 unit / 173 database / 11 contract**
+plus lint/typecheck/type drift/build; Chrome foundation **48 passed**; actual
+local desktop/mobile journeys **12 passed, 2 operator skips**; older hosted
+read-only compatibility **1 passed**. Evidence is under
+`docs/member-experience-review/`. Backend increment is `5eac06e`; final UI/evidence
+checkpoint is the feature-branch HEAD recorded in the handoff/push evidence.
+No isolated steward exists, so opportunity editor browser verification is blocked
+without an owner-designated account. No genuine partner campaign was created.
+Feature-by-feature classification is in `connected-member-experience.md`.
+
+Remaining boundaries: no live Silver/higher-rank verification or new transfer
+exercise; no activated delegation, claims, upgrades or finalized economics.
+No claim of Phase 1 completion, production readiness or customer validation.
+The earlier intermittent ownership/provider failure remains a separate unresolved
+reliability issue; fail-closed checks and timeouts were not weakened.
+
+## Previous annotation checkpoint
 
 ## Latest local follow-up
 

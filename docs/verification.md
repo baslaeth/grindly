@@ -970,3 +970,120 @@ genuine research mutation. Local review: http://localhost:3000/workbench.
 - No live research or wallet exercise repeated for this presentation-only change.
   Previously passed and explicitly deferred live checks remain as recorded above.
   No hosted changes, push or deployment in this follow-up.
+
+## 2026-09-29: Connected member experience (feature branch, no deployment)
+
+Authority: `connected-member-experience.md`. Branch
+`codex/connected-member-experience` starts from saved annotation `ce19a1f`;
+backend increment `5eac06e`. Local review is http://localhost:3000/.
+The existing genuine browser session was inspected read-only at Home; all new
+authenticated writes and captures use the existing isolated QA identities.
+
+### Database safety and deterministic results
+
+- Additive migrations 016-022 applied to shared Supabase. 016-018 applied in one
+  transaction with 13 original-table preservation digests (new sequence/source
+  columns excluded) and forced-RLS/browser-privilege assertions. Earlier aggregate
+  checker/editor attempts rolled back; only the checked successful transaction
+  is counted. 019-022 separately applied after deterministic checks. Existing
+  genuine research, reviews, awards, identities and audits were not edited.
+- New private service-only tables hold chat revisions, media, reactions, read
+  state, request idempotency, actual activity, opportunities and registrations.
+  Original message/source versions remain immutable. Legacy v1/v2 research APIs
+  are preserved for the older executable; new UI uses guarded v3 snapshots.
+- Final `pnpm check`: **149 unit / 173 database / 11 contract**, lint, typecheck,
+  generated database type drift and Next build passed. Focused new coverage is in
+  `tests/database/connected-member.test.ts`, `tests/unit/chat.test.ts` and
+  `tests/unit/member-access.test.ts`; previous auth/access/research regressions
+  remain in the complete suite.
+- Coverage includes five exact ranks, unverified denial, demo/genuine isolation,
+  direct private reads/actions/media, immutable source access after edit/delete,
+  per-member send idempotency and concurrency, no message/reaction XP, real read
+  state and pagination, independent decisions and exactly one award/activity,
+  public card projection, operator/demo boundaries, exact eligibility, additional
+  requirements and invalidation of old approvals when requirements change.
+- Chrome foundation `pnpm test:e2e`: **48 passed**. Keyboard/focus, reduced motion,
+  layout/contrast and annotation assertions retain their behavioral checks.
+
+### Actual local browser evidence
+
+- `pnpm exec playwright test --config playwright.research.config.ts tests/live-research/member-chat.spec.ts tests/live-research/journey.spec.ts tests/live-research/public-home.spec.ts`:
+  **10 passed / 2 skipped** in the final integrated run. The additional new
+  `member-chat.spec.ts --grep 'unread indicators'` run: **2 passed**. Total:
+  **12 distinct passed desktop/mobile scenarios, 2 skipped operator scenarios**.
+  Tests use two independently authenticated existing QA members with real Bronze
+  testnet NFTs. They do not establish real inbox delivery, customer validation,
+  or live Silver/higher-rank ownership.
+- Browser navigation covers Home -> Hub -> all ten room choices -> actual
+  persistent conversation -> Members/profile -> back to the same room; author
+  links as well as directory links. Another rank's data is denied in deterministic
+  API/database coverage, not represented as a live Silver browser transfer test.
+- Same-rank delivery includes text/links, Shift+Enter, Enter, IME composition,
+  replies, emoji/reactions, image plus actual two-frame GIF, attachment-only
+  messages, reload persistence and incremental arrival without a full-page reload.
+  File selection/paste/drop, preview/removal, draft recovery after reload, logout
+  cleanup, failed-response retry without a duplicate, reconnect, older history,
+  author edit/delete, persisted unread appearance/clearing were exercised.
+- Empty display uses an explicitly simulated empty result only after a real
+  authorized API read; historical fixture messages were not deleted to stage an
+  empty room. Older-history and failed-send cases are controlled test conditions,
+  not claims that a production outage was reproduced.
+- Full alpha journeys start at the chat message action and retain its author,
+  room and immutable source. They create pending work, obtain an independent
+  correction request, submit a linked version, use the actually reassigned
+  authorized reviewer, accept, and confirm one existing-policy **25 XP** award,
+  matching profile/Activity and accepted brief. This is the existing documented
+  demo award, not newly settled production economics. Isolated final findings:
+  desktop `28d861a3-03e1-4d17-b943-f3b04ccd8a35`, mobile
+  `e3e0116f-d088-47b7-9932-ec44e7b1002f`.
+- Public sample cards are visible anonymously. Eligible Bronze sample interest
+  persists; Silver-only participation stays locked. A separate database fixture
+  explicitly simulates eligible Silver. No sample action opens a fabricated
+  partner site, makes an application or produces a claim.
+- Top-right My Profile remains usable; actual ledger totals/activity, recorded
+  acquisition history, current/next NFT, To finalize thresholds/burns and disabled
+  Claim $GRIND are asserted. No genuine delegated records exist to exercise;
+  no illustrative owner/grinder credit is turned into earned expertise.
+- Operator browser scenarios correctly skip: a read-only check confirms zero
+  isolated QA stewards. The editor and its server boundaries are implemented and
+  database-tested, but live management is **unverified**, not counted passed.
+  No roles were granted to make a test pass.
+- **12 sanitized PNGs** in `docs/member-experience-review/{desktop,mobile}/`:
+  `chat.png`, `members.png`, `profile.png`, `my-profile.png`, `home-samples.png`,
+  `public-home.png`. Visually inspected representative mobile/desktop captures;
+  no horizontal overflow, all authenticated identities explicitly isolated.
+  Playwright's official ffmpeg download timed out; **no interaction recording**.
+
+### Earlier failures, fixes and boundaries
+
+- Early pre-migration snapshot checks failed without modifying research. Initial
+  test expectations still named v2 or matched the word allocation in a disclaimer;
+  corrected to the actual v3 API and protected allocation-code field. These were
+  test defects, not successful access evidence.
+- Actual implementation defects found and fixed before final tests: attachment-only
+  first sends incorrectly labeled Edited (020); duplicate Zod manage discriminator
+  rejected valid opportunity participation (strict union plus regression); nonempty
+  additional requirements needed mandatory independent verification (021); previous
+  approval could outlive changed terms (022). Final deterministic/browser runs
+  above include those corrections.
+- Early browser runs had selector/navigation timing failures: mobile room selection
+  picked hidden desktop navigation before completion, edit matched buttons instead
+  of the textbox, and target expectations predated streamed page completion. Use
+  viewport-specific navigation, role-specific selectors and the existing 20-second
+  action budget; ownership timeouts and fail-closed checks were not increased.
+- One fixture-auth network attempt returned ECONNRESET during overlapping earlier
+  checks. Subsequent sequential runs passed. Cause is not established. Harness
+  records safe stage/path/status/request-ID/classification, not cookies or raw
+  Playwright auth errors. No authorization fallback was introduced.
+- Old hosted executable compatibility command with `GRINDLY_HOSTED_COMPAT=1`,
+  `RESEARCH_TEST_URL=https://grindly-woad.vercel.app` and
+  `tests/live-research/hosted-rank-compat.spec.ts --project desktop`: **1 passed**.
+  Four protected screens (/workbench, /findings/new, /review, /membership) and
+  metadata returned 200, proper QA/rank filtering, no page errors, no research
+  writes. This is compatibility evidence, not deployment of the new UI.
+- Unfinished live Silver/higher-rank, manual promotion/transfer and historical RPC
+  reliability checks remain explicitly deferred. Genuine delegation, claim flow,
+  upgrade transactions, economics and campaign terms remain inactive/unconfigured.
+  Media storage has bounded validation/rate/size limits but no automatic orphan
+  purge; capacity/retention must be planned before growth. Phase 1 and production
+  readiness are not declared complete.

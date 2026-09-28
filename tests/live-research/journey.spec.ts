@@ -191,19 +191,25 @@ test("labeled specialists collaborate, correct, independently accept and receive
       page.getByRole("tab", { name: "Chat", exact: true }),
     ).toHaveAttribute("aria-selected", "true");
     const thread = page.locator(`#message-${message.id}`);
-    await expect(thread).toContainText("Illustrative QA persona");
-    await thread.locator("summary").click();
-    await thread
-      .getByLabel("Your reply")
+    await expect(thread).toContainText("Isolated sample");
+    await thread.getByRole("button", { name: /Reply to/ }).click();
+    await page
+      .getByLabel("Message General", { exact: true })
       .fill(
         `${tag}: I can separate documented dependencies from untested assumptions.`,
       );
-    await thread.getByRole("button", { name: "Reply", exact: true }).click();
-    await expect(thread.getByRole("status")).toHaveText("Saved.");
-    await thread.getByRole("link", { name: "Develop a finding" }).click();
+    await page.getByRole("button", { name: "Send", exact: true }).click();
+    await expect(
+      page.getByLabel("Message General", { exact: true }),
+    ).toHaveValue("");
+    await thread
+      .getByRole("link", { name: "Submit alpha from this message" })
+      .click();
     stage = "finding_submission";
     await expect(page).toHaveURL(
-      new RegExp(`/findings/new\\?message=${message.id}`),
+      new RegExp(
+        `/findings/new\\?room=testnet-readiness&message=${message.id}`,
+      ),
     );
     await page
       .getByLabel("Main claim", { exact: true })
@@ -348,7 +354,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
       detail: `${tag}: used the dependency boundary to narrow an operations checklist; synthetic example only.`,
     });
     s = await snapshot();
-    expect(s.awards.reduce((n, a) => n + a.xp, 0)).toBe(priorXP + 25);
+    expect(s.awards.reduce((n, a) => n + a.xp, 0)).toBe(
+      priorXP + before.policy.acceptance_xp,
+    );
     expect(s.awards.filter((a) => a.finding_id === findingId)).toHaveLength(1);
     expect(s.versions.filter((v) => v.finding_id === findingId)).toHaveLength(
       2,
@@ -374,14 +382,32 @@ test("labeled specialists collaborate, correct, independently accept and receive
       path: info.outputPath("workbench.png"),
       fullPage: true,
     });
-    await page.goto("/membership");
+    await page
+      .locator(".topbar")
+      .getByRole("link", { name: "My profile" })
+      .click();
     stage = "progression";
     await expect(
       page
         .locator(".metrics div")
         .filter({ hasText: "Lifetime XP" })
         .locator("dd"),
-    ).toHaveText(String(priorXP + 25));
+    ).toHaveText(String(priorXP + before.policy.acceptance_xp));
+    await expect(
+      page.getByRole("button", { name: "Claim $GRIND" }),
+    ).toBeDisabled();
+    await expect(page.getByText("Claims are not active yet.")).toBeVisible();
+    await expect(page.getByText("To finalize", { exact: true })).toHaveCount(2);
+    const matchingActivity = page
+      .getByRole("region", { name: "Your activity" })
+      .getByRole("link")
+      .filter({ hasText: tag });
+    await expect(matchingActivity).toHaveCount(3);
+    await expect(
+      matchingActivity.filter({
+        hasText: `${before.policy.acceptance_xp} XP awarded`,
+      }),
+    ).toHaveCount(1);
     await page.screenshot({
       path: info.outputPath("membership.png"),
       fullPage: true,

@@ -13,6 +13,7 @@ export async function rankFixture(
   baseURL: string,
   use: BrowserContextOptions,
   hosted = false,
+  specialty: "project" | "risk" | "operations" = "project",
 ) {
   if (
     hosted
@@ -24,7 +25,7 @@ export async function rankFixture(
     await readFile(".local/research-fixtures.json", "utf8"),
   ) as { email: string; member: string }[];
   const fixture = fixtures.find(
-    (f) => f.email === "grindly-qa-research-project@example.test",
+    (f) => f.email === `grindly-qa-research-${specialty}@example.test`,
   );
   if (!fixture) throw new Error("Existing isolated QA identity required");
   const db = createClient(
@@ -37,6 +38,7 @@ export async function rankFixture(
     baseURL,
     extraHTTPHeaders: { Origin: baseURL },
   });
+  let stage = "returning_intent";
   try {
     expect(
       (
@@ -46,6 +48,7 @@ export async function rankFixture(
       ).ok(),
     ).toBe(true);
     for (let i = 0; i < 3; i++) {
+      stage = "fixture_verification";
       await setTimeout(5000);
       const otp = await db.auth.admin.generateLink({
         type: "magiclink",
@@ -60,6 +63,7 @@ export async function rankFixture(
       expect(response.ok(), "Isolated QA verification").toBe(true);
       break;
     }
+    stage = "protected_snapshot";
     const response = await context.request.get("/api/research");
     expect(response.ok(), `Snapshot status ${response.status()}`).toBe(true);
     const data = (await response.json()) as ResearchData;
@@ -74,8 +78,11 @@ export async function rankFixture(
     )
       throw new Error("Refusing captures of genuine research");
     return { context, data, fixture };
-  } catch (error) {
+  } catch {
     await context.close();
-    throw error;
+    // Playwright transport errors can include request cookies. Never forward them.
+    throw new Error(
+      `Isolated fixture setup failed at ${stage}; no request headers recorded`,
+    );
   }
 }

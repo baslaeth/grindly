@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LogOut, Mail } from "lucide-react";
+import { clearChatDrafts } from "@/chat/drafts";
 
 async function post(url: string, body?: unknown) {
   const response = await fetch(url, {
@@ -202,6 +203,7 @@ export function SignOutButton() {
           setError("");
           try {
             await post("/api/auth/signout");
+            clearChatDrafts();
             router.refresh();
           } catch (error) {
             setError(

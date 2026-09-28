@@ -11,7 +11,7 @@ import {
 const sections = [
   { id: "discussion", label: "Chat", icon: MessageSquare },
   { id: "evidence", label: "Evidence brief", icon: BookOpen },
-  { id: "opportunities", label: "Next opportunities", icon: ArrowUpRight },
+  { id: "opportunities", label: "Peer requests", icon: ArrowUpRight },
   { id: "record", label: "Contribution record", icon: History },
   { id: "participants", label: "Members", icon: Users },
 ] as const;

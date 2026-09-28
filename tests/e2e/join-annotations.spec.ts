@@ -42,16 +42,16 @@ test("annotated shell has concise labels, profile shortcut and unchanged access 
   if (mobile) await toggle.click();
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   for (const [label, href] of [
-    ["Login", "/join"],
+    ["Home", "/"],
+    ["Sign in", "/join"],
     ["Hub", "/workbench"],
     ["Submit alpha", "/findings/new"],
-    ["Review Desk", "/review"],
-    ["History", "/findings/latest"],
-    ["My profile", "/membership"],
   ] as const)
     await expect(
       nav.getByRole("link", { name: label, exact: true }),
     ).toHaveAttribute("href", href);
+  await expect(nav.getByRole("link", { name: "Review Desk" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "History" })).toHaveCount(0);
   if (!mobile) {
     for (const logo of ["Grindly", "Robinhood Chain"]) {
       const img = page

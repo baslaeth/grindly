@@ -10,8 +10,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
-The 2026-09-28 bounded owner brief in `docs/mvp-rank-spaces.md` supersedes
-conflicting rank assumptions for this checkpoint. Bronze/Silver are exact-rank
+Latest authority: `docs/connected-member-experience.md` (2026-09-29). Home is
+now the main public route; Hub recognizes all five exact NFT ranks. My Profile
+remains top-right. Implement compact private chat, isolated samples, public
+opportunities with independent eligibility, and evaluation/activity linkage on
+`codex/connected-member-experience`. No claims, upgrade economics, delegation
+activation, manual transfer tests, merge or production deployment. A tested
+feature-branch push is authorized. Preserve annotation checkpoint `ce19a1f`.
+
+Historical base: the 2026-09-28 bounded owner brief in `docs/mvp-rank-spaces.md`
+superseded earlier rank assumptions. Bronze/Silver were the initial exact-rank
 spaces; NFT tier persists on transfer, personal XP does not transfer. No new
 manual NFT transfer, economics finalization, delegation activation or production
 deployment is authorized. See `docs/QA05_RANK_SPACES_HANDOFF.md` for review.
@@ -20,10 +28,13 @@ The subsequent chat/profile discoverability repair is documented in
 authorized; merge, force-push and production deployment are not.
 
 Read these before changing scope or implementation:
+
 - `docs/frozen-p0.md`: approved product scope.
 - `docs/frozen-technical-architecture.md`: supplied architecture and source-completeness warning. Missing approved sections must not be invented.
 - `docs/build-phase-1.md`: approved Phase 1 acceptance checklist.
 - `docs/PROJECT_STATE.md`: current checkpoint and blockers.
+- `docs/connected-member-experience.md` and `docs/QA05_CONNECTED_MEMBER_HANDOFF.md`:
+  latest authority, feature classifications and exact local review commands.
 - `docs/verification.md`: chronological evidence; distinguish live, simulated, user-reported, and untested results.
 - `docs/runbook.md`: setup, service configuration and operations.
 - `docs/research-scope.md` and `docs/research-runbook.md`: authorized collaboration scope and operations.
@@ -41,10 +52,11 @@ at a time. Never request private keys, copy browser sessions, or manufacture liv
 promotion evidence. Empty/unimplemented histories do not prove preservation.
 
 Commands (pnpm 11.19.0, compatible Node per package.json):
+
 - `pnpm install --frozen-lockfile`
 - `pnpm check`: lint, typecheck, unit, database, database type drift, contract tests, build.
 - `pnpm test:e2e`: foundation-mode browser tests on port 3100; not live OTP/NFT evidence.
-- `pnpm dev`: local app, normally http://localhost:3000/join.
+- `pnpm dev`: local app, normally http://localhost:3000/ (Home).
 - `pnpm exec playwright test --config playwright.research.config.ts`: opt-in live
   QA identities only, with an already-running app and ignored fixture journal.
   This is not real inbox delivery, independent human research, or deferred NFT

@@ -151,6 +151,10 @@ export function ResearchForm({
           addition: get("addition"),
           limitations: get("limitations"),
           sourceMessage: sourceMessage ?? version?.source_message ?? null,
+          sourceRevision:
+            data?.messages.find(
+              (m) => m.id === (sourceMessage ?? version?.source_message),
+            )?.revision ?? null,
           relatedVersion: get("relatedVersion") || null,
           correction: version ? get("correction") : null,
           observedAt: new Date(get("observedAt")).toISOString(),

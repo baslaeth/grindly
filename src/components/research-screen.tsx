@@ -18,6 +18,7 @@ export async function ResearchScreen({
   revise,
   room,
   profile,
+  sourceRevision,
 }: {
   view: "workbench" | "new" | "record" | "review" | "membership";
   id?: string;
@@ -25,6 +26,7 @@ export async function ResearchScreen({
   revise?: string;
   room?: string;
   profile?: string;
+  sourceRevision?: string;
 }) {
   const title = {
     workbench: "Hub",
@@ -45,6 +47,7 @@ export async function ResearchScreen({
         finding: id,
         version: revise,
         message,
+        sourceRevision,
       });
     } catch (error) {
       reportFailure(`research.render.${view}`, error);
@@ -62,8 +65,8 @@ export async function ResearchScreen({
     <Screen title={title}>
       {data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
         <p className="notice">
-          Illustrative QA account. Its work, reviews and credit are test
-          activity, not customer validation.
+          Isolated sample account. Work, evaluations and XP here are test
+          activity.
         </p>
       )}
       {!data ? (
@@ -79,6 +82,16 @@ export async function ResearchScreen({
             Research or ownership check unavailable. Please reload to retry.
           </p>
         )
+      ) : view === "review" &&
+        !data.roles.includes("reviewer") &&
+        !data.roles.includes("steward") ? (
+        <p className="notice">
+          Review authority required.{" "}
+          <Link href="/membership">
+            View your evaluation results in My profile
+          </Link>
+          .
+        </p>
       ) : view === "workbench" ? (
         <Workbench data={data} profileId={profile} />
       ) : view === "new" ? (

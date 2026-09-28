@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CircleUserRound } from "lucide-react";
 import { Navigation } from "@/components/navigation";
+import { navigationContext } from "@/server/navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,9 +13,10 @@ export const metadata: Metadata = {
 };
 export const runtime = "nodejs";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const navigation = await navigationContext();
   return (
     <html lang="en">
       <body>
@@ -23,7 +25,7 @@ export default function RootLayout({
         </a>
         <div className="app-shell">
           <aside className="sidebar">
-            <Link className="brand" href="/join">
+            <Link className="brand" href="/">
               <Image
                 src="/brand/grindly/grindly-logo.svg"
                 alt=""
@@ -32,12 +34,12 @@ export default function RootLayout({
               />
               <span>Grindly</span>
             </Link>
-            <Navigation />
+            <Navigation {...navigation} />
             <div
               className="network"
               aria-label="Grindly on Robinhood Chain testnet"
             >
-              <Link href="/join" title="Grindly">
+              <Link href="/" title="Grindly">
                 <Image
                   src="/brand/grindly/grindly-logo.svg"
                   alt="Grindly"

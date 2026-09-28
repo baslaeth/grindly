@@ -125,6 +125,10 @@ it("does not bypass acting-member ownership to render an editor", async () => {
   vi.restoreAllMocks();
 });
 it("shows the author's correction next action instead of awaiting a reviewer", async () => {
+  mocks.rpc.mockResolvedValue({
+    data: { ...snapshot, roles: ["reviewer"] },
+    error: null,
+  });
   const html = renderToStaticMarkup(await ResearchScreen({ view: "review" }));
   expect(html).toContain("The author must submit a corrected version.");
   expect(html).toContain("/findings/new?revise=version");
