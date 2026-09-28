@@ -11,7 +11,10 @@ export type Specialty = keyof typeof specialties;
 export type Snapshot = {
   question: Row<"research_questions">;
   profiles: Row<"research_profiles">[];
-  messages: Row<"discussion_messages">[];
+  messages: (Row<"discussion_messages"> & {
+    revision?: string;
+    deleted?: boolean;
+  })[];
   findings: Row<"findings">[];
   versions: Row<"finding_versions">[];
   assignments: Row<"review_assignments">[];
@@ -32,6 +35,25 @@ export type Snapshot = {
   demoProfiles?: Row<"rank_demo_profiles">[];
   demoMessages?: Row<"rank_demo_messages">[];
   demoDelegations?: Row<"rank_demo_delegations">[];
+  sourceSnapshots?: {
+    attachments?: { id: string; type: string }[];
+    version: string;
+    message: string;
+    revision: string;
+    author: string;
+    body: string;
+    specialty: string;
+    room: string;
+    createdAt: string;
+  }[];
+  activity?: {
+    id: string;
+    finding: string;
+    kind: "evaluation" | "xp";
+    xp: number | null;
+    decision: string | null;
+    createdAt: string;
+  }[];
 };
 export type SpaceMember = {
   id: string;

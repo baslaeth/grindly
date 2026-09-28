@@ -156,6 +156,17 @@ it("does not report a successful action when audit persistence fails", async () 
 it("a recorded steward-approved NFT progression is Silver", async () => {
   expect(await tokenTier("1", owned)).toBe("Silver");
 });
+it.each(["Bronze", "Silver", "Gold", "Platinum", "Diamond"])(
+  "preserves the recorded %s NFT tier without hierarchy or coercion",
+  async (tier) => {
+    tables.nft_tier_events[0]!.tier = tier;
+    expect(await tokenTier("1", owned)).toBe(tier);
+  },
+);
+it("rejects unknown recorded tiers instead of silently becoming Bronze", async () => {
+  tables.nft_tier_events[0]!.tier = "Unapproved";
+  await expect(tokenTier("1", owned)).rejects.toThrow("Unrecognized");
+});
 it.each([
   ["chain_id", 1],
   ["contract_address", "other-contract"],

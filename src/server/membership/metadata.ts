@@ -1,6 +1,7 @@
 import "server-only";
 import { createDataClient } from "../supabase";
 import { membershipChain, type readOwnership } from "./chain";
+import { ranks, type Rank } from "@/research/spaces";
 
 export async function tokenTier(
   tokenId: string,
@@ -18,5 +19,8 @@ export async function tokenTier(
     .eq("token_id", tokenId)
     .maybeSingle();
   if (error) throw error;
-  return data?.tier === "Silver" ? "Silver" : "Bronze";
+  if (!data) return "Bronze";
+  if (!ranks.includes(data.tier as Rank))
+    throw new Error("Unrecognized recorded NFT tier");
+  return data.tier as Rank;
 }

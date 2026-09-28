@@ -190,6 +190,207 @@ export type Database = {
           },
         ];
       };
+      chat_media: {
+        Row: {
+          id: string;
+          member_id: string;
+          room_id: string;
+          message_id: string | null;
+          content_type: string;
+          content_base64: string;
+          byte_size: number;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          member_id: string;
+          room_id: string;
+          message_id?: string | null;
+          content_type: string;
+          content_base64: string;
+          byte_size: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          room_id?: string;
+          message_id?: string | null;
+          content_type?: string;
+          content_base64?: string;
+          byte_size?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_media_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_media_message_id_fkey";
+            columns: ["message_id"];
+            isOneToOne: false;
+            referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_media_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chat_reactions: {
+        Row: {
+          message_id: string;
+          member_id: string;
+          emoji: string;
+          created_at: string;
+        };
+        Insert: {
+          message_id: string;
+          member_id: string;
+          emoji: string;
+          created_at?: string;
+        };
+        Update: {
+          message_id?: string;
+          member_id?: string;
+          emoji?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_reactions_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_reactions_message_id_fkey";
+            columns: ["message_id"];
+            isOneToOne: false;
+            referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chat_reads: {
+        Row: {
+          member_id: string;
+          room_id: string;
+          last_sequence: number;
+        };
+        Insert: {
+          member_id: string;
+          room_id: string;
+          last_sequence?: number;
+        };
+        Update: {
+          member_id?: string;
+          room_id?: string;
+          last_sequence?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_reads_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_reads_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "research_questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chat_requests: {
+        Row: {
+          member_id: string;
+          request_id: string;
+          payload: Json;
+          result: Json;
+        };
+        Insert: {
+          member_id: string;
+          request_id: string;
+          payload: Json;
+          result: Json;
+        };
+        Update: {
+          member_id?: string;
+          request_id?: string;
+          payload?: Json;
+          result?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_requests_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chat_revisions: {
+        Row: {
+          id: string;
+          message_id: string;
+          author_id: string;
+          body: string;
+          attachments: Json;
+          deleted: boolean;
+          created_at: string;
+          sequence: number;
+        };
+        Insert: {
+          id?: string;
+          message_id: string;
+          author_id: string;
+          body: string;
+          attachments?: Json;
+          deleted?: boolean;
+          created_at?: string;
+          sequence: number;
+        };
+        Update: {
+          id?: string;
+          message_id?: string;
+          author_id?: string;
+          body?: string;
+          attachments?: Json;
+          deleted?: boolean;
+          created_at?: string;
+          sequence?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_revisions_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_revisions_message_id_fkey";
+            columns: ["message_id"];
+            isOneToOne: false;
+            referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       discussion_messages: {
         Row: {
           id: string;
@@ -200,6 +401,7 @@ export type Database = {
           sources: Json;
           reply_to: string | null;
           created_at: string;
+          sequence: number;
         };
         Insert: {
           id?: string;
@@ -210,6 +412,7 @@ export type Database = {
           sources?: Json;
           reply_to?: string | null;
           created_at?: string;
+          sequence: number;
         };
         Update: {
           id?: string;
@@ -220,6 +423,7 @@ export type Database = {
           sources?: Json;
           reply_to?: string | null;
           created_at?: string;
+          sequence?: number;
         };
         Relationships: [
           {
@@ -345,6 +549,7 @@ export type Database = {
           correction: string | null;
           observed_at: string;
           submitted_at: string;
+          source_revision: string | null;
         };
         Insert: {
           id?: string;
@@ -361,6 +566,7 @@ export type Database = {
           correction?: string | null;
           observed_at: string;
           submitted_at?: string;
+          source_revision?: string | null;
         };
         Update: {
           id?: string;
@@ -377,6 +583,7 @@ export type Database = {
           correction?: string | null;
           observed_at?: string;
           submitted_at?: string;
+          source_revision?: string | null;
         };
         Relationships: [
           {
@@ -405,6 +612,13 @@ export type Database = {
             columns: ["source_message"];
             isOneToOne: false;
             referencedRelation: "discussion_messages";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "finding_versions_source_revision_fkey";
+            columns: ["source_revision"];
+            isOneToOne: false;
+            referencedRelation: "chat_revisions";
             referencedColumns: ["id"];
           },
         ];
@@ -528,6 +742,48 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      member_activity: {
+        Row: {
+          id: string;
+          member_id: string;
+          finding_id: string;
+          kind: string;
+          record_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          finding_id: string;
+          kind: string;
+          record_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          finding_id?: string;
+          kind?: string;
+          record_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "member_activity_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "member_activity_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       member_roles: {
         Row: {
@@ -719,6 +975,162 @@ export type Database = {
             columns: ["promotion_id"];
             isOneToOne: true;
             referencedRelation: "promotion_decisions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      opportunities: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          kind: string;
+          eligible_ranks: Json;
+          requirements: string;
+          approval_required: boolean;
+          status: string;
+          starts_at: string | null;
+          ends_at: string | null;
+          public_visible: boolean;
+          action_type: string;
+          protected_url: string | null;
+          claim_active: boolean;
+          is_demo: boolean;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          kind: string;
+          eligible_ranks: Json;
+          requirements?: string;
+          approval_required?: boolean;
+          status?: string;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          public_visible?: boolean;
+          action_type: string;
+          protected_url?: string | null;
+          claim_active?: boolean;
+          is_demo?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          kind?: string;
+          eligible_ranks?: Json;
+          requirements?: string;
+          approval_required?: boolean;
+          status?: string;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          public_visible?: boolean;
+          action_type?: string;
+          protected_url?: string | null;
+          claim_active?: boolean;
+          is_demo?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      opportunity_registrations: {
+        Row: {
+          opportunity_id: string;
+          member_id: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          opportunity_id: string;
+          member_id: string;
+          status: string;
+          created_at?: string;
+        };
+        Update: {
+          opportunity_id?: string;
+          member_id?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_registrations_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunity_registrations_opportunity_id_fkey";
+            columns: ["opportunity_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      opportunity_requirements: {
+        Row: {
+          opportunity_id: string;
+          member_id: string;
+          approved: boolean;
+          reason: string;
+          assessed_by: string;
+          updated_at: string;
+          verified_requirements: string | null;
+        };
+        Insert: {
+          opportunity_id: string;
+          member_id: string;
+          approved: boolean;
+          reason: string;
+          assessed_by: string;
+          updated_at?: string;
+          verified_requirements?: string | null;
+        };
+        Update: {
+          opportunity_id?: string;
+          member_id?: string;
+          approved?: boolean;
+          reason?: string;
+          assessed_by?: string;
+          updated_at?: string;
+          verified_requirements?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_requirements_assessed_by_fkey";
+            columns: ["assessed_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunity_requirements_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunity_requirements_opportunity_id_fkey";
+            columns: ["opportunity_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
             referencedColumns: ["id"];
           },
         ];
@@ -1397,6 +1809,66 @@ export type Database = {
         };
         Returns: string;
       };
+      chat_media_read: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+        };
+        Returns: Json;
+      };
+      chat_mutate: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+          p_request: string;
+          p_action: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      chat_snapshot: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+          p_before?: number;
+          p_after?: number;
+        };
+        Returns: Json;
+      };
+      chat_snapshot_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+          p_before?: number;
+          p_after?: number;
+        };
+        Returns: Json;
+      };
+      chat_source_media_read: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
+      chat_upload: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+          p_id: string;
+          p_type: string;
+          p_content: string;
+          p_size: number;
+        };
+        Returns: Json;
+      };
       create_mint_operation: {
         Args: {
           p_member: string;
@@ -1419,12 +1891,53 @@ export type Database = {
         };
         Returns: string;
       };
+      member_room_guard: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+        };
+        Returns: undefined;
+      };
       nft_tier: {
         Args: {
           p_contract: string;
           p_token: string;
         };
         Returns: string;
+      };
+      opportunity_action: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_action: string;
+        };
+        Returns: Json;
+      };
+      opportunity_action_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_action: string;
+        };
+        Returns: Json;
+      };
+      opportunity_list: {
+        Args: {
+          p_sample?: boolean;
+        };
+        Returns: Json;
+      };
+      opportunity_manage: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_action: string;
+          p_data: Json;
+        };
+        Returns: Json;
       };
       persist_mint_transaction: {
         Args: {
@@ -1493,6 +2006,15 @@ export type Database = {
         };
         Returns: Json;
       };
+      research_mutate_v3: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_action: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
       research_rank: {
         Args: {
           p_member: string;
@@ -1506,6 +2028,30 @@ export type Database = {
         Returns: Json;
       };
       research_snapshot_v2: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      research_snapshot_v3: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      research_snapshot_v3_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      research_snapshot_v3_text: {
         Args: {
           p_member: string;
           p_binding: string;

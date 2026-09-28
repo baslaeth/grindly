@@ -31,7 +31,7 @@ it("derives mutation identity from the checked server session and writes refresh
     specialty: "risk",
   });
   expect(mocks.access).toHaveBeenCalledWith(true);
-  expect(mocks.rpc).toHaveBeenCalledWith("research_mutate_v2", {
+  expect(mocks.rpc).toHaveBeenCalledWith("research_mutate_v3", {
     p_binding: "verified-binding",
     p_member: "verified",
     p_action: "profile",

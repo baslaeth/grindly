@@ -52,6 +52,7 @@ const actions = [
       addition: text(10, 2000),
       limitations: text(5, 1000),
       sourceMessage: id.nullable(),
+      sourceRevision: id.nullable().optional(),
       relatedVersion: id.nullable(),
       correction: text(10, 1000).nullable(),
       observedAt: z.iso

@@ -13,6 +13,7 @@ export type ResearchContext = {
   version?: string;
   message?: string;
   profile?: string;
+  sourceRevision?: string;
 };
 export async function readResearch(
   writableCookies = false,
@@ -20,7 +21,7 @@ export async function readResearch(
 ): Promise<ResearchData> {
   const active = await requireActiveMembership(writableCookies);
   const db = createDataClient();
-  const result = await db.rpc("research_snapshot_v2", {
+  const result = await db.rpc("research_snapshot_v3", {
     p_member: active.member.id,
     p_binding: active.binding.id,
     p_room: context.room,
@@ -68,6 +69,12 @@ export async function readResearch(
     const message = snapshot.messages.find((m) => m.id === context.message);
     if (!message)
       throw new ServiceError("RECORD_UNAVAILABLE", "Record unavailable.", 404);
+    if (context.sourceRevision && message.revision !== context.sourceRevision)
+      throw new ServiceError(
+        "RECORD_UNAVAILABLE",
+        "The source changed. Open its current version from Hub.",
+        409,
+      );
     questionId = message.question_id;
   }
   if (questionId && snapshot.rooms) {
@@ -170,7 +177,7 @@ export async function mutateResearch(input: ResearchInput) {
       );
     Object.assign(data, { binding: target.data.id });
   }
-  const result = await createDataClient().rpc("research_mutate_v2", {
+  const result = await createDataClient().rpc("research_mutate_v3", {
     p_binding: active.binding.id,
     p_member: active.member.id,
     p_action: action,

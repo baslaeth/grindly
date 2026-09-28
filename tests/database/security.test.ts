@@ -32,6 +32,15 @@ const tables = [
   "rank_demo_profiles",
   "rank_demo_messages",
   "rank_demo_delegations",
+  "chat_revisions",
+  "chat_requests",
+  "chat_media",
+  "chat_reactions",
+  "chat_reads",
+  "member_activity",
+  "opportunities",
+  "opportunity_requirements",
+  "opportunity_registrations",
 ];
 
 beforeAll(async () => {

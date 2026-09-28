@@ -1,3 +1,15 @@
+export const ranks = [
+  "Bronze",
+  "Silver",
+  "Gold",
+  "Platinum",
+  "Diamond",
+] as const;
+export type Rank = (typeof ranks)[number];
+export function nextRank(rank: string) {
+  const index = ranks.indexOf(rank as Rank);
+  return index < 0 ? null : (ranks[index + 1] ?? null);
+}
 export const categories = [
   "Whitelist Hunters",
   "Airdrop Hunters",
