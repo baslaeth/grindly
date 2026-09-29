@@ -12,6 +12,7 @@ try {
   ).rows;
   const enumNames = new Set(enums.map((entry) => entry.name));
   function typeFor(type: string): string {
+    if (type.endsWith("[]")) return `(${typeFor(type.slice(0, -2))})[]`;
     if (type === "void") return "undefined";
     if (enumNames.has(type))
       return `Database["public"]["Enums"][${JSON.stringify(type)}]`;

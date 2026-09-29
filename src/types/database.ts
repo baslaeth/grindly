@@ -109,6 +109,72 @@ export type Database = {
           },
         ];
       };
+      alpha_outcome_assessments: {
+        Row: {
+          id: string;
+          version_id: string;
+          actor_id: string;
+          request_id: string;
+          status: string;
+          relation: string;
+          facts: string;
+          explanation: string;
+          uncertainty: string;
+          observed_at: string;
+          sources: Json;
+          scope: string;
+          conflicts: string;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          actor_id: string;
+          request_id: string;
+          status: string;
+          relation: string;
+          facts: string;
+          explanation: string;
+          uncertainty: string;
+          observed_at: string;
+          sources: Json;
+          scope: string;
+          conflicts: string;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          actor_id?: string;
+          request_id?: string;
+          status?: string;
+          relation?: string;
+          facts?: string;
+          explanation?: string;
+          uncertainty?: string;
+          observed_at?: string;
+          sources?: Json;
+          scope?: string;
+          conflicts?: string;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_outcome_assessments_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_outcome_assessments_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
       alpha_outcomes: {
         Row: {
           id: string;
@@ -260,6 +326,67 @@ export type Database = {
           },
         ];
       };
+      alpha_review_assessments: {
+        Row: {
+          decision_id: string;
+          checklist: string;
+          assessment: Json;
+          created_at: string;
+        };
+        Insert: {
+          decision_id: string;
+          checklist: string;
+          assessment: Json;
+          created_at?: string;
+        };
+        Update: {
+          decision_id?: string;
+          checklist?: string;
+          assessment?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_review_assessments_decision_id_fkey";
+            columns: ["decision_id"];
+            isOneToOne: true;
+            referencedRelation: "review_decisions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_review_versions: {
+        Row: {
+          version_id: string;
+          checklist: string;
+          identifier: string;
+          claims: Json;
+          created_at: string;
+        };
+        Insert: {
+          version_id: string;
+          checklist: string;
+          identifier?: string;
+          claims: Json;
+          created_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          checklist?: string;
+          identifier?: string;
+          claims?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_review_versions_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
       alpha_reviewer_scopes: {
         Row: {
           member_id: string;
@@ -296,6 +423,57 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "members";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_source_checks: {
+        Row: {
+          id: string;
+          version_id: string;
+          requested_by: string;
+          status: string;
+          sources: Json;
+          checks: Json;
+          hints: Json;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          requested_by: string;
+          status?: string;
+          sources?: Json;
+          checks?: Json;
+          hints?: Json;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          requested_by?: string;
+          status?: string;
+          sources?: Json;
+          checks?: Json;
+          hints?: Json;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_source_checks_requested_by_fkey";
+            columns: ["requested_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_source_checks_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
           },
         ];
       };
@@ -1129,6 +1307,32 @@ export type Database = {
             foreignKeyName: "member_activity_member_id_fkey";
             columns: ["member_id"];
             isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      member_category_focus: {
+        Row: {
+          member_id: string;
+          focus: string;
+          selected_at: string;
+        };
+        Insert: {
+          member_id: string;
+          focus: string;
+          selected_at?: string;
+        };
+        Update: {
+          member_id?: string;
+          focus?: string;
+          selected_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "member_category_focus_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: true;
             referencedRelation: "members";
             referencedColumns: ["id"];
           },
@@ -2159,6 +2363,16 @@ export type Database = {
         };
         Returns: string;
       };
+      alpha_assess_outcome: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: string;
+      };
       alpha_authorized_reviewer: {
         Args: {
           p_member: string;
@@ -2175,6 +2389,26 @@ export type Database = {
         };
         Returns: Json;
       };
+      alpha_begin_sources: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
+      alpha_category: {
+        Args: {
+          p_value: string;
+        };
+        Returns: boolean;
+      };
+      alpha_context_keys: {
+        Args: {
+          p_category: string;
+        };
+        Returns: string[];
+      };
       alpha_decide: {
         Args: {
           p_member: string;
@@ -2185,6 +2419,21 @@ export type Database = {
           p_reason: string;
           p_conflicts: string;
           p_conflict_free: boolean;
+        };
+        Returns: Json;
+      };
+      alpha_decide_v2: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_assignment: string;
+          p_decision: string;
+          p_reason: string;
+          p_conflicts: string;
+          p_conflict_free: boolean;
+          p_checklist: string;
+          p_assessment: Json;
         };
         Returns: Json;
       };
@@ -2201,6 +2450,26 @@ export type Database = {
         };
         Returns: undefined;
       };
+      alpha_finish_sources: {
+        Args: {
+          p_run: string;
+          p_status: string;
+          p_sources: Json;
+          p_checks: Json;
+          p_hints: Json;
+        };
+        Returns: undefined;
+      };
+      alpha_focus_profile: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_name: string;
+          p_bio: string;
+          p_focus: string;
+        };
+        Returns: boolean;
+      };
       alpha_media_read: {
         Args: {
           p_member: string;
@@ -2209,6 +2478,12 @@ export type Database = {
           p_version: string;
         };
         Returns: Json;
+      };
+      alpha_primary_focus: {
+        Args: {
+          p_member: string;
+        };
+        Returns: string;
       };
       alpha_record_outcome: {
         Args: {
@@ -2237,7 +2512,32 @@ export type Database = {
         };
         Returns: Json;
       };
+      alpha_snapshot_pre_foundation: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_source_context: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
       alpha_submit: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      alpha_submit_v2: {
         Args: {
           p_member: string;
           p_binding: string;
@@ -2304,6 +2604,16 @@ export type Database = {
         Returns: Json;
       };
       chat_snapshot_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room: string;
+          p_before?: number;
+          p_after?: number;
+        };
+        Returns: Json;
+      };
+      chat_snapshot_pre_focus: {
         Args: {
           p_member: string;
           p_binding: string;

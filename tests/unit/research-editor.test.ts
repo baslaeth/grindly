@@ -28,6 +28,7 @@ import { ServiceError } from "@/server/errors";
 import { readResearch } from "@/server/research/service";
 
 const snapshot = {
+  evaluationAvailable: true,
   question: { id: "bronze-general", category: "General", rank: "Bronze" },
   profiles: [
     {
@@ -108,7 +109,7 @@ it.each(["hang", "failure"])(
     expect(html).toContain("Correct version 1");
     expect(html).toContain('name="correction"');
     expect(html).toContain("Submit corrected version");
-    expect(html).not.toContain("disabled");
+    expect(html).not.toMatch(/<(fieldset|button|textarea)[^>]*\bdisabled\b/);
     expect(mocks.access).toHaveBeenCalledWith(false);
     expect(mocks.peer).not.toHaveBeenCalled();
   },

@@ -1,6 +1,12 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 // Prepare, but never execute, an atomic additive migration with preservation checks.
-export async function prepareAlphaMigration() {
+export async function prepareAlphaMigration(
+  files = [
+    "202609290023_category_alpha.sql",
+    "202609290024_preliminary_review.sql",
+    "202609290025_alpha_feedback.sql",
+  ],
+) {
   let sql =
     "begin;\nset local statement_timeout='60s';\ncreate temp table preserved(table_name text primary key,digest text);\n";
   sql += `do $$ declare t record; d text; begin
@@ -8,11 +14,7 @@ for t in select tablename from pg_tables where schemaname='public' loop
 execute format('select md5(coalesce(string_agg(to_jsonb(x)::text,'''' order by to_jsonb(x)::text),'''')) from public.%I x',t.tablename) into d;
 insert into preserved values(t.tablename,d);
 end loop; end $$;\n`;
-  for (const file of [
-    "202609290023_category_alpha.sql",
-    "202609290024_preliminary_review.sql",
-    "202609290025_alpha_feedback.sql",
-  ]) {
+  for (const file of files) {
     sql +=
       (await readFile(`supabase/migrations/${file}`, "utf8"))
         .replace(/^begin;\s*$/gm, "")

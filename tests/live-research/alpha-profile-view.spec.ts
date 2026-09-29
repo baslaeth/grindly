@@ -30,7 +30,7 @@ test("profile category history opens the attributed record and its correction ed
       (v) => v.id === finding!.current_version,
     )!;
     const page = await context.newPage();
-    const dir = `docs/alpha-review/${info.project.name}`;
+    const dir = `docs/evaluation-foundation/${info.project.name}`;
     await mkdir(dir, { recursive: true });
     await page.goto("/");
     await page
@@ -48,10 +48,32 @@ test("profile category history opens the attributed record and its correction ed
       window.scrollTo(0, 0);
     });
     await page.screenshot({ path: `${dir}/my-profile.png` });
+    const ownVersions = data.versions.filter((v) =>
+      data.findings.some(
+        (f) => f.id === v.finding_id && f.author_id === fixture.member,
+      ),
+    );
+    if (
+      data.outcomes?.some((o) => ownVersions.some((v) => v.id === o.version_id))
+    ) {
+      stage = "observed_filter";
+      await page
+        .getByLabel("Record filter", { exact: true })
+        .selectOption("observed");
+      await expect(
+        page.getByText("No records match these filters.", { exact: true }),
+      ).toHaveCount(0);
+      stage = "restore_all_filter";
+      await page
+        .getByLabel("Record filter", { exact: true })
+        .selectOption("all");
+    }
+    stage = "history_summary";
     const history = page
       .locator("details")
-      .filter({ has: page.getByText(/^Project Analysts: \d+ submitted$/) });
-    await history.locator("summary").click();
+      .filter({ has: page.getByText(/^Project Analysts: \d+ shown$/) });
+    await history.locator(":scope > summary").click();
+    stage = "history_record_link";
     await history
       .getByRole("link", { name: version.claim, exact: true })
       .click();
@@ -59,6 +81,43 @@ test("profile category history opens the attributed record and its correction ed
     await expect(page).toHaveURL(new RegExp(`/findings/${finding!.id}$`), {
       timeout: 20000,
     });
+    await page
+      .getByRole("link", { name: "Review Assistant", exact: true })
+      .click();
+    const assistant = page.getByRole("region", {
+      name: `Review Assistant version ${version.version}`,
+      exact: true,
+    });
+    await expect(
+      assistant.getByRole("heading", { name: "Review Assistant", exact: true }),
+    ).toBeInViewport();
+    for (const heading of [
+      "Completeness and provenance",
+      "Retrieved evidence",
+      "Missing information and assessment questions",
+      "Related prior work",
+      "AI analysis",
+      "Independent review",
+    ])
+      await expect(
+        assistant.getByRole("heading", { name: heading, exact: true }),
+      ).toBeVisible();
+    await expect(
+      assistant.getByText("AI analysis is not connected yet.", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      assistant.getByRole("button", { name: /AI|preliminary/i }),
+    ).toHaveCount(0);
+    await page.screenshot({ path: `${dir}/review-assistant.png` });
+    await assistant
+      .getByRole("link", { name: "Later outcome and observations" })
+      .click();
+    await expect(
+      page
+        .locator(`#outcome-${version.id}`)
+        .getByRole("heading", { name: "Later outcome", exact: true }),
+    ).toBeInViewport();
+    await page.screenshot({ path: `${dir}/outcome-history.png` });
     await page
       .getByRole("link", { name: "Submit a correction", exact: true })
       .click();
@@ -72,6 +131,13 @@ test("profile category history opens the attributed record and its correction ed
     await expect(page.getByLabel("What did you find or conclude?")).toHaveValue(
       version.claim,
     );
+    await expect(
+      page.getByLabel("Contribution type", { exact: true }),
+    ).toHaveValue("correction");
+    if (data.evaluationAvailable === false)
+      await expect(
+        page.getByRole("button", { name: "Submit corrected version" }),
+      ).toBeDisabled();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

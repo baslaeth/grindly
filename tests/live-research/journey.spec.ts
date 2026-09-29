@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import type { ResearchData } from "../../src/research/model";
+import { fillUnknownContext, fillAssessment } from "./evaluation-helpers";
 test("labeled specialists collaborate, correct, independently accept and receive credit", async ({
   browser,
   baseURL,
@@ -224,6 +225,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
       await page
         .getByLabel("Contribution category", { exact: true })
         .selectOption("Project Analysts");
+      await fillUnknownContext(page, "Project Analysts");
       await page.getByLabel("Subject or project").fill("Robinhood Chain");
       await page
         .getByLabel("Why does it matter to members?")
@@ -276,10 +278,13 @@ test("labeled specialists collaborate, correct, independently accept and receive
     await page
       .getByRole("button", { name: "Submit for review", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/findings\/[a-f0-9-]{36}$/, {
-      timeout: 30000,
-    });
-    const findingId = page.url().split("/").at(-1)!;
+    await expect(page).toHaveURL(
+      /\/findings\/[a-f0-9-]{36}(\?saved=[a-f0-9-]{36})?$/,
+      {
+        timeout: 30000,
+      },
+    );
+    const findingId = new URL(page.url()).pathname.split("/").at(-1)!;
     let s = await snapshot();
     let f = s.findings.find((f) => f.id === findingId)!;
     expect(
@@ -297,25 +302,26 @@ test("labeled specialists collaborate, correct, independently accept and receive
         .poll(
           async () => {
             s = await snapshot();
-            return s.preliminary?.find(
+            return s.sourceChecks?.find(
               (r) => r.version_id === f.current_version,
             )?.status;
           },
           { timeout: 30000 },
         )
-        .toBe(process.env.OPENAI_API_KEY ? "complete" : "blocked");
-      const run = s.preliminary!.find(
+        .toBe("complete");
+      const run = s.sourceChecks!.find(
         (r) => r.version_id === f.current_version,
       )!;
-      if (!process.env.OPENAI_API_KEY) {
-        expect(run.error_code).toBe("provider_not_configured");
-        expect(run.card).toBeNull();
-        expect(run.checks.length).toBeGreaterThan(0);
-      }
+      expect(
+        s.preliminary?.some(
+          (r) => r.version_id === f.current_version && r.card,
+        ),
+      ).toBe(false);
+      expect(run.checks.length).toBeGreaterThan(0);
       await page.reload();
       await expect(
         page.getByRole("heading", {
-          name: "Preliminary AI review",
+          name: "Review Assistant",
           exact: true,
         }),
       ).toBeVisible({ timeout: 20000 });
@@ -338,6 +344,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
         has: reviewerPage.getByRole("button", { name: "Record decision" }),
       });
     await review.getByLabel("Decision").selectOption("correct");
+    if (categoryAlpha) await fillAssessment(review);
     await review.screenshot({ path: info.outputPath("assigned-review.png") });
     await review
       .getByLabel("Reasons and scope limits")
@@ -373,9 +380,12 @@ test("labeled specialists collaborate, correct, independently accept and receive
     await page
       .getByRole("button", { name: "Submit corrected version" })
       .click();
-    await expect(page).toHaveURL(new RegExp(`/findings/${findingId}$`), {
-      timeout: 30000,
-    });
+    await expect(page).toHaveURL(
+      new RegExp(`/findings/${findingId}(\\?saved=[a-f0-9-]{36})?$`),
+      {
+        timeout: 30000,
+      },
+    );
     s = await snapshot();
     f = s.findings.find((f) => f.id === findingId)!;
     assignment = s.assignments.find(
@@ -394,6 +404,7 @@ test("labeled specialists collaborate, correct, independently accept and receive
         has: reviewerPage.getByRole("button", { name: "Record decision" }),
       });
     await review.getByLabel("Decision").selectOption("accept");
+    if (categoryAlpha) await fillAssessment(review);
     await review
       .getByLabel("Reasons and scope limits")
       .fill(

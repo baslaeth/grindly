@@ -1,5 +1,10 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { randomUUID } from "node:crypto";
+import {
+  categoryFields,
+  primaryFocus,
+  reviewChecklist,
+} from "@/alpha/checklists";
 vi.mock("server-only", () => ({}));
 import {
   alphaSubmission,
@@ -30,7 +35,9 @@ const base = {
   subject: "ETH",
   chain: "",
   contract: "",
-  details: {},
+  details: Object.fromEntries(
+    categoryFields.Traders.map((f) => [f.key, "Unknown"]),
+  ),
   evidence: [
     {
       kind: "transaction",
@@ -85,6 +92,7 @@ const card = {
       status: "unverified",
       reason: "Unknown: no reliable external support",
       sources: [],
+      evidenceLinks: [],
     },
   ],
   missingEvidence: ["Independent source"],
@@ -95,6 +103,30 @@ const card = {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+});
+it("keeps unsupported case-sensitive identifiers distinct in prior-work hints", () => {
+  const candidate = {
+    ...context.version,
+    sources: [],
+    subject: "Different subject",
+    contract: "CaseSensitiveReference",
+    category: "Traders",
+  };
+  const review = (contract: string) =>
+    deterministicChecks(
+      {
+        ...context,
+        alpha: { ...context.alpha, contract },
+        candidates: [candidate],
+      },
+      [],
+    ).candidates[0]!.signals;
+  expect(review("casesensitivereference")).not.toContain(
+    "Same contract identifier",
+  );
+  expect(review("CaseSensitiveReference")).toContain(
+    "Same contract identifier",
+  );
 });
 function approve() {
   vi.stubEnv("AI_REVIEW_APPROVAL", "demo");
@@ -117,7 +149,17 @@ function response(output = card) {
 it.each(alphaCategories)(
   "accepts practical non-URL evidence in %s without market-prediction requirements",
   (category) => {
-    expect(alphaSubmission.safeParse({ ...base, category }).success).toBe(true);
+    expect(
+      alphaSubmission.safeParse({
+        ...base,
+        category,
+        chain: "Unknown",
+        contract: "Unknown",
+        details: Object.fromEntries(
+          categoryFields[category].map((f) => [f.key, "Unknown"]),
+        ),
+      }).success,
+    ).toBe(true);
     expect(categoryPrompts[category].length).toBeGreaterThan(1);
   },
 );
@@ -217,7 +259,20 @@ it("keeps provider failure generic and permits only real retrieved source refere
         response({
           ...card,
           claims: [
-            { ...card.claims[0]!, status: "supported", sources: ["primary"] },
+            {
+              ...card.claims[0]!,
+              status: "supported",
+              sources: ["primary"],
+              evidenceLinks: [
+                {
+                  source: "primary",
+                  excerpt: "Documented statement",
+                  relationship:
+                    "The source states this documented proposition, not an independent outcome.",
+                  sourceDate: null,
+                },
+              ],
+            },
           ],
         } as typeof card),
       ),
@@ -236,6 +291,48 @@ it("keeps provider failure generic and permits only real retrieved source refere
   expect((await modelReview(context, [source])).card.claims[0]?.status).toBe(
     "supported",
   );
+});
+it.each(alphaCategories)(
+  "rejects omitted category context in %s",
+  (category) => {
+    const details = Object.fromEntries(
+      categoryFields[category].map((f) => [f.key, "Unknown"]),
+    );
+    for (const field of categoryFields[category]) {
+      const missing = { ...details };
+      delete missing[field.key];
+      expect(
+        alphaSubmission.safeParse({
+          ...base,
+          category,
+          chain: "Unknown",
+          contract: "Unknown",
+          details: missing,
+        }).success,
+      ).toBe(false);
+    }
+    expect(
+      reviewChecklist(category, "prediction").questions.join(" "),
+    ).toContain("before the outcome");
+  },
+);
+it("does not infer an explicit focus from the legacy database default or ambiguous specialty", () => {
+  expect(
+    primaryFocus({ interest: "Project Analysts", specialty: "project" }),
+  ).toBeNull();
+  expect(primaryFocus({ interest: "Traders", specialty: "risk" })).toBe(
+    "Traders",
+  );
+  expect(
+    primaryFocus({ primary_focus: "Project Analysts", specialty: "risk" }),
+  ).toBe("Project Analysts");
+  expect(
+    primaryFocus({
+      primary_focus: null,
+      interest: "Project Analysts",
+      specialty: "operations",
+    }),
+  ).toBeNull();
 });
 it("flags exact claims/shared subjects as candidates, never as automated accusations", () => {
   const checks = deterministicChecks(
@@ -286,24 +383,25 @@ it("does not fetch unsupported sources and strips executable HTML", async () => 
   expect(fetch).not.toHaveBeenCalled();
   const source = await primaryDocument("https://ethereum.org/en/", "x");
   expect(source.status).toBe("retrieved");
-  expect(source.facts).toBe("Documented statement");
+  expect(JSON.parse(source.facts).excerpt).toBe("Documented statement");
+  expect(JSON.parse(source.facts).limitations).toContain(
+    "not independent confirmation",
+  );
   expect(source.digest).toHaveLength(64);
   expect(fetch.mock.calls[0]![1].redirect).toBe("error");
 });
 it("keeps unsupported market subjects and stale ticker values Unknown", async () => {
-  const fetch = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          price: "10",
-          bid: "9",
-          ask: "11",
-          volume: "100",
-          time: "2020-01-01T00:00:00Z",
-        }),
-      ),
-    );
+  const fetch = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        price: "10",
+        bid: "9",
+        ask: "11",
+        volume: "100",
+        time: "2020-01-01T00:00:00Z",
+      }),
+    ),
+  );
   vi.stubGlobal("fetch", fetch);
   expect((await marketSource("UNSUPPORTED")).status).toBe("unknown");
   expect(fetch).not.toHaveBeenCalled();

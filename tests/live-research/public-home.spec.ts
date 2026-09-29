@@ -35,11 +35,11 @@ test("visitors can inspect fictional public cards without private opportunity da
   expect(await cards.text()).not.toMatch(
     /protected_url|allocation_code|auth_user_id|@example\.test/,
   );
-  await mkdir(`docs/member-experience-review/${info.project.name}`, {
+  await mkdir(`docs/evaluation-foundation/${info.project.name}`, {
     recursive: true,
   });
   await page.screenshot({
-    path: `docs/member-experience-review/${info.project.name}/public-home.png`,
+    path: `docs/evaluation-foundation/${info.project.name}/public-home.png`,
     fullPage: true,
   });
 });

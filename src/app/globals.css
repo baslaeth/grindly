@@ -1116,6 +1116,35 @@ blockquote {
   padding: 22px 0;
   border-top: 1px solid var(--line);
 }
+.category-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 12px;
+  align-items: end;
+}
+.category-field > select {
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid #8c9095;
+  border-radius: 4px;
+}
+.review-assistant h4 {
+  margin: 24px 0 10px;
+}
+[id^="review-assistant-"],
+[id^="outcome-"],
+[id^="version-"] {
+  scroll-margin-top: 24px;
+}
+@media (max-width: 640px) {
+  .category-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}
 .form-step:first-child {
   border-top: 0;
   padding-top: 0;
@@ -1820,4 +1849,34 @@ dd,
   display: grid;
   gap: 16px;
   margin: 22px 0;
+}
+.source-readings {
+  display: grid;
+  gap: 8px;
+}
+.source-readings dt {
+  font-weight: 600;
+}
+.source-readings dd {
+  margin: 0;
+}
+.source-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.source-table table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: 100%;
+}
+.source-table th,
+.source-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.source-table caption {
+  text-align: left;
+  padding: 8px 0;
 }

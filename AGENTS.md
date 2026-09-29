@@ -10,7 +10,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
-Latest authority: `docs/category-alpha-review.md` (2026-09-30), extending the
+Latest refinement: `docs/evaluation-foundation.md` (2026-09-30), continuing the
+same branch from reviewed `40addac`. Migration 026 is locally tested but NOT
+shared-applied: explicit owner approval is pending. Do not silently apply it.
+New save/refresh/outcome paths are not live-verified until then. Source checks
+never invoke a model, even if a key later appears. See the current handoff and
+verification entry for precise classifications; no production deployment.
+
+Prior authority: `docs/category-alpha-review.md` (2026-09-30), extending the
 connected member brief on `codex/category-alpha-review`. Preserve annotations
 `ce19a1f` and base `0d58c9d`. Migrations 023-025 have explicit owner approval and
 are applied to the shared database with preservation assertions. Do not reapply

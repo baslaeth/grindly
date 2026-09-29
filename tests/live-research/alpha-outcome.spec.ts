@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { rankFixture } from "./rank-fixture";
 import type { ResearchData } from "../../src/research/model";
+import { explicitUnknownContext } from "../fixtures/evaluation-cases";
 
 test("isolated near-term fixture matures and records an inconclusive check, never a fabricated success", async ({
   browser,
@@ -20,6 +21,8 @@ test("isolated near-term fixture matures and records an inconclusive check, neve
   const horizon = new Date(Date.parse(data.serverTime!) + 45000).toISOString();
   const claim = `Isolated timed fixture ${info.project.name} ${Date.now()}: no real market prediction is claimed.`;
   const page = await context.newPage();
+  let reviewerContext:
+    Awaited<ReturnType<typeof rankFixture>>["context"] | undefined;
   const responses: {
     path: string;
     status: number;
@@ -59,7 +62,7 @@ test("isolated near-term fixture matures and records an inconclusive check, neve
         subject: "ETH",
         chain: "",
         contract: "",
-        details: {},
+        details: explicitUnknownContext("Traders"),
         evidence: [
           {
             kind: "link",
@@ -93,11 +96,11 @@ test("isolated near-term fixture matures and records an inconclusive check, neve
     await expect(
       page.getByRole("heading", { name: "Your NFT progression" }),
     ).toBeVisible({ timeout: 30000 });
-    await page.getByText(/^Traders: \d+ submitted$/).click();
+    await page.getByText(/^Traders: \d+ shown$/).click();
     stage = "category_history";
     await page
       .locator("details")
-      .filter({ has: page.getByText(/^Traders: \d+ submitted$/) })
+      .filter({ has: page.getByText(/^Traders: \d+ shown$/) })
       .getByRole("link", { name: claim, exact: true })
       .click();
     await expect(
@@ -142,9 +145,102 @@ test("isolated near-term fixture matures and records an inconclusive check, neve
       data.awards.reduce((n, a) => n + a.xp, 0),
     );
     expect(snapshot.versions.find((v) => v.id === version)?.claim).toBe(claim);
-    const dir = `docs/alpha-review/${info.project.name}`;
+    stage = "independent_outcome_entry";
+    const reviewer = await rankFixture(
+      browser,
+      baseURL!,
+      info.project.use,
+      false,
+      "risk",
+    );
+    reviewerContext = reviewer.context;
+    expect(reviewer.data.outcomeReviewable).toContain(version);
+    const reviewerPage = await reviewer.context.newPage();
+    await reviewerPage.goto("/review");
+    await reviewerPage
+      .locator("#due-outcomes")
+      .getByRole("link", { name: claim, exact: true })
+      .click();
+    const outcome = reviewerPage.locator(`#outcome-${version}`);
+    await outcome
+      .getByText("Record independent outcome", { exact: true })
+      .click();
+    const beforeEntry = (await (
+      await reviewer.context.request.get("/api/research")
+    ).json()) as ResearchData;
+    await outcome
+      .getByLabel("Observation date (UTC)", { exact: true })
+      .fill(beforeEntry.serverTime!.slice(0, 19));
+    await outcome
+      .getByLabel("Observed facts", { exact: true })
+      .fill(
+        "Isolated workflow observation: source availability does not establish the synthetic forecast's result.",
+      );
+    await outcome
+      .getByLabel("Compare with the original claim, horizon and criteria")
+      .fill(
+        "The original criterion requires independent historical comparison. Retrieved sources do not settle that condition; result remains inconclusive.",
+      );
+    await outcome
+      .getByLabel("Uncertainty and competing explanations")
+      .fill(
+        "Synthetic scenario; no genuine market prediction or return is asserted.",
+      );
+    await outcome
+      .getByLabel("Dated supporting sources (HTTPS, one per line)")
+      .fill(
+        "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
+      );
+    await outcome
+      .getByLabel("Conflicts and scope limits")
+      .fill("None within the existing isolated reviewer scope");
+    await outcome.getByRole("checkbox").check();
+    await outcome
+      .getByRole("button", { name: "Record outcome", exact: true })
+      .click();
+    await expect(
+      outcome.getByText(
+        "Outcome recorded. This does not approve work or award XP.",
+        { exact: true },
+      ),
+    ).toBeVisible({ timeout: 30000 });
+    const final = (await (
+      await context.request.get("/api/research")
+    ).json()) as ResearchData;
+    expect(
+      final.outcomeAssessments?.filter((o) => o.version_id === version),
+    ).toHaveLength(1);
+    expect(
+      final.outcomeAssessments?.find((o) => o.version_id === version),
+    ).toMatchObject({
+      status: "inconclusive",
+      relation: "unknown",
+      actor_id: reviewer.fixture.member,
+    });
+    await page.reload();
+    const dir = `docs/evaluation-foundation/${info.project.name}`;
     await mkdir(dir, { recursive: true });
     await page.screenshot({ path: `${dir}/due-outcome.png`, fullPage: true });
+    await page
+      .locator(".topbar")
+      .getByRole("link", { name: "My profile" })
+      .click();
+    await expect(
+      page.getByRole("link", { name: /Later outcome recorded/ }).first(),
+    ).toBeVisible({ timeout: 30000 });
+    await page
+      .getByRole("combobox", { name: "Record filter", exact: true })
+      .selectOption("observed");
+    await page.getByText(/^Traders: \d+ shown$/).click();
+    await expect(
+      page
+        .locator("#category-history")
+        .getByRole("link", { name: claim, exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `${dir}/outcome-profile-history.png`,
+      fullPage: true,
+    });
   } catch (error) {
     await page
       .screenshot({ path: info.outputPath("isolated-outcome-failure.png") })
@@ -167,5 +263,6 @@ test("isolated near-term fixture matures and records an inconclusive check, neve
     );
   } finally {
     await context.close();
+    await reviewerContext?.close();
   }
 });

@@ -4,18 +4,18 @@ import { Users, ArrowRight, Fingerprint, Hash } from "lucide-react";
 import {
   credit,
   profileHistory,
-  specialtyLabel,
   type ResearchData,
 } from "@/research/model";
 import { acquisitionLabel } from "@/research/spaces";
 import { ProfileDrawer, RoomSelector, RoomUnread } from "./space-controls";
 import { CategoryHistory } from "./alpha-views";
+import { primaryFocus } from "@/alpha/checklists";
 
 export const profileHref = (room: string, id: string) =>
   `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
 function recordedSpecialty(data: ResearchData, id: string, fallback: string) {
   const profile = data.profiles.find((p) => p.member_id === id);
-  return profile ? specialtyLabel(profile.specialty) : fallback;
+  return profile ? primaryFocus(profile) ?? "Focus not selected" : fallback;
 }
 function Avatar({ name }: { name: string }) {
   return (

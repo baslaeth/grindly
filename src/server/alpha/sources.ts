@@ -91,7 +91,7 @@ export async function primaryDocument(
     });
     if (
       !r.ok ||
-      !/^text\/(html|plain)/i.test(r.headers.get("content-type") ?? "")
+      !/^text\/(html|plain|markdown)/i.test(r.headers.get("content-type") ?? "")
     )
       throw new Error("Unavailable source");
     const raw = await boundedBody(r);
@@ -101,17 +101,32 @@ export async function primaryDocument(
     );
     $("script,style,nav,header,footer,form,button,noscript,svg").remove();
     const root = $("main").length ? $("main") : $("body");
-    const facts = root.text().replace(/\s+/g, " ").trim().slice(0, 6500);
-    if (!facts) throw new Error("No text");
+    const excerpt = root.text().replace(/\s+/g, " ").trim().slice(0, 6500);
+    if (!excerpt) throw new Error("No text");
+    const validDate =
+      published &&
+      Number.isFinite(Date.parse(published)) &&
+      Date.parse(published) <= Date.now();
+    const facts = JSON.stringify({
+      title: $("title").text().slice(0, 120),
+      headings: root
+        .find("h1,h2,h3")
+        .map((_, el) => $(el).text().trim().slice(0, 160))
+        .get()
+        .slice(0, 16),
+      excerpt,
+      publicationDateProvenance: validDate
+        ? "Publisher-supplied article:published_time; not independently verified."
+        : "Unknown: absent, invalid or future publisher date.",
+      limitations:
+        "Primary source statements only, not independent confirmation of product adoption, team identity, traction or a future outcome. Text may be partial or stale. Claims still require assessment.",
+    });
     return {
       id,
       label: $("title").text().slice(0, 120) || url.hostname,
       url: url.href,
       checkedAt: new Date().toISOString(),
-      publishedAt:
-        published && Number.isFinite(Date.parse(published))
-          ? new Date(published).toISOString()
-          : null,
+      publishedAt: validDate ? new Date(published).toISOString() : null,
       status: "retrieved",
       facts,
       digest: digest(raw),
@@ -132,16 +147,16 @@ const ticker = z.object({
   volume: z.string().regex(/^\d+(\.\d+)?$/),
   time: z.iso.datetime({ offset: true }),
 });
+const marketPairs: Record<string, string> = {
+  ETH: "ETH-USD",
+  ETHEREUM: "ETH-USD",
+  "ETH-USD": "ETH-USD",
+  BTC: "BTC-USD",
+  BITCOIN: "BTC-USD",
+  "BTC-USD": "BTC-USD",
+};
 export async function marketSource(subject: string): Promise<CheckedSource> {
-  const product: Record<string, string> = {
-    ETH: "ETH-USD",
-    ETHEREUM: "ETH-USD",
-    "ETH-USD": "ETH-USD",
-    BTC: "BTC-USD",
-    BITCOIN: "BTC-USD",
-    "BTC-USD": "BTC-USD",
-  };
-  const pair = product[subject.trim().toUpperCase()];
+  const pair = marketPairs[subject.trim().toUpperCase()];
   if (!pair)
     return unknown(
       "market",
@@ -185,11 +200,108 @@ export async function marketSource(subject: string): Promise<CheckedSource> {
     );
   }
 }
+const candle = z
+  .tuple([
+    z.number().int().nonnegative(),
+    z.number().nonnegative(),
+    z.number().nonnegative(),
+    z.number().nonnegative(),
+    z.number().nonnegative(),
+    z.number().nonnegative(),
+  ])
+  .refine(
+    ([, low, high, open, close]) =>
+      low <= high &&
+      open >= low &&
+      open <= high &&
+      close >= low &&
+      close <= high,
+  );
+export async function marketHistorySource(
+  alpha: Pick<AlphaVersion, "subject" | "horizon">,
+): Promise<CheckedSource> {
+  const pair = marketPairs[alpha.subject.trim().toUpperCase()];
+  if (!pair)
+    return unknown(
+      "market-history",
+      "Historical market coverage",
+      null,
+      "Unknown: historical observations support only BTC-USD and ETH-USD. Other identifiers remain unverified references.",
+    );
+  const now = Date.now();
+  const target =
+    alpha.horizon && Date.parse(alpha.horizon) <= now
+      ? Date.parse(alpha.horizon)
+      : now;
+  const end = Math.floor(target / 3600000) * 3600,
+    start = end - 24 * 3600;
+  const url = new URL(
+    `https://api.exchange.coinbase.com/products/${pair}/candles`,
+  );
+  url.search = new URLSearchParams({
+    granularity: "3600",
+    start: new Date(start * 1000).toISOString(),
+    end: new Date(end * 1000).toISOString(),
+  }).toString();
+  try {
+    const response = await fetch(url, {
+      redirect: "error",
+      signal: AbortSignal.timeout(8000),
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("Unavailable history");
+    const parsed = z
+      .array(candle)
+      .max(300)
+      .parse(JSON.parse(await boundedBody(response, 64000)));
+    const candles = parsed
+      .filter((c) => c[0] >= start && c[0] < end && c[0] % 3600 === 0)
+      .sort((a, b) => a[0] - b[0]);
+    if (
+      !candles.length ||
+      new Set(candles.map((c) => c[0])).size !== candles.length
+    )
+      throw new Error("Missing history");
+    const facts = JSON.stringify({
+      market: pair,
+      bucketSeconds: 3600,
+      start: new Date(start * 1000).toISOString(),
+      endExclusive: new Date(end * 1000).toISOString(),
+      expectedBuckets: 24,
+      receivedBuckets: candles.length,
+      missingBuckets: 24 - candles.length,
+      columns: ["bucketStartUnix", "low", "high", "open", "close", "volume"],
+      candles,
+      limitations:
+        "One venue, 24 completed hourly buckets before the declared due horizon or retrieval hour. Gaps are Unknown. Buckets do not establish intrahour event order, execution, all-venue prices or a forecast result. No automated success determination.",
+    });
+    return {
+      id: "market-history",
+      label: `Coinbase Exchange ${pair} hourly observations`,
+      url: url.href,
+      checkedAt: new Date().toISOString(),
+      publishedAt: null,
+      status: "retrieved",
+      facts,
+      digest: digest(facts),
+    };
+  } catch {
+    return unknown(
+      "market-history",
+      `Coinbase Exchange ${pair} hourly observations`,
+      url.href,
+      "Unknown: bounded historical data is unavailable or invalid. A current spot price cannot replace historical evidence.",
+    );
+  }
+}
 export async function chainSource(alpha: AlphaVersion): Promise<CheckedSource> {
   const transactions = alpha.evidence
     .filter((e) => e.kind === "transaction")
     .slice(0, 2);
-  if (!["46630", "Robinhood Chain testnet"].includes(alpha.chain))
+  if (
+    !["46630", "Robinhood Chain testnet"].includes(alpha.chain) ||
+    (alpha.contract && !/^0x[0-9a-fA-F]{40}$/.test(alpha.contract))
+  )
     return unknown(
       "chain",
       "Chain coverage",
@@ -280,7 +392,8 @@ export async function collectSources(alpha: AlphaVersion) {
         "Unknown: retrieval is bounded to three primary links per review. Additional submitted links remain available for human assessment.",
       ),
     );
-  if (alpha.category === "Traders") checks.push(marketSource(alpha.subject));
+  if (alpha.category === "Traders")
+    checks.push(marketSource(alpha.subject), marketHistorySource(alpha));
   if (alpha.contract || alpha.evidence.some((e) => e.kind === "transaction"))
     checks.push(chainSource(alpha));
   result.push(...(await Promise.all(checks)));

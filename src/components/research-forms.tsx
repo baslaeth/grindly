@@ -4,6 +4,12 @@ import { useRouter } from "next/navigation";
 import { Send, Save, Check, FilePlus2, RefreshCw } from "lucide-react";
 import { specialties, type ResearchData } from "@/research/model";
 import { categories } from "@/research/spaces";
+import {
+  primaryFocus,
+  reviewChecklist,
+  assessmentFields,
+  checklistVersion,
+} from "@/alpha/checklists";
 
 type Kind =
   | "promote"
@@ -126,11 +132,10 @@ export function ResearchForm({
     try {
       if (kind === "profile")
         payload = {
-          ...payload,
+          action: "focusProfile",
           name: get("name"),
-          specialty: get("specialty"),
           bio: get("bio"),
-          interest: get("interest"),
+          focus: get("interest"),
         };
       if (kind === "promote")
         payload = { ...payload, member: get("member"), reason: get("reason") };
@@ -181,9 +186,15 @@ export function ResearchForm({
           specialty: get("specialty"),
           request: get("request"),
         };
-      if (categoryReview) delete payload.room;
+      if (categoryReview) {
+        delete payload.room;
+        payload.checklist = checklistVersion;
+        payload.assessment = Object.fromEntries(
+          assessmentFields.map((f) => [f.key, get(`assessment-${f.key}`)]),
+        );
+      }
       const response = await fetch(
-        categoryReview ? "/api/alpha" : "/api/research",
+        categoryReview || kind === "profile" ? "/api/alpha" : "/api/research",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -247,13 +258,16 @@ export function ResearchForm({
           value={profile?.display_name}
           max={60}
         />
-        <SpecialtySelect value={profile?.specialty} />
         <label className="field">
-          Category interest
+          Primary specialty / focus
           <select
             name="interest"
-            defaultValue={profile?.interest ?? "Project Analysts"}
+            required
+            defaultValue={primaryFocus(profile) ?? ""}
           >
+            <option value="" disabled>
+              Choose your focus
+            </option>
             {categories.map((category) => (
               <option key={category}>{category}</option>
             ))}
@@ -411,6 +425,33 @@ export function ResearchForm({
   if (kind === "review")
     fields = (
       <>
+        {categoryReview &&
+          (() => {
+            const a = data!.alphas!.find((a) => a.version_id === versionId)!;
+            return (
+              <section aria-label="Review checklist">
+                <h3>Review checklist</h3>
+                <ul>
+                  {reviewChecklist(
+                    a.category,
+                    a.contribution_type,
+                  ).questions.map((q) => (
+                    <li key={q}>{q}</li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })()}
+        {categoryReview &&
+          assessmentFields.map((f) => (
+            <Field
+              key={f.key}
+              label={f.label}
+              name={`assessment-${f.key}`}
+              multiline
+              max={600}
+            />
+          ))}
         <label className="field">
           Decision
           <select name="decision" required defaultValue="">
@@ -469,9 +510,23 @@ export function ResearchForm({
           : Save;
   return (
     <form className="research-form" onSubmit={submit} aria-busy={pending}>
+      {data?.evaluationAvailable === false &&
+        (kind === "profile" || categoryReview) && (
+          <p role="status">
+            Saving these changes is temporarily unavailable while the review
+            service is updated. Existing records remain available.
+          </p>
+        )}
       <fieldset disabled={pending}>
         {fields}
-        <button className="button" type="submit">
+        <button
+          className="button"
+          type="submit"
+          disabled={
+            data?.evaluationAvailable === false &&
+            (kind === "profile" || !!categoryReview)
+          }
+        >
           <Icon size={16} aria-hidden="true" />
           {pending
             ? "Saving..."

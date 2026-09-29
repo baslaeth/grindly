@@ -3,6 +3,30 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import type { Opportunity } from "@/opportunities/model";
+const sampleDescriptions: Record<string, string> = {
+  "Sample: specialist roundtable":
+    "Compare airdrop eligibility, contract risks and research methods with complementary specialists in a small group session. Fictional example; no event is booked.",
+  "Sample: Silver research preview":
+    "Explore an early product walkthrough and ask its team about documented limitations before deciding whether to participate. Fictional example; no partner or allocation exists.",
+  "Sample: public briefing":
+    "Read a concise briefing on new crypto participation opportunities, with official-source links and clear eligibility before taking action. Fictional example; no live campaign.",
+};
+const originalSampleDescriptions: Record<string, string> = {
+  "Sample: specialist roundtable":
+    "Fictional opportunity for testing interest. No partner, event reservation or allocation exists.",
+  "Sample: Silver research preview":
+    "Fictional preview for testing exact eligibility. No live campaign or external application.",
+  "Sample: public briefing":
+    "A fictional public card showing details only. No registration or monetary value.",
+};
+export function opportunityDescription(
+  card: Pick<Opportunity, "name" | "description" | "isDemo">,
+) {
+  return card.isDemo &&
+    card.description === originalSampleDescriptions[card.name]
+    ? sampleDescriptions[card.name]
+    : card.description;
+}
 export async function opportunityRequest(payload: unknown) {
   const response = await fetch("/api/opportunities", {
     method: "POST",
@@ -55,7 +79,7 @@ export function OpportunityCard({
         {card.isDemo && <span className="sample-label">Fictional sample</span>}
       </div>
       <h3>{card.name}</h3>
-      <p>{card.description}</p>
+      <p>{opportunityDescription(card)}</p>
       <dl>
         <dt>Eligible ranks</dt>
         <dd>{card.ranks.join(", ")}</dd>

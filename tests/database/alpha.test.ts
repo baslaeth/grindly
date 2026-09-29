@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 import { createTestDatabase } from "./database";
 import type { Snapshot } from "../../src/research/model";
 import type { ReviewContext } from "../../src/alpha/checks";
+import { categories } from "../../src/research/spaces";
+import { categoryFields, checklistVersion } from "../../src/alpha/checklists";
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const ids = Array.from({ length: 5 }, () => randomUUID());
 let bindings: string[] = [];
@@ -118,6 +120,267 @@ const snapshot = (i = 0) =>
     bindings[i],
     i === 4 ? "silver-traders" : "bronze-traders",
   ]);
+const submitV2 = (i = 0, extra: object = {}, key = randomUUID()) =>
+  rpc<{ id: string; version: string }>("alpha_submit_v2", [
+    ids[i],
+    bindings[i],
+    key,
+    JSON.stringify({
+      ...base,
+      checklist: checklistVersion,
+      details: Object.fromEntries(
+        categoryFields.Traders.map((f) => [f.key, "Unknown"]),
+      ),
+      ...extra,
+    }),
+  ]);
+it.each(categories)(
+  "persists validated context for %s without requiring a price prediction",
+  async (category) => {
+    const fields = categoryFields[category];
+    expect(await rpc<string[]>("alpha_context_keys", [category])).toEqual(
+      fields.map((f) => f.key),
+    );
+    const details = Object.fromEntries(fields.map((f) => [f.key, "Unknown"]));
+    const record = await submitV2(0, {
+      category,
+      details,
+      chain: "Unknown",
+      contract: "CaseSensitiveReference",
+    });
+    const s = await snapshot();
+    expect(
+      s.checklistVersions?.find((v) => v.version_id === record.version)
+        ?.checklist,
+    ).toBe(checklistVersion);
+    expect(
+      s.alphas?.find((v) => v.version_id === record.version)?.contract,
+    ).toBe("CaseSensitiveReference");
+    for (const field of fields) {
+      const missing = { ...details };
+      delete missing[field.key];
+      await denied(() =>
+        submitV2(0, {
+          category,
+          details: missing,
+          chain: "Unknown",
+          contract: "Unknown",
+        }),
+      );
+    }
+  },
+);
+it("explicit focus preserves legacy attribution and never grants reviewer authority", async () => {
+  expect(await rpc("alpha_primary_focus", [ids[0]])).toBeNull();
+  await rpc("alpha_focus_profile", [
+    ids[0],
+    bindings[0],
+    "Isolated member",
+    "Bio",
+    "Traders",
+  ]);
+  const s = await snapshot();
+  expect(s.profiles.find((p) => p.member_id === ids[0])?.specialty).toBe(
+    "project",
+  );
+  expect(s.profiles.find((p) => p.member_id === ids[0])?.primary_focus).toBe(
+    "Traders",
+  );
+  expect(s.roles).not.toContain("reviewer");
+});
+it("prior lookup includes permitted earlier versions but not hidden or other-rank matches", async () => {
+  const prior = await submitV2(0, {
+    chain: "Unknown",
+    contract: "CaseSensitiveReference",
+  });
+  await submitV2(0, {
+    finding: prior.id,
+    previous: prior.version,
+    correction: "Added evidence while preserving original claim",
+    claim: "Revised independent observation",
+  });
+  const hidden = await submitV2(1, { visibility: "reviewers" });
+  const other = await submitV2(4);
+  const current = await submitV2();
+  const ctx = await rpc<ReviewContext>("alpha_source_context", [
+    ids[0],
+    bindings[0],
+    current.version,
+  ]);
+  expect(ctx.candidates.map((c) => c.id)).toContain(prior.version);
+  expect(ctx.candidates.find((c) => c.id === prior.version)?.contract).toBe(
+    "CaseSensitiveReference",
+  );
+  expect(JSON.stringify(ctx)).not.toContain(hidden.version);
+  expect(JSON.stringify(ctx)).not.toContain(other.version);
+  const run = await rpc<ReviewContext>("alpha_begin_sources", [
+    ids[0],
+    bindings[0],
+    current.version,
+  ]);
+  await rpc("alpha_finish_sources", [
+    run.run,
+    "complete",
+    "[]",
+    "[]",
+    JSON.stringify([
+      { version: prior.version, signals: ["Shared source"] },
+      { version: hidden.version, signals: ["Must be redacted"] },
+    ]),
+  ]);
+  expect(JSON.stringify(await snapshot())).not.toContain("Must be redacted");
+  await denied(() =>
+    rpc("alpha_begin_sources", [ids[2], bindings[2], current.version]),
+  );
+  await denied(() =>
+    rpc("alpha_begin_sources", [ids[4], bindings[4], current.version]),
+  );
+});
+async function maturedAlpha(author = 0) {
+  const id = randomUUID(),
+    version = randomUUID();
+  await db.query(
+    "insert into public.findings(id,question_id,author_id,visibility) values($1,'bronze-traders',$2,'members')",
+    [id, ids[author]],
+  );
+  await db.query(
+    "insert into public.finding_versions(id,finding_id,version,specialty,claim,sources,addition,limitations,observed_at,submitted_at) values($1,$2,1,'project','Isolated dated hypothesis, not a real forecast','[{\"url\":\"https://ethereum.org/en/\",\"label\":\"Isolated reference\"}]','Isolated added analysis','Synthetic case only',now()-interval '2 days',now()-interval '2 days')",
+    [version, id],
+  );
+  await db.query(
+    "insert into public.alpha_versions(version_id,category,contribution_type,purpose,subject,details,evidence,horizon,check_condition,created_at) values($1,'Traders','prediction','Test independent outcomes','ETH','{}','[{\"kind\":\"link\",\"value\":\"https://ethereum.org/en/\",\"label\":\"Isolated reference\"}]',now()-interval '1 day','Compare original dated criterion without using a current quote as historical proof',now()-interval '2 days')",
+    [version],
+  );
+  await db.query("update public.findings set current_version=$1 where id=$2", [
+    version,
+    id,
+  ]);
+  return { id, version };
+}
+const assessment = () => ({
+  status: "known",
+  relation: "not_met",
+  facts:
+    "The isolated dated milestone did not occur within the declared window.",
+  explanation:
+    "A bounded fictional evidence case contradicts the original criterion; this is not a real market outcome.",
+  uncertainty: "Only synthetic evidence was used.",
+  observedAt: new Date(Date.now() - 3600000).toISOString(),
+  sources: [
+    {
+      url: "https://ethereum.org/en/",
+      label: "Isolated source reference",
+      publishedAt: null,
+    },
+  ],
+  conflicts: "None declared",
+  conflictFree: true,
+});
+it("independent outcomes are idempotent, do not award XP, and remain visible on superseded versions", async () => {
+  const f = await maturedAlpha();
+  const request = randomUUID(),
+    payload = assessment();
+  const args = [
+    ids[1],
+    bindings[1],
+    f.version,
+    request,
+    JSON.stringify(payload),
+  ];
+  const outcome = await rpc("alpha_assess_outcome", args);
+  expect(await rpc("alpha_assess_outcome", args)).toBe(outcome);
+  await denied(() =>
+    rpc("alpha_assess_outcome", [
+      ids[1],
+      bindings[1],
+      f.version,
+      request,
+      JSON.stringify({ ...payload, relation: "met" }),
+    ]),
+  );
+  const correction = await submitV2(0, {
+    finding: f.id,
+    previous: f.version,
+    correction: "New evidence preserves the original dated claim",
+  });
+  const s = await snapshot();
+  expect(
+    s.outcomeAssessments?.filter((o) => o.version_id === f.version),
+  ).toHaveLength(1);
+  expect(s.findings.find((v) => v.id === f.id)?.current_version).toBe(
+    correction.version,
+  );
+  expect(s.outcomeAssessments?.[0]?.relation).toBe("not_met");
+  expect(s.awards).toHaveLength(0);
+  await denied(
+    () =>
+      db.query("update public.alpha_outcome_assessments set relation='met'"),
+    /immutable|append-only|permission/,
+  );
+});
+it("outcome authority rejects self, other rank, demo mismatch, revoked scope and early or contradictory status", async () => {
+  const f = await maturedAlpha();
+  const p = assessment();
+  for (const i of [0, 2, 3, 4])
+    await denied(() =>
+      rpc("alpha_assess_outcome", [
+        ids[i],
+        bindings[i],
+        f.version,
+        randomUUID(),
+        JSON.stringify(p),
+      ]),
+    );
+  const future = await submitV2(0, {
+    type: "prediction",
+    horizon: new Date(Date.now() + 86400000).toISOString(),
+    checkCondition: "A future condition cannot be assessed early",
+  });
+  await denied(() =>
+    rpc("alpha_assess_outcome", [
+      ids[1],
+      bindings[1],
+      future.version,
+      randomUUID(),
+      JSON.stringify(p),
+    ]),
+  );
+  await denied(
+    () =>
+      rpc("alpha_assess_outcome", [
+        ids[1],
+        bindings[1],
+        f.version,
+        randomUUID(),
+        JSON.stringify({ ...p, relation: "unknown" }),
+      ]),
+    /check constraint/,
+  );
+  await denied(() =>
+    rpc("alpha_assess_outcome", [
+      ids[1],
+      bindings[1],
+      f.version,
+      randomUUID(),
+      JSON.stringify({ ...p, conflictFree: false }),
+    ]),
+  );
+  await db.exec("reset role");
+  await db.query(
+    "delete from public.alpha_reviewer_scopes where member_id=$1",
+    [ids[1]],
+  );
+  await db.exec("set role service_role");
+  await denied(() =>
+    rpc("alpha_assess_outcome", [
+      ids[1],
+      bindings[1],
+      f.version,
+      randomUUID(),
+      JSON.stringify(p),
+    ]),
+  );
+});
 async function decide(i: number, version: string, decision = "accept") {
   const a = (await snapshot(i)).assignments.find(
     (a) => a.version_id === version && !a.completed_at,
@@ -134,6 +397,83 @@ async function decide(i: number, version: string, decision = "accept") {
     true,
   ]);
 }
+it("requires a complete versioned reviewer assessment, keeps retries atomic and excludes private recipients", async () => {
+  const f = await submitV2(0, { visibility: "reviewers" });
+  const a = (await snapshot(1)).assignments.find(
+    (a) => a.version_id === f.version && !a.completed_at,
+  )!;
+  const assessment = Object.fromEntries(
+    ["evidence", "relevance", "addition", "limitations", "alternatives"].map(
+      (k) => [
+        k,
+        `Independent ${k} assessment with qualified evidence, not a score.`,
+      ],
+    ),
+  );
+  const args = [
+    ids[1],
+    bindings[1],
+    f.version,
+    a.id,
+    "accept",
+    "Examined scope and dated evidence",
+    "None declared",
+    true,
+    checklistVersion,
+    JSON.stringify(assessment),
+  ];
+  await denied(() => rpc("alpha_decide_v2", [...args.slice(0, 9), "{}"]));
+  expect((await snapshot()).findings[0]?.status).toBe("pending");
+  expect(await rpc("alpha_decide_v2", args)).toMatchObject({
+    credit: "blocked_no_approved_rule",
+  });
+  expect(await rpc("alpha_decide_v2", args)).toMatchObject({
+    alreadyRecorded: true,
+  });
+  await denied(() =>
+    rpc("alpha_decide_v2", [
+      ...args.slice(0, 9),
+      JSON.stringify({
+        ...assessment,
+        evidence: "Changed evidence assessment on retry",
+      }),
+    ]),
+  );
+  const s = await snapshot();
+  expect(s.reviewAssessments).toHaveLength(1);
+  expect(s.awards).toHaveLength(0);
+  expect(JSON.stringify(await snapshot(2))).not.toContain(assessment.evidence);
+  expect(JSON.stringify(await snapshot(4))).not.toContain(f.version);
+  await denied(
+    () =>
+      db.query("update public.alpha_review_assessments set assessment='{}'"),
+    /permission denied|immutable|append/i,
+  );
+});
+it.each(["role", "category"])(
+  "revoked %s cannot record later outcomes",
+  async (kind) => {
+    const f = await maturedAlpha();
+    await db.exec("reset role");
+    await db.query(
+      kind === "role"
+        ? "delete from public.member_roles where member_id=$1 and role='reviewer'"
+        : "delete from public.alpha_reviewer_scopes where member_id=$1",
+      [ids[1]],
+    );
+    await db.exec("set role service_role");
+    await denied(() =>
+      rpc("alpha_assess_outcome", [
+        ids[1],
+        bindings[1],
+        f.version,
+        randomUUID(),
+        JSON.stringify(assessment()),
+      ]),
+    );
+    expect((await snapshot(1)).outcomeReviewable).not.toContain(f.version);
+  },
+);
 it("saves category independently of specialty; pending is shared with the permitted exact rank", async () => {
   const f = await submit();
   const s = await snapshot(1);

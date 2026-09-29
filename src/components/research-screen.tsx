@@ -19,6 +19,7 @@ export async function ResearchScreen({
   room,
   profile,
   sourceRevision,
+  saved,
 }: {
   view: "workbench" | "new" | "record" | "review" | "membership";
   id?: string;
@@ -27,6 +28,7 @@ export async function ResearchScreen({
   room?: string;
   profile?: string;
   sourceRevision?: string;
+  saved?: string;
 }) {
   const title = {
     workbench: "Hub",
@@ -97,7 +99,7 @@ export async function ResearchScreen({
       ) : view === "new" ? (
         <FindingEditor data={data} sourceMessage={message} revise={revise} />
       ) : view === "record" ? (
-        <FindingRecord data={data} id={id ?? "latest"} />
+        <FindingRecord data={data} id={id ?? "latest"} saved={saved} />
       ) : view === "review" ? (
         <ReviewDesk data={data} />
       ) : (

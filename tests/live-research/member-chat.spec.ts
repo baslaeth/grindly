@@ -124,13 +124,13 @@ async function snapshot(page: Page) {
   return (await response.json()) as ChatSnapshot;
 }
 async function capture(page: Page, name: string, project: string) {
-  await mkdir(`docs/member-experience-review/${project}`, { recursive: true });
+  await mkdir(`docs/evaluation-foundation/${project}`, { recursive: true });
   await page.evaluate(() => {
     window.scrollTo(0, 0);
     (document.activeElement as HTMLElement)?.blur();
   });
   await page.screenshot({
-    path: `docs/member-experience-review/${project}/${name}.png`,
+    path: `docs/evaluation-foundation/${project}/${name === "my-profile" ? "chat-profile" : name}.png`,
     fullPage: !(await page.getByRole("dialog").isVisible()),
   });
 }

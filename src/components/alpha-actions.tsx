@@ -102,7 +102,7 @@ export function AlphaAction({
   label,
 }: {
   version: string;
-  action: "preliminary" | "outcomeCheck";
+  action: "preliminary" | "refreshSources" | "outcomeCheck";
   label: string;
 }) {
   const router = useRouter();

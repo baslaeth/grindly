@@ -1,13 +1,10 @@
 import "server-only";
 import { z } from "zod";
-import {
-  reviewCardSchema,
-  categoryPrompts,
-  type CheckedSource,
-} from "@/alpha/model";
+import { reviewCardSchema, type CheckedSource } from "@/alpha/model";
 import type { ReviewContext } from "@/alpha/checks";
 import { deterministicChecks } from "@/alpha/checks";
 import { boundedBody } from "./sources";
+import { reviewChecklist } from "@/alpha/checklists";
 
 export class PreliminaryError extends Error {
   constructor(
@@ -57,7 +54,10 @@ export async function modelReview(
     limitations: context.version.limitations,
     purpose: context.alpha.purpose,
     details: context.alpha.details,
-    riskPrompts: categoryPrompts[context.alpha.category],
+    reviewChecklist: reviewChecklist(
+      context.alpha.category,
+      context.alpha.contribution_type,
+    ),
     horizon: context.alpha.horizon,
     checkCondition: context.alpha.check_condition,
     submittedAt: context.version.submitted_at,
@@ -68,7 +68,17 @@ export async function modelReview(
       body: m.body,
       createdAt: m.createdAt,
     })),
-    priorWork: candidates,
+    priorWork: candidates.map((c) => ({
+      id: c.id,
+      claim: c.claim,
+      addition: c.addition,
+      subject: c.subject,
+      contract: c.contract,
+      category: c.category,
+      submitted_at: c.submitted_at,
+      sources: c.sources,
+      signals: c.signals,
+    })),
   };
   let raw: unknown;
   try {
@@ -84,7 +94,9 @@ export async function modelReview(
         model,
         store: false,
         max_output_tokens: 5000,
-        instructions: reviewInstructions,
+        instructions:
+          reviewInstructions +
+          ` For every supported or contradicted material claim, supply evidenceLinks with an exact excerpt, its supplied sourceDate (null when unknown), and an explanation of how the excerpt establishes or contradicts this particular claim. A citation ID or successful fetch alone is never factual support. Describe what a source STATES separately from independently observed events. Initial usefulness/acceptance is not forecast success. Shared sources alone do not establish copying. All category/type checklist questions in the supplied trusted reviewChecklist must be considered.`,
         input: JSON.stringify(input),
         text: {
           format: {
@@ -133,5 +145,21 @@ export async function modelReview(
       )
     )
       throw new PreliminaryError("invalid_output");
+  for (const claim of card.claims) {
+    if (claim.status !== "unverified" && !claim.evidenceLinks.length)
+      throw new PreliminaryError("invalid_output");
+    for (const link of claim.evidenceLinks) {
+      const source = sources.find((s) => s.id === link.source);
+      const normalize = (s: string) => s.replace(/\s+/g, " ").trim();
+      if (
+        !source ||
+        !claim.sources.includes(link.source) ||
+        source.status !== "retrieved" ||
+        link.sourceDate !== source.publishedAt ||
+        !normalize(source.facts).includes(normalize(link.excerpt))
+      )
+        throw new PreliminaryError("invalid_output");
+    }
+  }
   return { card, checks, model };
 }

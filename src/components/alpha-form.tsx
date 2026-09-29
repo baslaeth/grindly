@@ -4,12 +4,74 @@ import { useRouter } from "next/navigation";
 import { FilePlus2, Paperclip, X } from "lucide-react";
 import {
   alphaCategories,
-  categoryPrompts,
+  alphaSubmission,
   contributionTypes,
   type AlphaCategory,
   type Evidence,
 } from "@/alpha/model";
 import { person, type ResearchData } from "@/research/model";
+import {
+  categoryFields,
+  primaryFocus,
+  checklistVersion,
+} from "@/alpha/checklists";
+
+function CategoryField({
+  field,
+  value = "",
+}: {
+  field: (typeof categoryFields)[AlphaCategory][number];
+  value?: string;
+}) {
+  const [mode, setMode] = useState(
+    /^(unknown|not applicable)$/i.test(value) ? value.toLowerCase() : "details",
+  );
+  return (
+    <div className="category-field">
+      <label className="field">
+        <span>{field.label} *</span>
+        {mode === "details" ? (
+          <input
+            key={mode}
+            name={`detail-${field.key}`}
+            type={
+              field.kind === "date"
+                ? "datetime-local"
+                : field.kind === "url"
+                  ? "url"
+                  : "text"
+            }
+            required
+            maxLength={1000}
+            defaultValue={
+              /^(unknown|not applicable)$/i.test(value)
+                ? ""
+                : field.kind === "date"
+                  ? value.slice(0, 16)
+                  : value
+            }
+          />
+        ) : (
+          <input
+            key={mode}
+            name={`detail-${field.key}`}
+            value={mode === "unknown" ? "Unknown" : "Not applicable"}
+            readOnly
+          />
+        )}
+      </label>
+      <select
+        aria-label={`${field.label} answer`}
+        value={mode}
+        onChange={(e) => setMode(e.target.value)}
+      >
+        <option value="details">Provide context</option>
+        <option value="unknown">Unknown</option>
+        <option value="not applicable">Not applicable</option>
+      </select>
+    </div>
+  );
+}
 
 function Field({
   label,
@@ -79,13 +141,12 @@ export function AlphaForm({
     av?.category ??
     (alphaCategories.includes(data.question.category as AlphaCategory)
       ? (data.question.category as AlphaCategory)
-      : alphaCategories.includes(profile?.interest as AlphaCategory)
-        ? (profile?.interest as AlphaCategory)
-        : undefined) ??
-    "Project Analysts";
-  const [category, setCategory] = useState<AlphaCategory>(initial);
+      : (primaryFocus(profile) as AlphaCategory | null)) ??
+    "";
+  const [category, setCategory] = useState<AlphaCategory | "">(initial);
+  const contextFields = category ? categoryFields[category] : [];
   const [kind, setKind] = useState<keyof typeof contributionTypes>(
-    av?.contribution_type ?? (version ? "correction" : "find"),
+    version ? "correction" : "find",
   );
   const [files, setFiles] = useState<
     { id: string; file: File; progress: number; uploaded: boolean }[]
@@ -192,8 +253,16 @@ export function AlphaForm({
         chain: get("chain"),
         contract: get("contract"),
         details: Object.fromEntries(
-          categoryPrompts[category].map((p, i) => [p, get(`detail-${i}`)]),
+          contextFields.map((f) => [
+            f.key,
+            f.kind === "date" &&
+            !/^(unknown|not applicable)$/i.test(get(`detail-${f.key}`)) &&
+            get(`detail-${f.key}`)
+              ? new Date(get(`detail-${f.key}`) + "Z").toISOString()
+              : get(`detail-${f.key}`),
+          ]),
         ),
+        checklist: checklistVersion,
         evidence,
         firstNoticed: date("firstNoticed"),
         horizon: date("horizon"),
@@ -206,17 +275,28 @@ export function AlphaForm({
       const serialized = JSON.stringify(payload);
       if (request.current?.payload !== serialized)
         request.current = { payload: serialized, id: crypto.randomUUID() };
+      const validated = alphaSubmission.safeParse({
+        ...payload,
+        request: request.current.id,
+      });
+      if (!validated.success)
+        throw new Error(
+          validated.error.issues
+            .slice(0, 3)
+            .map((i) => i.message)
+            .join(" "),
+        );
       const response = await fetch("/api/alpha", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, request: request.current.id }),
+        body: JSON.stringify(validated.data),
       });
       const result = await response.json();
       if (!response.ok)
         throw new Error(
           result.error?.message ?? "Could not submit. Your input is retained.",
         );
-      router.push(`/findings/${result.id}`);
+      router.push(`/findings/${result.id}?saved=${result.version}`);
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not submit. Retry.");
@@ -227,15 +307,26 @@ export function AlphaForm({
   }
   return (
     <form onSubmit={submit} className="research-form" aria-busy={busy}>
+      {data.evaluationAvailable === false && (
+        <p className="notice" role="status">
+          Saving new alpha is temporarily unavailable while the review service
+          is updated. Existing records remain available. You can inspect the
+          form, but it cannot submit yet.
+        </p>
+      )}
       <fieldset disabled={busy}>
         <label className="field">
           Contribution category
           <select
             aria-label="Contribution category"
+            required
             value={category}
             disabled={!!av}
             onChange={(e) => setCategory(e.target.value as AlphaCategory)}
           >
+            <option value="" disabled>
+              Choose a category
+            </option>
             {alphaCategories.map((c) => (
               <option key={c}>{c}</option>
             ))}
@@ -261,6 +352,67 @@ export function AlphaForm({
             ))}
           </select>
         </label>
+        <Field
+          label="Subject or project"
+          name="subject"
+          value={av?.subject}
+          required
+          max={120}
+        />
+        {!!category && (
+          <section className="form-step" aria-label="Category context">
+            <h3>{category}</h3>
+            {contextFields.map((field) => (
+              <CategoryField
+                key={`${category}:${field.key}`}
+                field={field}
+                value={av?.details[field.key]}
+              />
+            ))}
+            {["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
+              category,
+            ) && (
+              <>
+                <Field
+                  label="Chain or network"
+                  name="chain"
+                  value={av?.chain}
+                  required
+                  max={40}
+                />
+                <Field
+                  label="Asset or contract identifier"
+                  name="contract"
+                  value={av?.contract}
+                  required={["Degens", "NFT Specialists"].includes(category)}
+                  max={160}
+                />
+                <p className="muted">
+                  Use Unknown or Not applicable when needed. Automatic chain
+                  checks cover Robinhood Chain testnet 46630 and EVM addresses
+                  only. Other identifiers remain unverified references.
+                </p>
+              </>
+            )}
+            <Field
+              label="Horizon or milestone (UTC)"
+              name="horizon"
+              type="datetime-local"
+              value={av?.horizon?.slice(0, 16)}
+              required={kind === "prediction"}
+            />
+            <Field
+              label="What would count against the claim or establish the outcome?"
+              name="checkCondition"
+              value={av?.check_condition}
+              required={kind === "prediction"}
+            />
+            <p className="muted">
+              A prediction needs a future horizon and clear criteria. Finds,
+              guides and warnings do not need a price target.
+            </p>
+          </section>
+        )}
         {message && (
           <aside className="notice">
             Source: {person(data, message.author_id)}. Posted{" "}
@@ -273,13 +425,6 @@ export function AlphaForm({
           </aside>
         )}
         <div className="form-step">
-          <Field
-            label="Subject or project"
-            name="subject"
-            value={av?.subject}
-            required
-            max={120}
-          />
           <Field
             label="What did you find or conclude?"
             name="claim"
@@ -397,47 +542,32 @@ export function AlphaForm({
             required
           />
         </div>
-        <details open={kind === "prediction"}>
-          <summary>Category context and timing</summary>
+        <details>
+          <summary>Additional provenance</summary>
           <div className="form-step">
-            {categoryPrompts[category].map((prompt, i) => (
-              <Field
-                key={`${category}:${prompt}`}
-                label={prompt}
-                name={`detail-${i}`}
-                value={av?.details[prompt]}
-              />
-            ))}
-            <Field
-              label="Chain (46630 for Robinhood Chain testnet)"
-              name="chain"
-              value={av?.chain}
-              max={40}
-            />
-            <Field
-              label="Contract address"
-              name="contract"
-              value={av?.contract}
-              max={42}
-            />
+            {!["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
+              category,
+            ) && (
+              <>
+                <Field
+                  label="Chain or network (optional)"
+                  name="chain"
+                  value={av?.chain}
+                  max={40}
+                />
+                <Field
+                  label="Asset or contract identifier (optional)"
+                  name="contract"
+                  value={av?.contract}
+                  max={160}
+                />
+              </>
+            )}
             <Field
               label="First noticed (self-reported, UTC)"
               name="firstNoticed"
               type="datetime-local"
               value={av?.first_noticed?.slice(0, 16)}
-            />
-            <Field
-              label="Horizon or milestone (UTC)"
-              name="horizon"
-              type="datetime-local"
-              value={av?.horizon?.slice(0, 16)}
-              required={kind === "prediction"}
-            />
-            <Field
-              label="What would count against the claim or establish the outcome?"
-              name="checkCondition"
-              value={av?.check_condition}
-              required={kind === "prediction"}
             />
             <p className="muted">
               Submission time is recorded by the server. Self-reported times do
@@ -496,7 +626,11 @@ export function AlphaForm({
           <input required type="checkbox" /> I have permission to share this
           evidence and have identified my own contribution.
         </label>
-        <button className="button" type="submit">
+        <button
+          className="button"
+          type="submit"
+          disabled={data.evaluationAvailable === false}
+        >
           <FilePlus2 size={16} />
           {busy
             ? "Saving..."

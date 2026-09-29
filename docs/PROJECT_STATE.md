@@ -1,4 +1,49 @@
-# Grindly: Category Alpha Checkpoint
+# Grindly: Member Journey and Evaluation Foundation
+
+## Current local refinement (2026-09-30)
+
+Verified branch `codex/category-alpha-review`, starting from reviewed/pushed
+`40addac4f8c16c6393b5024b183de53321bde703`. Review http://localhost:3000/ from
+this repository's existing development server. It is NOT the older production
+site. Approved annotations, charcoal/white UI and top-right My Profile remain.
+Scope/checklists/coverage/walkthrough: `evaluation-foundation.md`; QA targets:
+`QA05_CATEGORY_ALPHA_HANDOFF.md`. Historical checkpoints below are preserved.
+
+- Nine-category primary focus, immediate category/type/context fields, explicit
+  Unknown/Not applicable, prediction-only criteria requirements and client/server
+  omitted-field validation. Historical specialty is not rewritten; ambiguous
+  default Project Analysts interest requires explicit confirmation. Focus never
+  grants reviewer authority or limits same-rank category submissions.
+- Source-first Review Assistant, clear saved receipt, independent assessment,
+  qualified prior-version hints, immutable outcome entry/due queue and complete
+  profile chronology. New SQL is additive migration 026. **BLOCKED for live
+  saving/refresh/review/outcome sign-off:** further shared-database authorization
+  is pending. 026 has NOT been applied; 023-025 are untouched. Local database
+  tests validate persisted behavior and preservation with populated old records.
+  The UI truthfully disables affected new saves until the schema is available.
+- Read-only source probes retrieved ETH spot, 24/24 completed hourly observations,
+  Robinhood primary documentation and Coinbase API documentation. Two unsupported
+  or unavailable primary paths remained Unknown. Retrieval is not claim support.
+  Live external coverage is deepest for Traders and Project Analysts; all other
+  category limits are explicit in the matrix. No invented successful outcomes.
+- OpenAI remains an approved future boundary, but **no real model calls** or
+  sample model cards. The owner deferred the key; do not request it. Source refresh
+  is model-free even if a key later appears. Semantic detection/model accuracy
+  and real-model instruction-injection behavior remain unverified.
+- Genuine work remains pending without independently designated category scopes;
+  genuine category XP still needs an approved rule. No roles were granted and no
+  genuine findings were submitted/changed. Demo XP policies are absent from
+  genuine profile views; claims remain disabled and economics unconfigured.
+- New captures and public-source report: `docs/evaluation-foundation/`. Final
+  deterministic/browser/CI/push results are recorded in `verification.md`.
+  Unrelated untracked brand exports remain preserved and excluded from commits.
+
+No merge, force-push or production deployment. Existing historical passes,
+including transfer-back, remain valid. Live Silver/higher-rank/transfer checks,
+intermittent provider reliability and Phase 1 gaps remain separately deferred.
+This local refinement does not establish production readiness or customer validation.
+
+## Historical Category Checkpoint
 
 ## Current local work (2026-09-30)
 

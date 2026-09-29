@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 process.loadEnvFile(".env.local");
 export default defineConfig({
   testDir: "./tests/live-research",
+  outputDir: ".local/playwright-research-results",
   workers: 1,
   fullyParallel: false,
   retries: 0,

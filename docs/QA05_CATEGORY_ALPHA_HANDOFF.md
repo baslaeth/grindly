@@ -1,5 +1,78 @@
 # Chat 05: Category Alpha Review
 
+## Current Re-review: Evaluation Foundation
+
+Continue the same branch from `40addac`; current scope is
+`evaluation-foundation.md`. Review http://localhost:3000/, not production.
+Check the feature-branch HEAD and the newest `verification.md` entry for push/CI
+identity. Preserve earlier verified work; the original checkpoint below remains
+historical evidence, not a claim that new persistence has been deployed.
+
+**Shared migration 026 is NOT applied.** An explicit approval request is pending.
+023-025 are unchanged and must not be reapplied. New saves, profile-focus updates,
+source-refresh persistence, qualitative review assessments and independent outcome
+entries are implemented and local-database tested, but live sign-off is BLOCKED
+until approval/application and the new browser journeys pass. Existing record
+inspection and chat remain available. Do not work around this with a browser
+bypass, legacy save fallback, role grants or a production deployment.
+
+| Refinement | Current classification |
+| --- | --- |
+| Home -> top-right Profile -> attributed alpha -> Review Assistant -> outcome history -> correction editor | WORKING read-only desktop/mobile navigation on existing isolated records; no genuine writes |
+| Category/type first, immediate nine-category context, Unknown/NA and conditional prediction inputs | Implemented and deterministic-tested; browser results in latest verification; live saving BLOCKED by 026 |
+| Explicit primary category focus, preserved legacy attribution, reviewer separation | BLOCKED for shared persistence; local SQL/unit coverage passes; no ambiguous default mapping |
+| Saved receipt, same-rank pending sharing, retries, source-only asynchronous checks | BLOCKED for new live journey until 026; local persistence/security tests pass; older passing journey retained below |
+| Source-first Review Assistant on existing records, retrieved dates/limits, AI-offline wording | WORKING in actual browser navigation; no canned model card or misleading AI retry |
+| BTC/ETH spot and bounded historical candles; primary docs | WORKING read-only public probes; new in-app source-run persistence BLOCKED by 026; retrieval does not assess member claims |
+| Versioned five-dimension independent decisions; earlier-version prior hints | BLOCKED for shared live sign-off; local transactional/idempotency/permission regressions pass |
+| Independent due outcome form, immutable facts/criteria comparison, outcome Activity and old-version history | BLOCKED for live writes until 026; local database tests pass; existing history rendering WORKING |
+| Rejection/appeal browser path | BLOCKED by 026; implemented test uses existing isolated scopes only, database tests pass |
+| Opportunity editor browser path | BLOCKED: no existing isolated steward; no new role appointed. Authorization tests remain |
+| Fictional Home benefits/eligibility examples | LABELED EXAMPLE, separate sample experience; public browser checks pass, no real partner/application |
+| Genuine independent reviewer staffing / category XP policy | BLOCKED pending owner designation and approved rule; no demo evaluation of genuine work |
+| Real AI reasoning/paraphrases/injection handling | BLOCKED/unverified by deferred key; do not request it again or call paid models |
+| Fourteen evaluation cases, two held-out semantic cases | LABELED EXAMPLE; unit/mock behavior is not AI accuracy, training or intelligence |
+| Automatic outcome scheduler, claims/upgrades/economics/delegation activation | NOT IMPLEMENTED/inactive by scope |
+
+### Focused Targets
+
+- `src/alpha/checklists.ts`, `model.ts`, `checks.ts`: stable category/type checklist,
+  omitted-field validation, original identity/date handling and bounded private
+  prior-version hints. Shared sources are not a copying accusation.
+- `supabase/migrations/202609300026_evaluation_foundation.sql`: additive wrappers,
+  new forced-RLS tables, active exact-rank/demo/scope/self checks, immutable review
+  and outcome records, no added credit rule. All old entry points retained.
+- `scripts/prepare-evaluation-migration.ts`: generates 026-only transaction with
+  complete old-table-content digests and RPC denial assertions, not execution.
+- `src/server/alpha/{service,sources,provider}.ts`: source refresh never calls AI;
+  bounded public source reads; future model requires supplied evidence excerpts,
+  dates and claim-specific explanations. IDs alone are insufficient grounding.
+- `src/components/{alpha-form,review-assistant,source-observations,alpha-outcomes,
+  outcome-form,category-history,history-filters}.tsx`: saved receipt, separate
+  evidence/AI/reviewer/outcome states and old-version chronology.
+- `tests/live-research/{evaluation-editor,evaluation-foundation,alpha-profile-view,
+  alpha-outcome}.spec.ts`: actual click paths, nine saved contexts, source failure,
+  independent rejection/appeal and dated outcomes. Write tests require approved
+  026, not an invented replacement backend. Browser output is isolated under
+  `.local/playwright-research-results` to avoid collisions with foundation runs.
+
+### Exact Paths
+
+Home -> Enter Hub -> any own-rank category -> Submit alpha. On the saved alpha,
+click Review Assistant for provenance, retrieved sources, gaps, permitted prior
+work, AI status and independent review. Click Outcome history for the original
+horizon/criteria and dated observations. Review Desk -> Due outcomes routes an
+authorized independent reviewer to the correct version. Top-right My Profile ->
+Category record -> category -> Versions, decisions and observations retains all
+earlier outcomes; Activity links persisted decisions/awards/independent outcomes.
+
+New screenshots: `docs/evaluation-foundation/{desktop,mobile}/` plus public-source
+probe report and sample Home. No founder session copy, private genuine captures,
+model output, wallet exercise or production mutation. The full coverage matrix
+and conditional founder walkthrough are in `evaluation-foundation.md`.
+
+## Historical Category Checkpoint
+
 Review `codex/category-alpha-review`, based on `0d58c9d`, not the older hosted
 website. Local URL: http://localhost:3000/. Annotation checkpoint `ce19a1f` and
 top-right My Profile remain. Final commit/push and browser totals are in the

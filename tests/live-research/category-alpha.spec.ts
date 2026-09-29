@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { rankFixture } from "./rank-fixture";
 import type { ResearchData } from "../../src/research/model";
 import { alphaCategories } from "../../src/alpha/model";
+import { fillUnknownContext } from "./evaluation-helpers";
 test("category alpha shares pending evidence, retries once, and records truthful source checks", async ({
   browser,
   baseURL,
@@ -79,9 +80,10 @@ test("category alpha shares pending evidence, retries once, and records truthful
     expect(
       await page
         .getByLabel("Contribution category", { exact: true })
-        .locator("option")
+        .locator("option:not([disabled])")
         .allTextContents(),
     ).toEqual([...alphaCategories]);
+    await fillUnknownContext(page, "Traders");
     await page
       .getByLabel("Contribution type", { exact: true })
       .selectOption("prediction");
@@ -146,9 +148,12 @@ test("category alpha shares pending evidence, retries once, and records truthful
     await page
       .getByRole("button", { name: "Submit for review", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/findings\/[a-f0-9-]{36}$/, {
-      timeout: 30000,
-    });
+    await expect(page).toHaveURL(
+      /\/findings\/[a-f0-9-]{36}\?saved=[a-f0-9-]{36}$/,
+      {
+        timeout: 30000,
+      },
+    );
     await page.unroute("**/api/alpha");
     let s = await snap();
     const finding = s.findings.find((f) =>
@@ -163,12 +168,12 @@ test("category alpha shares pending evidence, retries once, and records truthful
       .poll(
         async () => {
           s = await snap();
-          return s.preliminary?.find((r) => r.version_id === version)?.status;
+          return s.sourceChecks?.find((r) => r.version_id === version)?.status;
         },
         { timeout: 30000 },
       )
-      .toBe(process.env.OPENAI_API_KEY ? "complete" : "blocked");
-    const run = s.preliminary!.find((r) => r.version_id === version)!;
+      .toBe("complete");
+    const run = s.sourceChecks!.find((r) => r.version_id === version)!;
     expect(
       run.sources.some(
         (s) =>
@@ -178,10 +183,9 @@ test("category alpha shares pending evidence, retries once, and records truthful
           s.digest,
       ),
     ).toBe(true);
-    if (!process.env.OPENAI_API_KEY) {
-      expect(run.card).toBeNull();
-      expect(run.error_code).toBe("provider_not_configured");
-    }
+    expect(s.preliminary?.some((r) => r.version_id === version && r.card)).toBe(
+      false,
+    );
     const media = s
       .alphas!.find((a) => a.version_id === version)!
       .evidence.find((e) => e.kind === "attachment")!;

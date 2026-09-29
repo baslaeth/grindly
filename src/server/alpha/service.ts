@@ -2,6 +2,8 @@ import "server-only";
 import { z } from "zod";
 import {
   alphaSubmission,
+  alphaCategories,
+  outcomeAssessment,
   type CheckedSource,
   type AlphaVersion,
 } from "@/alpha/model";
@@ -11,15 +13,21 @@ import { createDataClient } from "../supabase";
 import { privateResult } from "../chat/service";
 import { type Json } from "@/types/database";
 import { collectSources } from "./sources";
-import {
-  modelReview,
-  PreliminaryError,
-  assertReviewApproval,
-} from "./provider";
 import { reportFailure } from "../diagnostics";
 import { ServiceError } from "../errors";
+import { checklistVersion } from "@/alpha/checklists";
 export const alphaAction = z.union([
   alphaSubmission,
+  outcomeAssessment,
+  z
+    .object({
+      action: z.literal("focusProfile"),
+      name: z.string().trim().min(2).max(60),
+      bio: z.string().trim().max(300),
+      focus: z.enum(alphaCategories),
+    })
+    .strict(),
+  z.object({ action: z.literal("refreshSources"), version: z.uuid() }).strict(),
   z.object({ action: z.literal("preliminary"), version: z.uuid() }).strict(),
   z.object({ action: z.literal("outcomeCheck"), version: z.uuid() }).strict(),
   z
@@ -45,6 +53,16 @@ export const alphaAction = z.union([
   z
     .object({
       action: z.literal("review"),
+      checklist: z.literal(checklistVersion),
+      assessment: z
+        .object({
+          evidence: z.string().trim().min(10).max(600),
+          relevance: z.string().trim().min(10).max(600),
+          addition: z.string().trim().min(10).max(600),
+          limitations: z.string().trim().min(10).max(600),
+          alternatives: z.string().trim().min(10).max(600),
+        })
+        .strict(),
       version: z.uuid(),
       assignment: z.uuid(),
       decision: z.enum(["accept", "correct", "reject"]),
@@ -90,7 +108,7 @@ export async function preparePreliminary(version: string) {
       );
   }
   return privateResult(
-    await db.rpc("alpha_begin_review", {
+    await db.rpc("alpha_begin_sources", {
       p_member: active.member.id,
       p_binding: active.binding.id,
       p_version: version,
@@ -102,45 +120,62 @@ export async function executePreliminary(context: ReviewContext) {
   let sources: CheckedSource[] = [];
   let checks: string[] = deterministicChecks(context, []).checks;
   try {
-    // No private-content transmission until server-side owner approval is configured.
-    assertReviewApproval(context.isDemo);
     sources = await collectSources(context.alpha);
-    checks = deterministicChecks(context, sources).checks;
-    const result = await modelReview(context, sources);
-    const saved = await createDataClient().rpc("alpha_finish_review", {
-      p_id: context.run,
+    const result = deterministicChecks(context, sources);
+    checks = result.checks;
+    // Source refresh never invokes a paid model, even if a key later appears.
+    const saved = await createDataClient().rpc("alpha_finish_sources", {
+      p_run: context.run,
       p_status: "complete",
-      p_provider: "openai",
-      p_model: result.model,
-      p_card: result.card as unknown as Json,
       p_sources: sources as unknown as Json,
       p_checks: checks,
-      p_error: undefined,
+      p_hints: result.candidates
+        .filter((c) => c.signals.length)
+        .map((c) => ({ version: c.id, signals: c.signals })),
     });
     if (saved.error) throw saved.error;
-  } catch (e) {
-    const code = e instanceof PreliminaryError ? e.code : "provider_failed";
-    const result = await createDataClient().rpc("alpha_finish_review", {
-      p_id: context.run,
-      p_status: code.startsWith("provider_not_") ? "blocked" : "failed",
-      p_provider: undefined,
-      p_model: undefined,
-      p_card: undefined,
+  } catch {
+    const result = await createDataClient().rpc("alpha_finish_sources", {
+      p_run: context.run,
+      p_status: "failed",
       p_sources: sources as unknown as Json,
       p_checks: checks,
-      p_error: code,
+      p_hints: [],
     });
     if (result.error)
       reportFailure(
         "alpha.persist",
         new Error("Preliminary review persistence failed"),
       );
-    reportFailure("alpha.preliminary", new Error(code));
+    reportFailure("alpha.sources", new Error("Source check unavailable"));
   }
 }
 export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   const active = await requireActiveMembership(true);
   const db = createDataClient();
+  if (input.action === "focusProfile")
+    return privateResult(
+      await db.rpc("alpha_focus_profile", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_name: input.name,
+        p_bio: input.bio,
+        p_focus: input.focus,
+      }),
+    );
+  if (input.action === "outcomeAssess") {
+    const { action: _action, request, version, ...data } = input;
+    void _action;
+    return privateResult(
+      await db.rpc("alpha_assess_outcome", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_version: version,
+        p_request: request,
+        p_data: data as unknown as Json,
+      }),
+    );
+  }
   if (input.action === "feedback")
     return privateResult(
       await db.rpc("alpha_add_feedback", {
@@ -165,7 +200,7 @@ export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   if (input.action === "submit") {
     const { request, ...data } = input;
     return privateResult(
-      await db.rpc("alpha_submit", {
+      await db.rpc("alpha_submit_v2", {
         p_member: active.member.id,
         p_binding: active.binding.id,
         p_request: request,
@@ -175,7 +210,7 @@ export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   }
   if (input.action === "review")
     return privateResult(
-      await db.rpc("alpha_decide", {
+      await db.rpc("alpha_decide_v2", {
         p_member: active.member.id,
         p_binding: active.binding.id,
         p_version: input.version,
@@ -184,6 +219,8 @@ export async function alphaMutation(input: z.infer<typeof alphaAction>) {
         p_reason: input.reason,
         p_conflicts: input.conflicts,
         p_conflict_free: input.conflictFree,
+        p_checklist: input.checklist,
+        p_assessment: input.assessment,
       }),
     );
   if (input.action === "outcomeCheck") {

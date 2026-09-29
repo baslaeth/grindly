@@ -20,10 +20,15 @@ export async function POST(request: Request) {
     try {
       assertSameOrigin(request, getEnvironment().APP_URL);
       const input = await readJson(request, alphaAction, 30000);
-      if (input.action === "preliminary") {
+      if (input.action === "preliminary" || input.action === "refreshSources") {
         const context = await preparePreliminary(input.version);
-        after(() => executePreliminary(context));
-        return jsonResponse({ pending: !context.existing, run: context.run });
+        await executePreliminary(context);
+        return jsonResponse({
+          run: context.run,
+          message: context.existing
+            ? "Showing the latest saved source check. A recent or running check is reused."
+            : "Source check finished. Review retrieved evidence and any limitations below.",
+        });
       }
       const result = await alphaMutation(input);
       if (input.action === "submit") {

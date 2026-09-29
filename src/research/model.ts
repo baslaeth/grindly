@@ -1,5 +1,6 @@
 import type { Database } from "@/types/database";
 import type { AlphaSnapshot } from "@/alpha/model";
+import { categories } from "./spaces";
 
 type Row<K extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][K]["Row"];
@@ -12,7 +13,7 @@ export type Specialty = keyof typeof specialties;
 export type Snapshot = Partial<AlphaSnapshot> & {
   alphaSchemaAvailable?: boolean;
   question: Row<"research_questions">;
-  profiles: Row<"research_profiles">[];
+  profiles: (Row<"research_profiles"> & { primary_focus?: string | null })[];
   messages: (Row<"discussion_messages"> & {
     revision?: string;
     deleted?: boolean;
@@ -93,6 +94,7 @@ export function sources(value: unknown): Source[] {
     : [];
 }
 export function specialtyLabel(value: string) {
+  if ((categories as readonly string[]).includes(value)) return value;
   return specialties[value as Specialty] ?? "Specialty not set";
 }
 export function person(data: Snapshot, id: string) {

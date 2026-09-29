@@ -1,4 +1,5 @@
 import type { AlphaVersion, CheckedSource } from "./model";
+import { categoryFields, reviewChecklist, unspecified } from "./checklists";
 export type PriorCandidate = {
   id: string;
   claim: string;
@@ -8,6 +9,7 @@ export type PriorCandidate = {
   category: string | null;
   submitted_at: string;
   sources: unknown;
+  author_id?: string;
 };
 export type ReviewContext = {
   existing: boolean;
@@ -30,11 +32,20 @@ const normalize = (s: string) =>
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
+const sourceUrls = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.flatMap((s) =>
+        s && typeof s === "object" && "url" in s && typeof s.url === "string"
+          ? [s.url]
+          : [],
+      )
+    : [];
 export function deterministicChecks(
   context: ReviewContext,
   sources: CheckedSource[],
 ) {
   const checks = [
+    "Shared sources and similar subjects are not proof of copying; prior-work hints require independent assessment.",
     `Server submission time: ${context.version.submitted_at}. First in Grindly is not first in the world.`,
     context.alpha.first_noticed
       ? "First noticed is self-reported and does not establish discovery priority."
@@ -48,22 +59,45 @@ export function deterministicChecks(
     checks.push(
       `Outcome remains pending until ${context.alpha.horizon}; initial evaluation is separate.`,
     );
-  for (const [field, value] of Object.entries(context.alpha.details))
-    if (!value.trim()) checks.push(`Missing category context: ${field}.`);
+  for (const field of categoryFields[context.alpha.category]) {
+    const value = context.alpha.details[field.key];
+    if (!value?.trim())
+      checks.push(`Missing category context: ${field.label}.`);
+    else if (unspecified(value))
+      checks.push(
+        `${field.label}: ${value}. This is not established evidence.`,
+      );
+  }
+  if (
+    context.alpha.contract &&
+    (!/^0x[\da-f]{40}$/i.test(context.alpha.contract) ||
+      !["46630", "Robinhood Chain testnet"].includes(context.alpha.chain))
+  )
+    checks.push(
+      "Identifier is a reference only. This chain or identifier is outside automatic coverage; verification is Unknown.",
+    );
+  checks.push(
+    `Review checklist ${reviewChecklist(context.alpha.category, context.alpha.contribution_type).version}. Retrieved does not mean supported.`,
+  );
   const candidates = context.candidates.map((p) => ({
     ...p,
     signals: [
       ...(normalize(p.claim) === normalize(context.version.claim)
         ? ["Exact normalized claim"]
         : []),
-      ...(p.contract && p.contract === context.alpha.contract
+      ...(p.contract &&
+      !unspecified(p.contract) &&
+      (/^0x[\da-f]{40}$/i.test(p.contract) &&
+      /^0x[\da-f]{40}$/i.test(context.alpha.contract)
+        ? p.contract.toLowerCase() === context.alpha.contract.toLowerCase()
+        : p.contract === context.alpha.contract)
         ? ["Same contract identifier"]
         : []),
       ...(p.subject && normalize(p.subject) === normalize(context.alpha.subject)
         ? ["Same declared subject"]
         : []),
       ...(context.alpha.evidence.some(
-        (e) => e.kind === "link" && JSON.stringify(p.sources).includes(e.value),
+        (e) => e.kind === "link" && sourceUrls(p.sources).includes(e.value),
       )
         ? ["Shared source"]
         : []),
@@ -71,10 +105,6 @@ export function deterministicChecks(
   }));
   for (const s of sources)
     if (s.status === "unknown") checks.push(`${s.label}: Unknown.`);
-  if (candidates.some((c) => c.signals.length))
-    checks.push(
-      "Possible prior work requires independent review; matching subjects/sources are not proof of copying.",
-    );
   return {
     checks,
     candidates: candidates

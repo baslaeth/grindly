@@ -15,6 +15,8 @@ import { WorkbenchSections } from "./workbench-sections";
 import { RoomChat } from "./room-chat";
 import { AlphaForm } from "./alpha-form";
 import { AlphaDetails, CategoryHistory, SharedAlpha } from "./alpha-views";
+import { primaryFocus } from "@/alpha/checklists";
+import { DueOutcomes } from "./alpha-outcomes";
 import { nextRank } from "@/research/spaces";
 import { MemberActivity } from "./member-activity";
 import { ResearchForm, RefreshResearch } from "./research-forms";
@@ -68,7 +70,7 @@ function Identity({
       {profile?.is_demo && (
         <span className="sample-label">Illustrative QA persona</span>
       )}
-      <Specialty value={specialty ?? profile?.specialty ?? ""} />
+      <Specialty value={specialty ?? primaryFocus(profile) ?? ""} />
       <span className="rank-label">
         <Fingerprint size={13} aria-hidden="true" />
         {data.tiers[id] ?? "Membership not checked"}
@@ -426,14 +428,12 @@ export function FindingEditor({
   return (
     <section className="section">
       <h2>
-        {version
-          ? `Correct version ${version.version}`
-          : "Address a gap with evidence"}
+        {version ? `Correct version ${version.version}` : "Share useful alpha"}
       </h2>
       <p className="muted">
         {version
           ? "A correction creates a new linked version. Earlier claims, sources and review decisions remain in the record."
-          : "A useful finding makes one claim, supports it with sources, and makes your own contribution clear."}
+          : "Choose any category in your rank. Explain what you found, what supports it and what you added."}
       </p>
       {message && data.alphaSchemaAvailable === false && (
         <blockquote>
@@ -478,7 +478,7 @@ export function FindingEditor({
             </li>
           </ol>
           <Link className="inline-link" href="/workbench">
-            Return to the research question
+            Return to Hub
           </Link>
         </aside>
       </div>
@@ -488,9 +488,11 @@ export function FindingEditor({
 export function FindingRecord({
   data,
   id,
+  saved,
 }: {
   data: ResearchData;
   id: string;
+  saved?: string;
 }) {
   const finding =
     id === "latest" ? data.findings[0] : data.findings.find((f) => f.id === id);
@@ -509,9 +511,20 @@ export function FindingRecord({
     .sort((a, b) => b.version - a.version);
   const current = versions.find((v) => v.id === finding.current_version)!;
   const own = finding.author_id === data.memberId;
+  const receipt = own ? versions.find((v) => v.id === saved) : undefined;
   return (
     <>
       <section className="section">
+        {receipt && (
+          <p className="notice" role="status">
+            Alpha saved: version {receipt.version}, {date(receipt.submitted_at)}
+            .{" "}
+            {finding.visibility === "members"
+              ? "Shared with permitted members of your rank, pending independent review."
+              : "Visible to you and the permitted review team."}{" "}
+            Source or AI availability does not change this receipt.
+          </p>
+        )}
         <Status value={finding.status} />
         <h2 className="record-title">{current.claim}</h2>
         <p className="notice">
@@ -523,7 +536,11 @@ export function FindingRecord({
                 ? "Next: an independent authorized reviewer assesses the dispute. This work is not currently accepted evidence."
                 : finding.status === "rejected"
                   ? "Review declined with reasons. The author can correct the work or request an independent appeal."
-                  : "Next: an assigned authorized reviewer assesses this exact version. No acceptance credit is confirmed yet."}
+                  : data.assignments.some(
+                        (a) => a.version_id === current.id && !a.completed_at,
+                      )
+                    ? "Next: your assigned independent reviewer assesses this exact version. No XP is confirmed yet."
+                    : "Pending review: an authorized independent reviewer is not available yet. Your alpha is saved; you can check sources and receive sourced feedback."}
         </p>
         <Identity
           data={data}
@@ -536,6 +553,19 @@ export function FindingRecord({
             ? "Permitted members in this exact rank"
             : "Author + scoped review team"}
         </p>
+        {data.alphas?.some((a) => a.version_id === current.id) && (
+          <p className="action-row">
+            <Link
+              className="button secondary"
+              href={`#review-assistant-${current.id}`}
+            >
+              Review Assistant
+            </Link>
+            <Link className="inline-link" href={`#outcome-${current.id}`}>
+              Outcome history
+            </Link>
+          </p>
+        )}
         {own && finding.status !== "disputed" && (
           <Link className="button" href={`/findings/new?revise=${current.id}`}>
             <FilePlus2 size={16} />
@@ -563,7 +593,7 @@ export function FindingRecord({
         </span>
       </div>
       {versions.map((v) => (
-        <section className="section" key={v.id}>
+        <section className="section" key={v.id} id={`version-${v.id}`}>
           <div className="section-heading">
             <h2>Version {v.version}</h2>
             <Status
@@ -822,6 +852,7 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
             </article>
           ))}
       </section>
+      <DueOutcomes data={data} />
     </>
   );
 }
@@ -917,7 +948,27 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
       <section className="section profile-intro">
         <h2>{profile?.display_name ?? "Your profile"}</h2>
         <p>{profile?.bio || "No bio shared yet."}</p>
-        <p>{profile?.interest ?? "Interests not set"}</p>
+        <p>
+          {primaryFocus(profile) ??
+            "Choose your primary focus in Edit profile."}
+        </p>
+        {profile?.specialty &&
+          ![
+            "Whitelist Hunters",
+            "Airdrop Hunters",
+            "Presale Hunters",
+            "Degens",
+            "Traders",
+            "Project Analysts",
+            "Seed and Early Stage Investors",
+            "NFT Specialists",
+            "Meta Catchers",
+          ].includes(profile.specialty) && (
+            <p className="muted">
+              Legacy specialty: {specialtyLabel(profile.specialty)}. Earlier
+              attribution is preserved.
+            </p>
+          )}
         <details>
           <summary>Edit profile</summary>
           <ResearchForm kind="profile" data={data} />
@@ -1027,15 +1078,22 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           Personal XP and delegated NFT progress are separate. No delegated
           credit or current delegates are recorded for this account.
         </p>
-        <details>
-          <summary>Evaluation award policy</summary>
+        {profile?.is_demo ? (
+          <details>
+            <summary>Evaluation award policy</summary>
+            <p>
+              Existing illustrative policy: {data.policy.acceptance_xp} XP and{" "}
+              {data.policy.acceptance_points} seasonal points on the first
+              accepted version. Corrections, messages and reactions do not
+              duplicate this award. Production economics remain to finalize.
+            </p>
+          </details>
+        ) : (
           <p>
-            Existing illustrative policy: {data.policy.acceptance_xp} XP and{" "}
-            {data.policy.acceptance_points} seasonal points on the first
-            accepted version. Corrections, messages and reactions do not
-            duplicate this award. Production economics remain to finalize.
+            XP rules for these contributions are awaiting approval. A review
+            does not promise a token reward.
           </p>
-        </details>
+        )}
       </section>
       <section className="section">
         <h2>Claim $GRIND</h2>

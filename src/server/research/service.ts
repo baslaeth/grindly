@@ -111,6 +111,7 @@ export async function readResearch(
   if (mint.error) throw mint.error;
   return {
     ...snapshot,
+    evaluationAvailable: snapshot.evaluationAvailable === true,
     alphaSchemaAvailable,
     memberId: active.member.id,
     tiers,

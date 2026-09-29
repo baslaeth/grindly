@@ -7,7 +7,28 @@ export function MemberActivity({
   data: ResearchData;
   limit?: number;
 }) {
-  const items = (data.activity ?? []).slice(0, limit);
+  const observations = (data.outcomeAssessments ?? []).flatMap((o) => {
+    const version = data.versions.find((v) => v.id === o.version_id);
+    const finding = data.findings.find(
+      (f) => f.id === version?.finding_id && f.author_id === data.memberId,
+    );
+    return finding
+      ? [
+          {
+            id: o.id,
+            finding: finding.id,
+            kind: "outcome" as const,
+            xp: null,
+            decision: null,
+            createdAt: o.recorded_at,
+            version: o.version_id,
+          },
+        ]
+      : [];
+  });
+  const items = [...(data.activity ?? []), ...observations]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
   return (
     <section className="section" aria-label="Your activity">
       <h2>Activity</h2>
@@ -15,15 +36,19 @@ export function MemberActivity({
       <ul className="activity-list">
         {items.map((a) => (
           <li key={a.id}>
-            <Link href={`/findings/${a.finding}`}>
+            <Link
+              href={`/findings/${a.finding}${"version" in a ? `#outcome-${a.version}` : ""}`}
+            >
               <strong>
-                {a.kind === "xp"
-                  ? `${a.xp} XP awarded`
-                  : a.decision === "accept"
-                    ? "Alpha accepted"
-                    : a.decision === "reject"
-                      ? "Alpha rejected with feedback"
-                      : "Correction requested"}
+                {a.kind === "outcome"
+                  ? "Later outcome recorded"
+                  : a.kind === "xp"
+                    ? `${a.xp} XP awarded`
+                    : a.decision === "accept"
+                      ? "Alpha accepted"
+                      : a.decision === "reject"
+                        ? "Alpha rejected with feedback"
+                        : "Correction requested"}
               </strong>
               <span>
                 {data.versions.find((v) => v.finding_id === a.finding)?.claim ??

@@ -1,0 +1,70 @@
+{
+  "kind": "Public read-only source probes; no member material or model invocation",
+  "checkedAt": "2026-09-29T22:42:52.082Z",
+  "sources": [
+    {
+      "id": "market",
+      "label": "Coinbase Exchange ETH-USD",
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/ticker",
+      "checkedAt": "2026-09-29T22:42:50.414Z",
+      "publishedAt": "2026-09-29T22:42:12.441613431Z",
+      "status": "retrieved",
+      "digest": "b05c3ac0312656984586faf5874fa3f8b7fe600405c336ab6616083d12ac3b2b",
+      "observation": "Retrieved public source; not a claim assessment or forecast outcome."
+    },
+    {
+      "id": "market-history",
+      "label": "Coinbase Exchange ETH-USD hourly observations",
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=3600&start=2026-09-28T22%3A00%3A00.000Z&end=2026-09-29T22%3A00%3A00.000Z",
+      "checkedAt": "2026-09-29T22:42:50.432Z",
+      "publishedAt": null,
+      "status": "retrieved",
+      "digest": "e478addfb21ecdcb9d46a142ede58e2d7dedecce5cb87a4c2a6675d653b8d6b9",
+      "observation": "Retrieved public source; not a claim assessment or forecast outcome.",
+      "historyCoverage": {
+        "receivedBuckets": 24,
+        "missingBuckets": 0
+      }
+    },
+    {
+      "id": "primary-project",
+      "label": "Primary document",
+      "url": "https://ethereum.org/en/developers/docs/",
+      "checkedAt": "2026-09-29T22:42:50.653Z",
+      "publishedAt": null,
+      "status": "unknown",
+      "digest": null,
+      "observation": "Unknown: source retrieval unavailable, redirected, oversized or unsupported."
+    },
+    {
+      "id": "primary-chain",
+      "label": "Primary document",
+      "url": "https://docs.chain.robinhood.com/",
+      "checkedAt": "2026-09-29T22:42:50.942Z",
+      "publishedAt": null,
+      "status": "unknown",
+      "digest": null,
+      "observation": "Unknown: source retrieval unavailable, redirected, oversized or unsupported."
+    },
+    {
+      "id": "primary-connection-guide",
+      "label": "Connecting to Robinhood Chain – Robinhood Chain Documentation",
+      "url": "https://docs.robinhood.com/chain/connecting/",
+      "checkedAt": "2026-09-29T22:42:51.677Z",
+      "publishedAt": null,
+      "status": "retrieved",
+      "digest": "ef0e2a595500e5873b87053d86c83071c1238759ad2a41d3a36e6227c433deeb",
+      "observation": "Retrieved public source; not a claim assessment or forecast outcome."
+    },
+    {
+      "id": "primary-api-specification",
+      "label": "docs.cdp.coinbase.com",
+      "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
+      "checkedAt": "2026-09-29T22:42:52.082Z",
+      "publishedAt": null,
+      "status": "retrieved",
+      "digest": "ce66414274ecc32b6c5317d6a595f8e131f7db602596b9cad0bac485e987548f",
+      "observation": "Retrieved public source; not a claim assessment or forecast outcome."
+    }
+  ]
+}

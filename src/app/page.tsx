@@ -89,6 +89,11 @@ export default async function Home({
         <div className="section-heading">
           <h2>{sample ? "Sample opportunities" : "Opportunities"}</h2>
         </div>
+        <p className="muted">
+          Opportunities arranged by Grindly have their own participation
+          requirements. Members receive opportunities, not an obligation to
+          perform business tasks.
+        </p>
         {unavailable ? (
           <p role="status">
             Opportunities are temporarily unavailable. Please retry.

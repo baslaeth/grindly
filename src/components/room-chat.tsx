@@ -555,7 +555,7 @@ export function RoomChat({
                 <Link href={`/workbench?room=${room}&profile=${m.author}`}>
                   <strong>{m.name}</strong>
                 </Link>
-                <span className="specialty">{specialtyLabel(m.specialty)}</span>
+                <span className="specialty">{m.focus ?? (m.focus === null ? "Focus not selected" : specialtyLabel(m.specialty))}</span>
                 <time dateTime={m.createdAt}>
                   {new Date(m.createdAt).toLocaleTimeString([], {
                     hour: "2-digit",

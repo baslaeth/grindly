@@ -58,6 +58,7 @@ export type ChatMessage = {
   author: string;
   name: string;
   specialty: string;
+  focus?: string | null;
   body: string;
   revision: string;
   deleted: boolean;
