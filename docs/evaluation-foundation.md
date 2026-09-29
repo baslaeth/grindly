@@ -13,7 +13,7 @@ deferred; do not request it again. Further shared migrations require approval.
 - [x] Versioned checklists, grounded future-model contract and permitted prior versions.
 - [x] Independent dated outcome entry, due queue and complete profile chronology.
 - [x] Member-facing Home/language, isolated evaluation set and coverage matrix.
-- [ ] Final browser evidence, handoff, push and CI inspection.
+- [x] Final browser evidence, handoff, push and CI inspection; shared-write sign-off remains blocked below.
 
 These are implementation stages, not blanket live verification. New persistence
 requires migration 026, which is locally tested but NOT shared-applied pending

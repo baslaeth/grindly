@@ -1259,3 +1259,165 @@ remain. Full requested-feature classification: `QA05_CATEGORY_ALPHA_HANDOFF.md`.
 - This documentation-only follow-up records the verified push and completed
   checklist. Independent QA target is feature-branch HEAD; use
   `QA05_CATEGORY_ALPHA_HANDOFF.md` for the explicit incomplete/blocked matrix.
+
+## 2026-09-30: Member Journey and Evaluation Foundation
+
+Started on verified `codex/category-alpha-review` at reviewed `40addac`; no reset
+or branch replacement. Annotation `ce19a1f` remains an ancestor. Executable
+checkpoint `56dc2d0b5e668e86f32f9412b664aaae86fd6ca3` was normally pushed to
+`baslaeth/grindly` and independently matched with `git ls-remote`. No merge,
+force-push, production deployment, model invocation, new role grant or genuine
+research mutation. Local review remains http://localhost:3000/; the listening
+Next development process was verified to belong to this repository.
+
+### Implementation and honest availability
+
+- Category/type/context first, short common core, explicit Unknown/Not applicable,
+  server validation of omitted fields, chain/identifier limits and retained input.
+  The focus selector uses nine categories without rewriting historical specialties
+  or guessing the old default Project Analysts interest. Focus is not authority.
+- Source-first Review Assistant separates completeness/provenance, retrieval and
+  dates, missing evidence, prior-work hints, offline AI, independent decisions and
+  later outcomes. Retrieved is never automatically Supported. Source observations
+  are readable excerpts/tables with limits, not raw payloads or a quality score.
+- Versioned category/type guidance and five qualitative reviewer assessments;
+  permitted earlier-version hints with authorship/times; case-sensitive unsupported
+  identifiers stay distinct. Future model outputs need supplied excerpts/dates and
+  claim-specific explanations, but this is a mocked contract, not tested AI accuracy.
+- Independent dated outcome entry and due queue are implemented. Immutable facts,
+  sources, scope, uncertainty and comparison to original criteria are distinct from
+  initial acceptance and XP. Old-version outcomes remain in filtered Profile
+  history. No scheduled worker or automatic forecast success was implemented.
+- **Migration 026 is NOT shared-applied.** The owner required explicit permission
+  for further shared changes; the approval request remains pending. New save,
+  focus update, refresh, qualitative decision and outcome-entry persistence is
+  locally tested but live sign-off is BLOCKED. Affected buttons show an honest
+  unavailable state; existing records remain inspectable. 023-025 were neither
+  edited nor reapplied. Old function signatures are preserved for compatibility.
+- `prepare-evaluation-migration.ts` generated an ignored, unexecuted 026-only
+  transaction with whole-existing-table content digests and browser RPC/RLS denial
+  assertions. Local upgrade regression includes populated legacy member/research
+  records and proves unchanged contents, not merely empty-table preservation.
+
+### Deterministic verification
+
+- Final `pnpm check` at the executable checkpoint: **201 unit, 230 database,
+  11 contract tests passed**, plus lint, typecheck, generated database type drift
+  and optimized Next build. No contract changes. Build-time fail-closed session
+  diagnostic is expected when prerendering without an authenticated request.
+- Latest Chrome foundation `pnpm test:e2e --workers=2`: **48 passed**, 16.1 seconds.
+  Desktop/mobile protected routes, API/origin denial, annotations, keyboard,
+  reduced motion and responsive short/unavailable pages remain covered. These are
+  foundation simulations, not live NFT or inbox evidence.
+- Focused final alpha unit **35 passed**, alpha/upgrade database **31 passed**
+  before the full final check. They cover nine persisted category contexts,
+  missing fields, immutable submission/context, independent scoped decisions,
+  exactly-once existing awards, prior-version privacy, source failure/retry,
+  outcome idempotency, revoked authority and preservation across correction.
+- Fourteen isolated evaluation descriptions cover all nine categories and six
+  types, with useful, unsupported, contradictory, stale, incomplete, copied,
+  hostile-instruction and later-disproved material. Two semantic cases are held
+  out for future model testing. No sample model card or genuine outcome is seeded.
+
+### Actual browser paths and limits
+
+- Final read-only all-nine editor navigation: **2 passed**, desktop/mobile. Home
+  -> Hub -> Submit alpha -> each category, required context, explicit Unknown and
+  back to details, prediction-only horizon, retained main input and no overflow.
+- Final Profile/alpha navigation: **2 passed**, desktop/mobile. Top-right My
+  Profile -> observed/all history filter -> attributed alpha -> Review Assistant
+  -> Outcome history -> populated correction editor. Original claim retained,
+  correction type selected, Claim $GRIND disabled, no horizontal overflow.
+- Public sample Home: **2 passed**. Fictional labels, benefits, per-card eligibility,
+  no exposed private data or live application. Operator editor: **2 skipped**,
+  because no existing isolated steward is designated. No role was granted to
+  force a passing test. Source-copy formatting preserves later operator edits.
+- The new nine-category save/rejection-appeal browser suite was attempted on
+  desktop: **2 failed at the migration-availability prerequisite**. No submissions
+  or reviews were performed by those tests. Their full live sign-off and the new
+  independent outcome-entry browser path remain BLOCKED until 026 approval and
+  application. Earlier genuinely passed alpha/award journeys remain historical
+  passes, not substituted as proof for the new SQL/UI writes.
+- Existing chat regression results and final CI status are recorded below when
+  complete. All active sessions use the existing isolated QA identities, never
+  the founder's session. Read-only inspection of founder Home sent no alpha or
+  profile changes. No sessions, OTPs or wallet secrets were copied or captured.
+
+### Public source evidence
+
+`docs/evaluation-foundation/source-probes.json`, checked 2026-09-29 22:42 UTC
+(2026-09-30 local): six real public read-only probes, **four retrieved / two
+Unknown**. ETH spot and 24/24 completed hourly Coinbase buckets, Robinhood
+connection documentation and Coinbase candle API documentation were retrieved.
+The Ethereum docs root and legacy Robinhood host remained Unknown under bounded
+no-redirect retrieval. No timeout increase or authorization fallback was used.
+
+This deepens Traders and Project Analysts observations. Other categories have
+context/provenance/document checks; compatible Robinhood testnet bytecode/receipt
+checks are implemented but their new live category journeys remain unverified.
+No mainnet security, issuer eligibility, traction, rights, allocations or successful
+forecast is certified. Exact coverage and required later evidence are in
+`evaluation-foundation.md`. Real model calls/semantic paraphrases remain
+BLOCKED/unverified by the owner's deliberately deferred credential, not a request
+for a key. Source refresh itself is model-free even if a key later appears.
+
+### Earlier failures and safety audit
+
+- One foundation attempt collided with another suite's output folder: 46 passed,
+  2 artifact ENOENT failures. Research output now has its own ignored directory;
+  subsequent foundation runs passed 48/48 without weakening assertions.
+- The strengthened populated-upgrade fixture initially omitted an already-required
+  source. Fixing the test data restored the preservation check; no SQL constraint
+  was weakened. An editor test assertion was narrowed to core fieldset/button/
+  textarea availability rather than forbidding every disabled option in markup.
+- The new editor test exposed a real Unknown-to-details input retention bug;
+  remounting that input on mode change fixed it. New history-filter exact labels
+  and inclusion of older source observations were fixed before the final 2/2
+  Profile rerun. Initial failed attempts are not counted as passes.
+- Staged files were scanned against configured secret values/private-key markers:
+  **zero matches**, zero unexpected personal email domains, zero ignored/private
+  environment/session paths. `git diff --check` and staged whitespace checks passed.
+  Unrelated untracked brand exports remain preserved and excluded.
+- Captures: `docs/evaluation-foundation/{desktop,mobile}/` for correction editor,
+  Review Assistant, outcome history, Profile and public Home; isolated chat/member
+  captures are added by the regression run. Historical screenshot directories were
+  preserved. No new video was captured; the existing ffmpeg availability gap remains.
+
+Remaining owner decisions: authorize 026 before shared application; designate
+genuine independent category reviewer scopes and approve genuine category XP rules
+when ready. No formula, score, burn, claim, delegation split or reviewer was invented.
+Automatic outcomes, real AI, live Silver/higher/transfer and historical Phase 1
+gaps remain explicitly unverified/inactive. The completed transfer-back is not
+reclassified. No production-readiness or customer-validation claim is made.
+
+### Executable CI checkpoint
+
+GitHub Actions [run 36643528962](https://github.com/baslaeth/grindly/actions/runs/36643528962)
+completed **successfully** for exact executable
+`56dc2d0b5e668e86f32f9412b664aaae86fd6ca3`. Its lint/types/unit/database/type-drift,
+contract/build and browser workflow passed on the hosted Linux runner. This CI
+does not contain a live model call, authenticated shared-026 write or wallet test.
+The last local foundation rerun also passed **48/48** on this executable.
+In-app Home was reopened at http://localhost:3000/ and inspected after loading:
+Home/Hub/Submit alpha, top-right My Profile, genuine empty opportunities/activity
+and separately linked samples were present. No founder action was submitted.
+
+### Final local chat and review evidence
+
+- `member-chat.spec.ts`: **8/8 passed**, desktop/mobile, 13 minutes sequentially
+  to avoid concurrent fixture-login invalidation. Actual same-rank text, images,
+  animated GIF, replies, persistent reactions, directory/author profile navigation,
+  account/room drafts, lost-response retries, editing/deletion, paste/drop, unread
+  state, older history and reconnect behavior passed. Empty/history/failure cases
+  retain their explicit isolated simulations; live Silver access is not claimed.
+- Together with the final editor/Profile/public sample checks: **14 distinct
+  passing local browser cases; 2 operator skips**. The two new save/reject-appeal
+  prerequisite failures remain **BLOCKED**, not counted as passes. No enhanced
+  026 submission, independent outcome write or real AI end-to-end success is claimed.
+- Latest sanitized desktop/mobile chat, directory, profile, sample Home and
+  attachment evidence is saved under `docs/evaluation-foundation/`. Existing
+  screenshots and genuine records were not deleted. The founder's Home remains
+  open at the correct local URL with My Profile in its approved top-right position.
+- Documentation/capture follow-up contains no executable changes. The executable
+  CI success above remains applicable; final branch HEAD/remote verification and
+  documentation-run CI status are reported in the delivery message.

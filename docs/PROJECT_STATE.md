@@ -38,6 +38,16 @@ Scope/checklists/coverage/walkthrough: `evaluation-foundation.md`; QA targets:
   deterministic/browser/CI/push results are recorded in `verification.md`.
   Unrelated untracked brand exports remain preserved and excluded from commits.
 
+Saved executable: `56dc2d0b5e668e86f32f9412b664aaae86fd6ca3`, pushed and remotely
+verified. GitHub CI run `36643528962` **succeeded**. Final local deterministic
+checks: **201 unit / 230 database / 11 contract**, lint/types/drift/build; Chrome
+foundation **48 passed**. Read-only editor/Profile/public Home: **6 distinct
+desktop/mobile passes; 2 operator skips**. Existing chat regression: **8 passed**,
+giving **14 distinct passing local browser cases across final runs**, not including
+the two new write journeys blocked at the 026 prerequisite. New shared writes
+remain blocked, not passed. The documentation/capture follow-up does not change
+the tested executable. Review feature-branch HEAD.
+
 No merge, force-push or production deployment. Existing historical passes,
 including transfer-back, remain valid. Live Silver/higher-rank/transfer checks,
 intermittent provider reliability and Phase 1 gaps remain separately deferred.

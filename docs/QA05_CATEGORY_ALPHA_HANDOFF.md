@@ -19,7 +19,7 @@ bypass, legacy save fallback, role grants or a production deployment.
 | Refinement | Current classification |
 | --- | --- |
 | Home -> top-right Profile -> attributed alpha -> Review Assistant -> outcome history -> correction editor | WORKING read-only desktop/mobile navigation on existing isolated records; no genuine writes |
-| Category/type first, immediate nine-category context, Unknown/NA and conditional prediction inputs | Implemented and deterministic-tested; browser results in latest verification; live saving BLOCKED by 026 |
+| Category/type first, immediate nine-category context, Unknown/NA and conditional prediction inputs | WORKING read-only editor navigation for all nine on desktop/mobile; live saving BLOCKED by 026 |
 | Explicit primary category focus, preserved legacy attribution, reviewer separation | BLOCKED for shared persistence; local SQL/unit coverage passes; no ambiguous default mapping |
 | Saved receipt, same-rank pending sharing, retries, source-only asynchronous checks | BLOCKED for new live journey until 026; local persistence/security tests pass; older passing journey retained below |
 | Source-first Review Assistant on existing records, retrieved dates/limits, AI-offline wording | WORKING in actual browser navigation; no canned model card or misleading AI retry |
