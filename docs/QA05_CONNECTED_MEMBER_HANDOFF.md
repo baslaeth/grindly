@@ -99,3 +99,11 @@ see the 2026-09-29 entry in `verification.md`.
   submission/access/accounting. Real campaigns require operator-supplied terms;
   live editor verification requires an existing or owner-designated isolated
   steward. Genuine independent reviewer staffing is not inferred from specialty.
+
+# Subsequent Checkpoint
+
+The connected-member checkpoint above is preserved historical evidence. The
+2026-09-30 category-alpha increment is on `codex/category-alpha-review`;
+review `QA05_CATEGORY_ALPHA_HANDOFF.md` and the latest `verification.md` entry.
+OpenAI is approved but its key is intentionally deferred; real model calls are
+unverified. No production website deployment was made.

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { WorkbenchSections } from "./workbench-sections";
 import { RoomChat } from "./room-chat";
+import { AlphaForm } from "./alpha-form";
+import { AlphaDetails, CategoryHistory, SharedAlpha } from "./alpha-views";
 import { nextRank } from "@/research/spaces";
 import { MemberActivity } from "./member-activity";
 import { ResearchForm, RefreshResearch } from "./research-forms";
@@ -101,6 +103,7 @@ function Status({ value }: { value: string }) {
           pending: "Pending evaluation",
           needs_correction: "Needs correction",
           accepted: "Accepted",
+          rejected: "Rejected with feedback",
           disputed: "Independent review",
         } as Record<string, string>
       )[value] ?? value}
@@ -233,14 +236,17 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
           </>
         }
         discussion={
-          <RoomChat
-            key={`${data.memberId}:${data.question.id}`}
-            room={data.question.id}
-            memberId={data.memberId}
-            rank={data.token.tier}
-            category={data.question.category}
-            canPost={!!profile}
-          />
+          <>
+            <SharedAlpha data={data} />
+            <RoomChat
+              key={`${data.memberId}:${data.question.id}`}
+              room={data.question.id}
+              memberId={data.memberId}
+              rank={data.token.tier}
+              category={data.question.category}
+              canPost={!!profile}
+            />
+          </>
         }
         evidence={
           <section
@@ -429,7 +435,7 @@ export function FindingEditor({
           ? "A correction creates a new linked version. Earlier claims, sources and review decisions remain in the record."
           : "A useful finding makes one claim, supports it with sources, and makes your own contribution clear."}
       </p>
-      {message && (
+      {message && data.alphaSchemaAvailable === false && (
         <blockquote>
           Discussion by {person(data, message.author_id)}: {message.body}
           <p className="muted">
@@ -439,12 +445,26 @@ export function FindingEditor({
         </blockquote>
       )}
       <div className="editor-layout">
-        <ResearchForm
-          kind="submit"
-          data={data}
-          sourceMessage={sourceMessage}
-          versionId={revise}
-        />
+        {data.alphaSchemaAvailable === false ? (
+          <div>
+            <p className="notice">
+              Category alpha and preliminary review await the shared-database
+              update. The existing contribution flow remains available.
+            </p>
+            <ResearchForm
+              kind="submit"
+              data={data}
+              sourceMessage={sourceMessage}
+              versionId={revise}
+            />
+          </div>
+        ) : (
+          <AlphaForm
+            data={data}
+            sourceMessage={sourceMessage}
+            versionId={revise}
+          />
+        )}
         <aside className="editor-aside">
           <h3>From contribution to credit</h3>
           <ol>
@@ -453,8 +473,8 @@ export function FindingEditor({
               An assigned independent reviewer checks its scope and limitations.
             </li>
             <li>
-              Acceptance records credit once. Corrections retain the earlier
-              history.
+              Credit requires an approved award rule. Corrections retain the
+              earlier history.
             </li>
           </ol>
           <Link className="inline-link" href="/workbench">
@@ -501,7 +521,9 @@ export function FindingRecord({
               ? "Accepted within the recorded review scope. Use the sources, note the limitations, and document how this helps your specialty."
               : finding.status === "disputed"
                 ? "Next: an independent authorized reviewer assesses the dispute. This work is not currently accepted evidence."
-                : "Next: an assigned authorized reviewer assesses this exact version. No acceptance credit is confirmed yet."}
+                : finding.status === "rejected"
+                  ? "Review declined with reasons. The author can correct the work or request an independent appeal."
+                  : "Next: an assigned authorized reviewer assesses this exact version. No acceptance credit is confirmed yet."}
         </p>
         <Identity
           data={data}
@@ -511,7 +533,7 @@ export function FindingRecord({
         <p className="muted">
           Permissions:{" "}
           {finding.visibility === "members"
-            ? "All members"
+            ? "Permitted members in this exact rank"
             : "Author + scoped review team"}
         </p>
         {own && finding.status !== "disputed" && (
@@ -526,12 +548,13 @@ export function FindingRecord({
             <ResearchForm kind="useful" versionId={current.id} />
           </details>
         )}
-        {["accepted", "needs_correction"].includes(finding.status) && (
-          <details>
-            <summary>Dispute this decision</summary>
-            <ResearchForm kind="dispute" versionId={current.id} />
-          </details>
-        )}
+        {!data.alphas?.some((a) => a.version_id === current.id) &&
+          ["accepted", "needs_correction"].includes(finding.status) && (
+            <details>
+              <summary>Dispute this decision</summary>
+              <ResearchForm kind="dispute" versionId={current.id} />
+            </details>
+          )}
       </section>
       <div className="section-heading">
         <h2>Evidence and version history</h2>
@@ -555,7 +578,9 @@ export function FindingRecord({
             <strong>Limitations:</strong> {v.limitations}
           </p>
           <p className="muted">
-            Observed {date(v.observed_at)}; submitted {date(v.submitted_at)}
+            Submitted by server {date(v.submitted_at)}
+            {!data.alphas?.some((a) => a.version_id === v.id) &&
+              `; observed ${date(v.observed_at)} (self-reported)`}
           </p>
           {v.correction && (
             <p>
@@ -609,9 +634,11 @@ export function FindingRecord({
             .map((d) => (
               <blockquote key={d.id}>
                 <strong>
-                  {d.decision === "accept"
-                    ? "Accepted"
-                    : "Correction requested"}
+                  {d.decision === "reject"
+                    ? "Rejected with reason"
+                    : d.decision === "accept"
+                      ? "Accepted"
+                      : "Correction requested"}
                 </strong>{" "}
                 by {person(data, d.reviewer_id)}
                 <p>Scope: {d.scope}</p>
@@ -648,6 +675,7 @@ export function FindingRecord({
                 )}
               </p>
             ))}
+          <AlphaDetails data={data} version={v.id} />
         </section>
       ))}
       {own && (
@@ -743,8 +771,10 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
               <h3>Evidence</h3>
               <SourceLinks value={v.sources} />
               <p>Limitations: {v.limitations}</p>
+              <AlphaDetails data={data} version={v.id} />
               <ResearchForm
                 kind="review"
+                data={data}
                 versionId={v.id}
                 assignmentId={a.id}
               />
@@ -1015,6 +1045,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         <p id="claims-inactive">Claims are not active yet.</p>
       </section>
       <MemberActivity data={data} />
+      <CategoryHistory data={data} member={data.memberId} />
       <section className="section">
         <h2>Your contribution history in this rank</h2>
         <p className="muted">

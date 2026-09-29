@@ -9,6 +9,7 @@ import {
 } from "@/research/model";
 import { acquisitionLabel } from "@/research/spaces";
 import { ProfileDrawer, RoomSelector, RoomUnread } from "./space-controls";
+import { CategoryHistory } from "./alpha-views";
 
 export const profileHref = (room: string, id: string) =>
   `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
@@ -307,6 +308,7 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
           </p>
         )}
       </section>
+      {member && <CategoryHistory data={data} member={member.id} />}
       <section className="section">
         <h3>Attributed work in this space</h3>
         {history.findings.map((f) => (
@@ -367,7 +369,9 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
               <p>
                 {decision.decision === "accept"
                   ? "Accepted within scope"
-                  : "Correction requested"}{" "}
+                  : decision.decision === "reject"
+                    ? "Rejected with reason"
+                    : "Correction requested"}{" "}
                 - {decision.created_at.slice(0, 10)}
               </p>
               <p>{decision.scope}</p>

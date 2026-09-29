@@ -1795,3 +1795,29 @@ dd,
     scroll-behavior: auto !important;
   }
 }
+
+.alpha-detail {
+  min-width: 0;
+}
+.alpha-detail code,
+.source-facts {
+  overflow-wrap: anywhere;
+}
+.alpha-detail dl {
+  display: grid;
+  gap: 12px;
+}
+.alpha-detail dt {
+  font-weight: 600;
+}
+.alpha-detail dd {
+  margin: 4px 0 0;
+}
+.alpha-detail .section {
+  padding: 24px 0;
+}
+.form-step {
+  display: grid;
+  gap: 16px;
+  margin: 22px 0;
+}

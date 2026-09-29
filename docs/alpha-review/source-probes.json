@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-09-29T20:09:42.046Z",
+  "modelInvoked": false,
+  "results": [
+    {
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/ticker",
+      "status": "retrieved",
+      "checkedAt": "2026-09-29T20:09:41.144Z",
+      "sourceTimestamp": "2026-09-29T20:09:04.722126491Z",
+      "sha256": "0b62aabff864a0794705bba76164f7bbcda7dc4338370e25eaba3c6fedaf3964",
+      "snapshotCharacters": 285
+    },
+    {
+      "url": "https://docs.robinhood.com/chain/connecting/",
+      "status": "retrieved",
+      "checkedAt": "2026-09-29T20:09:42.046Z",
+      "sourceTimestamp": null,
+      "sha256": "ef0e2a595500e5873b87053d86c83071c1238759ad2a41d3a36e6227c433deeb",
+      "snapshotCharacters": 3164
+    }
+  ]
+}

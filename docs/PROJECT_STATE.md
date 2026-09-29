@@ -1,4 +1,49 @@
-# Grindly: Connected member experience
+# Grindly: Category Alpha Checkpoint
+
+## Current local work (2026-09-30)
+
+Branch: `codex/category-alpha-review`, based on saved/pushed `0d58c9d`.
+Review: http://localhost:3000/ (current repository's development server).
+Production is NOT this URL and has not been deployed or merged. Top-right
+My Profile, approved branding, annotations and prior security fixes remain.
+Authority: `category-alpha-review.md`; review targets and feature classification:
+`QA05_CATEGORY_ALPHA_HANDOFF.md`. Historical sections below are evidence only.
+
+- Category-first individual submissions, nine tailored forms, six contribution
+  types, image/transaction/message evidence, immutable server/source times,
+  same-rank pending sharing, corrections and independently scoped evaluation.
+- Existing demo policy awards once; genuine category credit is explicitly blocked
+  without an approved rule. Review feedback and actual awards feed Activity.
+- Persisted deterministic/source checks, sourced member feedback, independent
+  appeals, category history and due-only outcome observations. No universal score,
+  daily polling, automatic successful prediction or transfer of personal XP.
+- OpenAI integration is implemented and owner-approved for QA/genuine content.
+  **Real AI is BLOCKED/unverified:** the owner explicitly deferred the API key.
+  No model response has been fabricated or presented as working evaluation.
+- Public ETH market snapshot and Robinhood primary documentation were retrieved
+  with checked times and content digests. These are source observations, not AI
+  verification or proof of an investment outcome. Coverage is documented in the
+  handoff; unsupported sources/fields remain Unknown.
+- Owner-approved migrations 023-025 applied atomically; every pre-existing public
+  table's complete record digest was unchanged. Forced RLS and browser RPC denial
+  assertions passed. No genuine research, roles or awards were modified. Existing
+  isolated demo reviewers received Traders/Project Analysts scopes only.
+- Deterministic checkpoint: **180 unit, 203 database, 11 contract** passed, plus
+  lint/typecheck/type drift/build. Final Chrome foundation: **48 passed**.
+  Isolated desktop/mobile: **18 distinct cases passed across final/focused runs,
+  2 operator skips**; earlier failures and their fixes are retained in verification.
+  Older hosted executable read-only compatibility: **1 passed** after 023-025.
+  Screenshots: `docs/alpha-review/` and `docs/member-experience-review/`.
+  Commit/push identity is recorded in the latest `verification.md` entry.
+
+Remaining: no live model/paraphrase/prompt-injection evidence; no approved genuine
+category award rules or designated genuine category reviewers; no isolated
+opportunity steward for its live editor test. Genuine delegation, token claims,
+upgrade economics and live Silver/higher/transfer checks remain inactive/deferred.
+Intermittent ownership-provider reliability is not resolved by this UI work.
+No claim of full Phase 1 verification, production readiness or customer validation.
+
+## Historical Connected Member Checkpoint
 
 ## Current local checkpoint (2026-09-29)
 

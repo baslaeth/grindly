@@ -21,7 +21,9 @@ export function MemberActivity({
                   ? `${a.xp} XP awarded`
                   : a.decision === "accept"
                     ? "Alpha accepted"
-                    : "Correction requested"}
+                    : a.decision === "reject"
+                      ? "Alpha rejected with feedback"
+                      : "Correction requested"}
               </strong>
               <span>
                 {data.versions.find((v) => v.finding_id === a.finding)?.claim ??

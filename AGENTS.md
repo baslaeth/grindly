@@ -10,7 +10,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
-Latest authority: `docs/connected-member-experience.md` (2026-09-29). Home is
+Latest authority: `docs/category-alpha-review.md` (2026-09-30), extending the
+connected member brief on `codex/category-alpha-review`. Preserve annotations
+`ce19a1f` and base `0d58c9d`. Migrations 023-025 have explicit owner approval and
+are applied to the shared database with preservation assertions. Do not reapply
+them or edit applied SQL; the older production executable is unchanged.
+OpenAI is approved for QA and genuine submissions, but the owner explicitly
+declined adding the key for now. Real model calls are BLOCKED/unverified; never
+substitute sample output. Do not ask for the key again. Genuine category XP
+requires an owner-approved rule, and genuine reviewers require designated scopes.
+Read `docs/QA05_CATEGORY_ALPHA_HANDOFF.md` for boundaries and verification.
+Tested feature-branch push is authorized; merge/deployment are not.
+
+Prior authority: `docs/connected-member-experience.md` (2026-09-29). Home is
 now the main public route; Hub recognizes all five exact NFT ranks. My Profile
 remains top-right. Implement compact private chat, isolated samples, public
 opportunities with independent eligibility, and evaluation/activity linkage on

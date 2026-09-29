@@ -1109,3 +1109,138 @@ authenticated writes and captures use the existing isolated QA identities.
 - This documentation-only follow-up records the saved result. Unrelated untracked
   brand assets are preserved. Independent review target is feature-branch HEAD;
   see `QA05_CONNECTED_MEMBER_HANDOFF.md` and the explicit feature matrix.
+
+## 2026-09-30: Category alpha, independent evaluation and honest AI boundary
+
+Feature branch `codex/category-alpha-review` starts at saved/pushed `0d58c9d`.
+Backend increment: `bf99fb5`. Local review: http://localhost:3000/.
+No production website deployment, merge, force-push or manual transfer test.
+Annotations, top-right Profile, approved branding and previous security fixes
+remain. Full requested-feature classification: `QA05_CATEGORY_ALPHA_HANDOFF.md`.
+
+### Authorization and shared database
+
+- Owner approved additive migrations 023-025 and OpenAI processing for QA and
+  genuine submissions, but deliberately deferred the API key. No real model call
+  was made. Real AI cards, semantic paraphrase analysis and real-model injection
+  resistance are **BLOCKED/unverified**, not passed using canned output.
+- `scripts/prepare-alpha-migration.ts` generated one transaction that applied
+  023-025, compared complete contents of every pre-existing public table, asserted
+  forced RLS and denied browser RPC privileges. All assertions passed; all prior
+  record digests matched. The SQL result is captured in
+  `docs/alpha-review/migration-result.jpg`. Do not reapply or edit applied files.
+- Existing isolated QA reviewers received Traders/Project Analysts scope only:
+  six scope rows with audit events, checked against the ignored fixture journal
+  and explicit demo identities. No genuine roles, research or awards changed.
+- An early outcome harness attempted a direct empty fixture seed and failed the
+  required-evidence constraint. Its two unversioned, isolated QA shells were
+  retired after checking exact identity, creation window and absence of versions;
+  audit entries remain. No submitted or genuine record was removed. The final
+  harness submits through the authorized API and waits for real server time.
+
+### Deterministic evidence
+
+- `pnpm check`: **180 unit, 203 database, 11 contract tests passed**, plus lint,
+  Next type generation/typecheck, generated database type drift and production
+  build. Final test-only additions also passed lint. No build deployment.
+- Added regressions cover nine category forms/types, predictions versus guides,
+  source/observation time separation, provider approval and missing-key behavior,
+  bounded source retrieval, unknown facts, strict model output/source references,
+  prompt-injection/authority boundaries with mocked responses, category counts,
+  revoked reviewer scope, live membership failure and correction-editor access.
+- Database coverage includes immutable message evidence through edit/delete and
+  linked corrections, same-rank pending visibility, hidden lineage/candidates,
+  private image access, demo isolation, self-review prevention, category scopes,
+  rejection/independent appeals, one-time awards, genuine credit blocked without
+  an approved policy, due-only outcomes, direct RPC/RLS denial and upgrade
+  preservation. Simulated Silver/higher ranks are not live NFT evidence.
+
+### Actual browser journeys and public sources
+
+- The connected desktop/mobile batch passed **13**, failed **1**, skipped **2**.
+  The failed category-editor check was awaiting an assertion before streamed
+  navigation completed. Explicit editor-ready waiting was added, preserving the
+  original value assertion and all application timeouts. The focused category
+  rerun passed **2/2**. Thus all 14 non-operator cases in that batch have passed;
+  this is a rerun result, not a claim the initial batch was clean.
+- Both full independent journeys passed: message action -> category alpha ->
+  immutable pending version -> assigned reviewer correction -> linked version ->
+  actual new assigned reviewer -> acceptance -> three concurrent retries ->
+  exactly one existing demo-policy **25 XP / 25 points** ledger award -> matching
+  Profile/Activity -> accepted brief. Final isolated findings:
+  desktop `d8b0b558-34fa-413e-8229-97863a32e388`, mobile
+  `2906d8a2-d23f-42ee-82fa-0a804b5fab09`. These are test work, not customer outcomes.
+- Category browser tests cover actual Hub/Traders navigation, all nine options,
+  image-only evidence, a saved response deliberately lost then retried once,
+  one persisted version, retained input, peer private-media access, sourced
+  feedback, pending sharing and no premature credit. Real ETH spot observations
+  persisted with checked time/digest, while the AI card stayed null/blocked.
+- Existing chat browser cases passed on desktop/mobile: text, image/GIF, replies,
+  persistent reactions, drafts, retry, edit/delete, reconnect/history/unread,
+  member/profile navigation, rank boundaries and sample opportunity eligibility.
+  Simulated empty/history/failure conditions remain explicitly isolated.
+- Due-outcome browser tests passed **2/2**: an explicitly synthetic 45-second
+  horizon matures, a user-triggered read records **inconclusive**, the claim stays
+  unchanged and XP does not change. The initial local-clock wait failed because
+  the workstation was about 36 seconds ahead of Supabase (timestamp-only probe).
+  The final test uses snapshot server time, as the application already did.
+  Neither a real successful prediction nor an automatic scheduled worker is
+  claimed. Earlier profile-link ambiguity was fixed with a scoped history link.
+- `docs/alpha-review/source-probes.json` records real public Coinbase ETH ticker
+  and Robinhood primary documentation retrieval, checked times and SHA-256.
+  Traders and Project Analysts have this live source coverage; all nine have
+  deterministic baseline checks. Other category-specific external facts and
+  testnet contract/receipt category journeys remain incomplete/unverified.
+- Read-only profile capture, final foundation rerun and older-hosted compatibility
+  results are recorded in the final checkpoint subsection below.
+
+### Limitations and failed attempts retained
+
+- Earlier disconnected-server, accessible-label, database-fixture, lint and
+  navigation-timing failures were corrected before the passing checks above.
+  One later foundation run had 47 passes and one Home sample-label timing failure
+  while other browser suites were active; it is not hidden or counted as passed.
+- No real OpenAI output, actual paraphrase detection or live prompt-injection test.
+  Missing key leaves saved work pending with source observations and a truthful
+  retry path. Approval does not imply configured credentials or provider uptime.
+- Genuine category XP rules and category reviewer appointments require owner
+  decisions. No rule or authority was invented. Demo 25/25 awards remain examples.
+- No isolated opportunity steward exists: its two live editor cases remain
+  skipped, with deterministic authorization coverage only. No real partnership,
+  campaign application or investment processing is demonstrated.
+- Triggered pending/inconclusive outcomes work; scheduled workers and a human
+  known/mixed outcome-entry screen are not implemented. Images remain human-review
+  evidence; this integration does not send them to a vision model.
+- No new delegate flow, claim, token, reward/burn threshold, upgrade, team vote,
+  market or subscription. No genuine delegated history was available to verify.
+- Screenshots are guarded isolated sessions in `docs/alpha-review/` and refreshed
+  `docs/member-experience-review/`; failure output/secrets remain ignored. No
+  walkthrough video: the earlier official ffmpeg download was unavailable.
+- Historical successful transfer-back remains preserved. Deferred live promotion,
+  Silver/higher/transfer, genuine inbox and ownership-reliability checks remain
+  deferred. This checkpoint does not establish Phase 1 completion, production
+  readiness or customer validation.
+
+### Final category checkpoint checks
+
+- Final `pnpm test:e2e --workers=2 --output .local/alpha-foundation-final`
+  with `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`: **48 passed**, no skips/failures.
+- `alpha-profile-view.spec.ts`: **2 passed**, read-only desktop/mobile navigation
+  from Home's top-right My Profile to category history, the correct attributed
+  record and populated correction editor. Fresh viewport screenshots show the
+  original source author and visible sample labels, without long-history capture
+  artifacts. No horizontal overflow; disabled Claim $GRIND remains.
+- Together with the category rerun, full correction/award journeys, chat/public
+  sample cases and outcome checks: **18 distinct local cases passed across runs;
+  2 operator skips**. Earlier failures remain documented above.
+- Older production compatibility rerun with `GRINDLY_HOSTED_COMPAT=1`,
+  `RESEARCH_TEST_URL=https://grindly-woad.vercel.app`,
+  `hosted-rank-compat.spec.ts --project desktop`: **1 passed**. Workbench, new
+  finding, Review Desk, Membership and metadata all returned 200 with expected
+  QA/rank filtering and no browser errors. No research writes or deployment.
+- Final `pnpm lint`, `pnpm typecheck`, focused Prettier check and `git diff --check`
+  passed after the last test edits. The prior full `pnpm check` total remains
+  180 unit / 203 database / 11 contract, with no application edits afterward.
+- Reloaded the in-app browser at http://localhost:3000/: Home, Opportunities,
+  Activity and top-right `/membership` present, no horizontal overflow. The
+  founder's session was only read; no account switch or genuine record mutation.

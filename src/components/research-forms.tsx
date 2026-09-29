@@ -109,6 +109,8 @@ export function ResearchForm({
   const profile = data?.profiles.find((p) => p.member_id === data.memberId);
   const version = data?.versions.find((v) => v.id === versionId);
   const finding = data?.findings.find((f) => f.id === version?.finding_id);
+  const categoryReview =
+    kind === "review" && data?.alphas?.some((a) => a.version_id === versionId);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
@@ -179,11 +181,15 @@ export function ResearchForm({
           specialty: get("specialty"),
           request: get("request"),
         };
-      const response = await fetch("/api/research", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (categoryReview) delete payload.room;
+      const response = await fetch(
+        categoryReview ? "/api/alpha" : "/api/research",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       const result = await response.json();
       if (!response.ok)
         throw new Error(
@@ -415,6 +421,9 @@ export function ResearchForm({
               Accept this exact version within assigned scope
             </option>
             <option value="correct">Request correction</option>
+            {categoryReview && (
+              <option value="reject">Reject with reason</option>
+            )}
           </select>
         </label>
         <Field

@@ -27,6 +27,19 @@ test("all research screens and APIs preserve the membership boundary", async ({
     data: { action: "profile", name: "test", specialty: "risk" },
   });
   expect(write.status()).toBe(403);
+  const alpha = await request.post("/api/alpha", {
+    headers: { Origin: "https://attacker.example" },
+    data: {
+      action: "preliminary",
+      version: "11111111-1111-4111-8111-111111111111",
+    },
+  });
+  expect(alpha.status()).toBe(403);
+  const media = await request.get(
+    "/api/chat/media?id=11111111-1111-4111-8111-111111111111&alpha=11111111-1111-4111-8111-111111111111",
+  );
+  expect(media.status()).toBe(503);
+  expect(media.headers()["cache-control"]).toBe("no-store");
 });
 test("public illustration is distinct from real people, credit and reward promises", async ({
   page,

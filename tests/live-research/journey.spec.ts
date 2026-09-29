@@ -1,6 +1,6 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import type { ResearchData } from "../../src/research/model";
 test("labeled specialists collaborate, correct, independently accept and receive credit", async ({
@@ -143,7 +143,13 @@ test("labeled specialists collaborate, correct, independently accept and receive
       return r.json();
     };
     const mutate = async (context: BrowserContext, data: unknown) => {
-      const r = await context.request.post("/api/research", { data });
+      const r = await context.request.post(
+        before.alphaSchemaAvailable &&
+          (data as { action: string }).action === "review"
+          ? "/api/alpha"
+          : "/api/research",
+        { data },
+      );
       diagnostics.push({
         path: safeURL(r.url()),
         status: r.status(),
@@ -157,6 +163,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
       return r.json();
     };
     const before = await snapshot();
+    const categoryAlpha = before.alphaSchemaAvailable === true;
+    const captureDir = `docs/alpha-review/${info.project.name}`;
+    await mkdir(captureDir, { recursive: true });
     const priorXP = before.awards.reduce((n, a) => n + a.xp, 0);
     const tag = `DEMO QA ${info.project.name} ${Date.now()}`;
     stage = "discussion";
@@ -211,25 +220,58 @@ test("labeled specialists collaborate, correct, independently accept and receive
         `/findings/new\\?room=testnet-readiness&message=${message.id}`,
       ),
     );
+    if (categoryAlpha) {
+      await page
+        .getByLabel("Contribution category", { exact: true })
+        .selectOption("Project Analysts");
+      await page.getByLabel("Subject or project").fill("Robinhood Chain");
+      await page
+        .getByLabel("Why does it matter to members?")
+        .fill(
+          "A bounded source checklist helps complementary members assess missing evidence.",
+        );
+    }
     await page
-      .getByLabel("Main claim", { exact: true })
+      .getByLabel(
+        categoryAlpha ? "What did you find or conclude?" : "Main claim",
+        { exact: !categoryAlpha },
+      )
       .fill(`${tag}: Documented dependencies need a bounded test checklist.`);
     await page
-      .getByLabel("Evidence URLs (one per line)", { exact: true })
+      .getByLabel(
+        categoryAlpha
+          ? "Links or transaction hashes (one per line)"
+          : "Evidence URLs (one per line)",
+        { exact: true },
+      )
       .fill("https://docs.robinhood.com/chain/");
     await page
-      .getByLabel("What you added", { exact: true })
+      .getByLabel(
+        categoryAlpha
+          ? "What did you personally discover, test, or add?"
+          : "What you added",
+        { exact: !categoryAlpha },
+      )
       .fill(
         "DEMO QA: separated documented dependencies, a reproducible checklist and unresolved assumptions. Synthetic assessment, not real protocol research.",
       );
     await page
-      .getByLabel("Important limitations", { exact: true })
+      .getByLabel(
+        categoryAlpha ? "What is uncertain or risky?" : "Important limitations",
+        { exact: !categoryAlpha },
+      )
       .fill(
         "DEMO QA only. No real audit, reward eligibility or investment outcome is claimed.",
       );
-    await page
-      .getByLabel("Observation time (your local time)")
-      .fill("2026-09-24T12:00");
+    if (!categoryAlpha)
+      await page
+        .getByLabel("Observation time (your local time)")
+        .fill("2026-09-24T12:00");
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `${captureDir}/submission.png`,
+      fullPage: true,
+    });
     await page.getByRole("checkbox").check();
     await page
       .getByRole("button", { name: "Submit for review", exact: true })
@@ -247,6 +289,41 @@ test("labeled specialists collaborate, correct, independently accept and receive
       operator.member,
     );
     expect(f.author_id).toBe(author.member);
+    if (categoryAlpha) {
+      expect(
+        s.alphas?.find((a) => a.version_id === f.current_version)?.category,
+      ).toBe("Project Analysts");
+      await expect
+        .poll(
+          async () => {
+            s = await snapshot();
+            return s.preliminary?.find(
+              (r) => r.version_id === f.current_version,
+            )?.status;
+          },
+          { timeout: 30000 },
+        )
+        .toBe(process.env.OPENAI_API_KEY ? "complete" : "blocked");
+      const run = s.preliminary!.find(
+        (r) => r.version_id === f.current_version,
+      )!;
+      if (!process.env.OPENAI_API_KEY) {
+        expect(run.error_code).toBe("provider_not_configured");
+        expect(run.card).toBeNull();
+        expect(run.checks.length).toBeGreaterThan(0);
+      }
+      await page.reload();
+      await expect(
+        page.getByRole("heading", {
+          name: "Preliminary AI review",
+          exact: true,
+        }),
+      ).toBeVisible({ timeout: 20000 });
+      await page.screenshot({
+        path: `${captureDir}/preliminary-review.png`,
+        fullPage: true,
+      });
+    }
     let assignment = s.assignments.find(
       (a) => a.version_id === f.current_version && !a.completed_at,
     )!;
@@ -288,9 +365,10 @@ test("labeled specialists collaborate, correct, independently accept and receive
       .fill(
         "DEMO QA: clarified that the source message raised the question; my addition is the checklist.",
       );
-    await page
-      .getByLabel("Observation time (your local time)")
-      .fill("2026-09-24T12:05");
+    if (!categoryAlpha)
+      await page
+        .getByLabel("Observation time (your local time)")
+        .fill("2026-09-24T12:05");
     await page.getByRole("checkbox").check();
     await page
       .getByRole("button", { name: "Submit corrected version" })
@@ -361,7 +439,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
     expect(s.versions.filter((v) => v.finding_id === findingId)).toHaveLength(
       2,
     );
-    await page.goto("/workbench");
+    await page.goto(
+      categoryAlpha ? "/workbench?room=bronze-project-analysts" : "/workbench",
+    );
     activePage = page;
     stage = "evidence_brief";
     await page
@@ -386,6 +466,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
       .locator(".topbar")
       .getByRole("link", { name: "My profile" })
       .click();
+    await expect(
+      page.getByRole("heading", { name: "Your NFT progression" }),
+    ).toBeVisible({ timeout: 30000 });
     stage = "progression";
     await expect(
       page
@@ -411,6 +494,11 @@ test("labeled specialists collaborate, correct, independently accept and receive
     await page.screenshot({
       path: info.outputPath("membership.png"),
       fullPage: true,
+    });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `${captureDir}/my-profile.png`,
+      fullPage: false,
     });
     expect(errors).toEqual([]);
     console.log(
@@ -441,7 +529,9 @@ test("labeled specialists collaborate, correct, independently accept and receive
       await activePage
         .screenshot({ path: info.outputPath("failed-research-screen.png") })
         .catch(() => undefined);
-    throw error;
+    throw new Error(
+      `Isolated journey failed at ${stage}; see sanitized diagnostics`,
+    );
   } finally {
     for (const context of contexts.values())
       await context.close().catch(() => undefined);
