@@ -1244,3 +1244,18 @@ remain. Full requested-feature classification: `QA05_CATEGORY_ALPHA_HANDOFF.md`.
 - Reloaded the in-app browser at http://localhost:3000/: Home, Opportunities,
   Activity and top-right `/membership` present, no horizontal overflow. The
   founder's session was only read; no account switch or genuine record mutation.
+
+### Saved category checkpoint
+
+- Tested UI/evidence commit: `1bc1a24858ccd0e3ec1343e6cd1c7495ed91fa1a`; backend
+  increment `bf99fb5`. Normal push to `baslaeth/grindly:codex/category-alpha-review`
+  succeeded, and `git ls-remote --heads origin codex/category-alpha-review`
+  independently returned that exact executable hash. No merge or deployment.
+- Entire outgoing staged diff since `0d58c9d` was compared with configured secret
+  values and private-key markers: zero matches; zero added personal-email lines.
+  Staged whitespace check passed. Only selected code, tests, public-source probe
+  facts and guarded QA screenshots were committed. Ignored environment/fixture
+  files and unrelated untracked brand assets remain excluded and preserved.
+- This documentation-only follow-up records the verified push and completed
+  checklist. Independent QA target is feature-branch HEAD; use
+  `QA05_CATEGORY_ALPHA_HANDOFF.md` for the explicit incomplete/blocked matrix.

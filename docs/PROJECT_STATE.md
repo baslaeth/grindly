@@ -8,6 +8,10 @@ Production is NOT this URL and has not been deployed or merged. Top-right
 My Profile, approved branding, annotations and prior security fixes remain.
 Authority: `category-alpha-review.md`; review targets and feature classification:
 `QA05_CATEGORY_ALPHA_HANDOFF.md`. Historical sections below are evidence only.
+Tested executable `1bc1a24858ccd0e3ec1343e6cd1c7495ed91fa1a` was pushed and
+independently verified on GitHub. This documentation follow-up does not change
+that executable. Re-review the feature-branch HEAD; unrelated brand exports remain
+untracked and preserved.
 
 - Category-first individual submissions, nine tailored forms, six contribution
   types, image/transaction/message evidence, immutable server/source times,
