@@ -21,11 +21,16 @@ export async function readResearch(
 ): Promise<ResearchData> {
   const active = await requireActiveMembership(writableCookies);
   const db = createDataClient();
-  const result = await db.rpc("research_snapshot_v3", {
+  const args = {
     p_member: active.member.id,
     p_binding: active.binding.id,
     p_room: context.room,
-  });
+  };
+  let result = await db.rpc("alpha_snapshot", args);
+  const alphaSchemaAvailable = result.error?.code !== "PGRST202";
+  // Rolling schema compatibility only. Authorization failures never fall back.
+  if (!alphaSchemaAvailable)
+    result = await db.rpc("research_snapshot_v3", args);
   if (result.error) {
     if (result.error.message.startsWith("research:"))
       throw new ServiceError(
@@ -106,6 +111,7 @@ export async function readResearch(
   if (mint.error) throw mint.error;
   return {
     ...snapshot,
+    alphaSchemaAvailable,
     memberId: active.member.id,
     tiers,
     token: {

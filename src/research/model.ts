@@ -1,4 +1,5 @@
 import type { Database } from "@/types/database";
+import type { AlphaSnapshot } from "@/alpha/model";
 
 type Row<K extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][K]["Row"];
@@ -8,7 +9,8 @@ export const specialties = {
   risk: "On-chain / Risk Analyst",
 } as const;
 export type Specialty = keyof typeof specialties;
-export type Snapshot = {
+export type Snapshot = Partial<AlphaSnapshot> & {
+  alphaSchemaAvailable?: boolean;
   question: Row<"research_questions">;
   profiles: Row<"research_profiles">[];
   messages: (Row<"discussion_messages"> & {

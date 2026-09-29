@@ -3,6 +3,14 @@ import { createTestDatabase } from "./database";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const tables = [
+  "alpha_award_authorizations",
+  "alpha_credit_states",
+  "alpha_feedback",
+  "alpha_outcomes",
+  "alpha_preliminary_runs",
+  "alpha_requests",
+  "alpha_reviewer_scopes",
+  "alpha_versions",
   "members",
   "invitations",
   "member_roles",

@@ -53,20 +53,30 @@ export async function GET(request: Request) {
       const version = query.has("version")
         ? z.uuid().parse(query.get("version"))
         : null;
+      const alpha = query.has("alpha")
+        ? z.uuid().parse(query.get("alpha"))
+        : null;
       const db = createDataClient();
       const media = privateResult(
-        version
-          ? await db.rpc("chat_source_media_read", {
+        alpha
+          ? await db.rpc("alpha_media_read", {
               p_member: active.member.id,
               p_binding: active.binding.id,
               p_id: id,
-              p_version: version,
+              p_version: alpha,
             })
-          : await db.rpc("chat_media_read", {
-              p_member: active.member.id,
-              p_binding: active.binding.id,
-              p_id: id,
-            }),
+          : version
+            ? await db.rpc("chat_source_media_read", {
+                p_member: active.member.id,
+                p_binding: active.binding.id,
+                p_id: id,
+                p_version: version,
+              })
+            : await db.rpc("chat_media_read", {
+                p_member: active.member.id,
+                p_binding: active.binding.id,
+                p_id: id,
+              }),
       ) as { type: string; content: string };
       return new Response(Buffer.from(media.content, "base64"), {
         headers: {

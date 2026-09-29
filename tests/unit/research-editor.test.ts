@@ -28,6 +28,7 @@ import { ServiceError } from "@/server/errors";
 import { readResearch } from "@/server/research/service";
 
 const snapshot = {
+  question: { id: "bronze-general", category: "General", rank: "Bronze" },
   profiles: [
     {
       member_id: "actor",
@@ -165,4 +166,26 @@ it("rejects a rank changed between snapshot and tier read", async () => {
     code: "RANK_CHANGED",
     status: 409,
   });
+});
+it("retains the existing gated read only when the additive RPC is not installed", async () => {
+  mocks.rpc
+    .mockResolvedValueOnce({
+      data: null,
+      error: { code: "PGRST202", message: "function missing" },
+    })
+    .mockResolvedValueOnce({ data: snapshot, error: null });
+  expect((await readResearch()).alphaSchemaAvailable).toBe(false);
+  expect(mocks.rpc.mock.calls.map((c) => c[0])).toEqual([
+    "alpha_snapshot",
+    "research_snapshot_v3",
+  ]);
+  expect(mocks.access).toHaveBeenCalledWith(false);
+});
+it("never falls back after an authorization or transport error", async () => {
+  mocks.rpc.mockResolvedValue({
+    data: null,
+    error: { code: "P0001", message: "research: denied" },
+  });
+  await expect(readResearch()).rejects.toMatchObject({ status: 403 });
+  expect(mocks.rpc).toHaveBeenCalledTimes(1);
 });

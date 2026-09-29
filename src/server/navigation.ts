@@ -20,13 +20,19 @@ export async function navigationContext() {
       .select("member_id")
       .eq("member_id", member.id)
       .limit(1);
+    const categoryScope = await db
+      .from("alpha_reviewer_scopes")
+      .select("member_id")
+      .eq("member_id", member.id)
+      .limit(1);
     return {
       signedIn: true,
       reviewer:
         !roles.error &&
         !scope.error &&
         !!roles.data?.length &&
-        !!scope.data?.length,
+        (!!scope.data?.length ||
+          (!categoryScope.error && !!categoryScope.data?.length)),
     };
   } catch (error) {
     reportFailure("navigation.session", error);

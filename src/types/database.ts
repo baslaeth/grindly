@@ -9,6 +9,355 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      alpha_award_authorizations: {
+        Row: {
+          category: string;
+          approved_by: string;
+          policy_evidence: string;
+          created_at: string;
+        };
+        Insert: {
+          category: string;
+          approved_by: string;
+          policy_evidence: string;
+          created_at?: string;
+        };
+        Update: {
+          category?: string;
+          approved_by?: string;
+          policy_evidence?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_award_authorizations_approved_by_fkey";
+            columns: ["approved_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_credit_states: {
+        Row: {
+          version_id: string;
+          status: string;
+        };
+        Insert: {
+          version_id: string;
+          status: string;
+        };
+        Update: {
+          version_id?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_credit_states_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_feedback: {
+        Row: {
+          id: string;
+          version_id: string;
+          member_id: string;
+          request_id: string;
+          kind: string;
+          detail: string;
+          source: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          member_id: string;
+          request_id: string;
+          kind: string;
+          detail: string;
+          source: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          member_id?: string;
+          request_id?: string;
+          kind?: string;
+          detail?: string;
+          source?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_feedback_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_feedback_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      alpha_outcomes: {
+        Row: {
+          id: string;
+          version_id: string;
+          actor_id: string;
+          status: string;
+          facts: string;
+          sources: Json;
+          checked_at: string;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          actor_id: string;
+          status: string;
+          facts: string;
+          sources: Json;
+          checked_at?: string;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          actor_id?: string;
+          status?: string;
+          facts?: string;
+          sources?: Json;
+          checked_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_outcomes_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_outcomes_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      alpha_preliminary_runs: {
+        Row: {
+          id: string;
+          version_id: string;
+          requested_by: string;
+          status: string;
+          provider: string | null;
+          model: string | null;
+          error_code: string | null;
+          card: Json | null;
+          sources: Json;
+          checks: Json;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          requested_by: string;
+          status?: string;
+          provider?: string | null;
+          model?: string | null;
+          error_code?: string | null;
+          card?: Json | null;
+          sources?: Json;
+          checks?: Json;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          version_id?: string;
+          requested_by?: string;
+          status?: string;
+          provider?: string | null;
+          model?: string | null;
+          error_code?: string | null;
+          card?: Json | null;
+          sources?: Json;
+          checks?: Json;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_preliminary_runs_requested_by_fkey";
+            columns: ["requested_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_preliminary_runs_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      alpha_requests: {
+        Row: {
+          member_id: string;
+          request_id: string;
+          payload: Json;
+          finding_id: string;
+          version_id: string;
+        };
+        Insert: {
+          member_id: string;
+          request_id: string;
+          payload: Json;
+          finding_id: string;
+          version_id: string;
+        };
+        Update: {
+          member_id?: string;
+          request_id?: string;
+          payload?: Json;
+          finding_id?: string;
+          version_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_requests_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_requests_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_requests_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_reviewer_scopes: {
+        Row: {
+          member_id: string;
+          category: string;
+          scope: string;
+          granted_by: string;
+          created_at: string;
+        };
+        Insert: {
+          member_id: string;
+          category: string;
+          scope: string;
+          granted_by: string;
+          created_at?: string;
+        };
+        Update: {
+          member_id?: string;
+          category?: string;
+          scope?: string;
+          granted_by?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_reviewer_scopes_granted_by_fkey";
+            columns: ["granted_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "alpha_reviewer_scopes_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      alpha_versions: {
+        Row: {
+          version_id: string;
+          category: string;
+          contribution_type: string;
+          purpose: string;
+          subject: string;
+          chain: string;
+          contract: string;
+          details: Json;
+          evidence: Json;
+          first_noticed: string | null;
+          horizon: string | null;
+          check_condition: string;
+          source_created_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          version_id: string;
+          category: string;
+          contribution_type: string;
+          purpose: string;
+          subject: string;
+          chain?: string;
+          contract?: string;
+          details: Json;
+          evidence: Json;
+          first_noticed?: string | null;
+          horizon?: string | null;
+          check_condition?: string;
+          source_created_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          category?: string;
+          contribution_type?: string;
+          purpose?: string;
+          subject?: string;
+          chain?: string;
+          contract?: string;
+          details?: Json;
+          evidence?: Json;
+          first_noticed?: string | null;
+          horizon?: string | null;
+          check_condition?: string;
+          source_created_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "alpha_versions_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_events: {
         Row: {
           id: string;
@@ -1789,6 +2138,122 @@ export type Database = {
         };
         Returns: number;
       };
+      alpha_add_feedback: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_request: string;
+          p_kind: string;
+          p_detail: string;
+          p_source: string;
+        };
+        Returns: string;
+      };
+      alpha_appeal: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_reason: string;
+        };
+        Returns: string;
+      };
+      alpha_authorized_reviewer: {
+        Args: {
+          p_member: string;
+          p_version: string;
+          p_scope: string;
+        };
+        Returns: boolean;
+      };
+      alpha_begin_review: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
+      alpha_decide: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_assignment: string;
+          p_decision: string;
+          p_reason: string;
+          p_conflicts: string;
+          p_conflict_free: boolean;
+        };
+        Returns: Json;
+      };
+      alpha_finish_review: {
+        Args: {
+          p_id: string;
+          p_status: string;
+          p_provider?: string;
+          p_model?: string;
+          p_card?: Json;
+          p_sources?: Json;
+          p_checks?: Json;
+          p_error?: string;
+        };
+        Returns: undefined;
+      };
+      alpha_media_read: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
+      alpha_record_outcome: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_status: string;
+          p_facts: string;
+          p_sources: Json;
+        };
+        Returns: string;
+      };
+      alpha_snapshot: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_snapshot_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_submit: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      alpha_version_guard: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
       bind_owned_token: {
         Args: {
           p_member: string;
@@ -1961,6 +2426,13 @@ export type Database = {
         };
         Returns: undefined;
       };
+      research_assign_pre_alpha: {
+        Args: {
+          p_version: string;
+          p_kind?: string;
+        };
+        Returns: undefined;
+      };
       research_assign_v2: {
         Args: {
           p_version: string;
@@ -1969,6 +2441,13 @@ export type Database = {
         Returns: undefined;
       };
       research_can_view: {
+        Args: {
+          p_member: string;
+          p_finding: string;
+        };
+        Returns: boolean;
+      };
+      research_can_view_pre_alpha: {
         Args: {
           p_member: string;
           p_finding: string;

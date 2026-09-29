@@ -2,7 +2,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-export async function createTestDatabase() {
+export async function createTestDatabase(throughMigration?: string) {
   const db = new PGlite();
   try {
     await db.exec(
@@ -12,7 +12,11 @@ export async function createTestDatabase() {
       new URL("../../supabase/migrations/", import.meta.url),
     );
     for (const name of (await readdir(directory))
-      .filter((name) => name.endsWith(".sql"))
+      .filter(
+        (name) =>
+          name.endsWith(".sql") &&
+          (!throughMigration || name <= throughMigration),
+      )
       .sort()) {
       await db.exec(await readFile(`${directory}/${name}`, "utf8"));
     }

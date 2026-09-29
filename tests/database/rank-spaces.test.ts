@@ -254,7 +254,7 @@ it("filters private lineage in the new snapshot in both rank directions", async 
     )!.current_version!;
     // Historical incompatible link: privileged fixture only; normal writes reject it.
     await db.exec(
-      "reset role; alter table public.finding_versions disable trigger immutable_record",
+      "reset role; set constraints all immediate; alter table public.finding_versions disable trigger immutable_record",
     );
     await db.query(
       "update public.finding_versions set related_version=$1 where id=$2",
