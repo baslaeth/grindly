@@ -10,9 +10,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+Latest addition: `docs/grind-intelligence.md`. The owner APPROVED shared migration
+026 on 2026-09-30, but activation is blocked by missing Supabase administrator
+access in this shell (CLI has no access token). GET schema/function probes confirm
+026 tables/functions are missing; do not treat a HEAD-only table probe as proof.
+Do not reapply 023-025 or bypass unavailable saves. Grind Intelligence reuses
+permitted saved checks/outcomes; no model calls, awards, or production deployment.
+
 Latest refinement: `docs/evaluation-foundation.md` (2026-09-30), continuing the
 same branch from reviewed `40addac`. Migration 026 is locally tested but NOT
-shared-applied: explicit owner approval is pending. Do not silently apply it.
+shared-applied: approval is now granted, administrator access is pending.
 New save/refresh/outcome paths are not live-verified until then. Source checks
 never invoke a model, even if a key later appears. See the current handoff and
 verification entry for precise classifications; no production deployment.

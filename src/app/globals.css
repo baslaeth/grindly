@@ -1880,3 +1880,27 @@ dd,
   text-align: left;
   padding: 8px 0;
 }
+.intelligence-picker {
+  display: grid;
+  gap: 12px;
+  max-width: 100%;
+}
+.intelligence-picker select {
+  width: 100%;
+  min-width: 0;
+}
+.intelligence-picker .button {
+  justify-self: start;
+}
+.intelligence-question {
+  border-top: 1px solid var(--border);
+  padding: 18px 0;
+}
+.intelligence-question > summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+.intelligence-question > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}

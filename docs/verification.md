@@ -1421,3 +1421,70 @@ and separately linked samples were present. No founder action was submitted.
 - Documentation/capture follow-up contains no executable changes. The executable
   CI success above remains applicable; final branch HEAD/remote verification and
   documentation-run CI status are reported in the delivery message.
+
+## 2026-09-30: Grind Intelligence and activation preflight
+
+Branch `codex/category-alpha-review`, base `1c33f2c`. Owner APPROVED migration
+026. No approval for production deployment, merge, model calls or genuine roles.
+
+### Shared database activation: BLOCKED
+
+- Supabase CLI 2.117.0 `projects list` returns "Access token not provided".
+  Requested local `pnpm exec supabase login`; no credentials were requested in chat.
+- Correct TLS verification requires `NODE_USE_SYSTEM_CA=1` on this machine.
+  A first table HEAD probe was inconclusive/misleading and is NOT activation proof.
+  Subsequent service-client GET probes (`select`, limit zero, no record contents)
+  return PGRST205 for member_category_focus, alpha_review_versions,
+  alpha_source_checks, alpha_review_assessments and alpha_outcome_assessments.
+  New alpha_category and alpha_submit_v2 RPCs return PGRST202; existing gated
+  alpha_snapshot is present. Actual authenticated snapshot reports the new
+  evaluation capability unavailable.
+- No migration was executed/reapplied. 023-026 SQL is unchanged. No post-migration
+  preservation or shared-catalog security success is claimed. The approved
+  prepared atomic transaction remains ready with pre-existing table digests,
+  forced-RLS and anon/authenticated function-denial assertions. Do not db push
+  across unresolved historical migration tracking.
+- Four targeted desktop shared-write cases were attempted: nine-category save,
+  rejection/appeal, retry/source journey and outcome entry. All remain BLOCKED at
+  schema availability/save; none is counted as a pass. No genuine research,
+  appointments or award rules were altered. Existing isolated authentication
+  sessions were used; no founder sessions were copied.
+
+### Implemented and verified
+
+- Grind Intelligence at `/intelligence`: Home link, sidebar directly after Submit
+  alpha, mobile menu, current permitted alpha selector, category/author/time/
+  version/status, four expandable questions and bidirectional alpha-page links.
+  Reuses saved Review Assistant and outcome components, not a new source of truth.
+  Hidden prior-work targets are omitted before deciding the visible empty state.
+- Public introduction only; exact ownership/rank/audience/demo gating remains
+  server-side. Direct inaccessible alpha identifiers reveal no selection or data.
+  Source retrieval is not support, AI is disconnected, and unavailable refresh
+  is honest. No LLM, token claim, new award rule or automatic outcome was added.
+- `pnpm check`: lint/typecheck, **208 unit / 230 database / 11 contract**,
+  database type drift and production build. Database tests include additive
+  upgrade preservation, self-review, rank/private evidence, corrections, duplicate
+  awards, rejection/appeal and immutable outcomes; these are isolated local tests.
+- Chrome foundation suite: **52 passed**, desktop/mobile. Includes the new public
+  page and no-data boundary, sidebar navigation, responsive shell and annotations.
+- Authenticated read-only browser journeys: **6 distinct passes** (desktop/mobile
+  nine-category editor, Profile/history/correction editor, Grind Intelligence).
+  The last Intelligence rerun passed **2/2**: Home -> page -> select -> each question
+  -> alpha Review Assistant -> return/reload -> mobile/sidebar link -> direct
+  unavailable identifier. Existing testnet Bronze isolated accounts, synthetic
+  research; no live Silver/transfer or new shared-026 writes are claimed.
+- Earlier new-test failures were harness issues: reload raced App Router navigation,
+  and a global alert selector also matched Next's route announcer. Assertions now
+  await the actual URL and scope the alert to main; permission checks were not
+  weakened. Initial transient compile/lint errors were fixed before final checks.
+- Screenshots: `docs/grind-intelligence/{desktop,mobile}/{saved-checks,sidebar}.png`.
+  Inspected both viewports. Refreshed existing isolated Profile/Assistant captures
+  remain in `docs/evaluation-foundation/`. No private genuine records or secrets.
+
+Founder: existing records can be inspected now via Home -> Grind Intelligence.
+New alpha saving requires administrator login, approved migration activation and
+rerunning the blocked write suite. Then Hub -> category -> Submit alpha -> required
+context/evidence (Unknown permitted) -> receipt -> Grind Intelligence. Genuine
+independent reviewer staffing and XP policy remain separately unconfigured.
+
+Commit/remote/CI identity is recorded in the delivery; no production deployment.

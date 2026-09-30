@@ -190,3 +190,34 @@ it("never falls back after an authorization or transport error", async () => {
   await expect(readResearch()).rejects.toMatchObject({ status: 403 });
   expect(mocks.rpc).toHaveBeenCalledTimes(1);
 });
+it.each([401, 403, 503])(
+  "Grind Intelligence fails closed when membership fails (%s)",
+  async (status) => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    mocks.access.mockRejectedValue(
+      new ServiceError("MEMBERSHIP_UNAVAILABLE", "Private diagnostic", status),
+    );
+    const html = renderToStaticMarkup(
+      await ResearchScreen({ view: "intelligence" }),
+    );
+    expect(html).toContain("AI analysis is not connected yet.");
+    expect(html).not.toContain("Select an alpha");
+    expect(html).not.toContain("Private diagnostic");
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  },
+);
+it("Grind Intelligence does not disclose an inaccessible alpha or offer a fallback selection", async () => {
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+  const html = renderToStaticMarkup(
+    await ResearchScreen({
+      view: "intelligence",
+      id: "other-rank-private-alpha",
+    }),
+  );
+  expect(html).toContain("not available to your membership");
+  expect(html).not.toContain("other-rank-private-alpha");
+  expect(html).not.toContain("Select an alpha");
+  expect(mocks.access).toHaveBeenCalledWith(false);
+  vi.restoreAllMocks();
+});

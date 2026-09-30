@@ -1,5 +1,21 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Grind Intelligence addition (2026-09-30)
+
+Current branch remains `codex/category-alpha-review`. New local route:
+http://localhost:3000/intelligence. Sidebar placement immediately below Submit
+alpha, Home introduction, permitted alpha selection and four expandable questions
+reuse existing Review Assistant/outcome records. Top-right My Profile and all
+annotation/security boundaries remain. Details: `grind-intelligence.md`.
+
+Owner now APPROVES 026. Activation remains blocked by missing Supabase CLI
+administrator login, not pending owner authorization. Read-only GET checks show
+five new tables missing (PGRST205) and new submission functions missing (PGRST202).
+No migration was attempted, no historical research data/roles changed, no model called.
+Shared write journeys remain blocked; never label local database passes as hosted
+activation evidence. Latest verification entry supersedes older pending-approval
+wording below. No production deployment or merge.
+
 ## Current local refinement (2026-09-30)
 
 Verified branch `codex/category-alpha-review`, starting from reviewed/pushed

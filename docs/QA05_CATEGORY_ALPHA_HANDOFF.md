@@ -1,5 +1,25 @@
 # Chat 05: Category Alpha Review
 
+## New target: Grind Intelligence
+
+Review `/intelligence` on the same feature branch. Owner approval for 026 is now
+granted; actual activation is blocked by missing Supabase administrator login.
+Five table GET probes return PGRST205 and new RPCs PGRST202. Do not rely on a
+HEAD-only table probe. No shared migration, genuine research or roles changed in this pass.
+
+Check Home link -> sidebar below Submit alpha -> permitted alpha selector -> four
+questions -> original Review Assistant -> My Profile. Page reuses the existing
+permission-filtered snapshot and saved sources/outcomes. Public and inaccessible
+identifier paths must disclose no member alpha. Check desktop/mobile navigation,
+AI-offline language, Unknown sources and all-version outcome link. New targets:
+`src/components/grind-intelligence.tsx`, `src/app/intelligence/page.tsx`, the shared
+Review Assistant question mode and session-refresh proxy route. No duplicate
+checks store, model request, authority grant or claim activation.
+
+Migration/write tests remain blocked, not passed. Exact evidence and captures are
+in `grind-intelligence.md` and the latest verification entry; old results below
+remain historical. No production deployment.
+
 ## Current Re-review: Evaluation Foundation
 
 Continue the same branch from `40addac`; current scope is

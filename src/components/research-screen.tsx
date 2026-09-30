@@ -4,6 +4,7 @@ import { ServiceError } from "@/server/errors";
 import { getEnvironment } from "@/server/environment";
 import { reportFailure } from "@/server/diagnostics";
 import Link from "next/link";
+import { GrindIntelligence } from "./grind-intelligence";
 import {
   Workbench,
   FindingEditor,
@@ -21,7 +22,8 @@ export async function ResearchScreen({
   sourceRevision,
   saved,
 }: {
-  view: "workbench" | "new" | "record" | "review" | "membership";
+  view:
+    "workbench" | "new" | "record" | "review" | "membership" | "intelligence";
   id?: string;
   message?: string;
   revise?: string;
@@ -36,6 +38,7 @@ export async function ResearchScreen({
     record: "History",
     review: "Review Desk",
     membership: "My profile",
+    intelligence: "Grind Intelligence",
   }[view];
   let data;
   let denied = false;
@@ -65,6 +68,19 @@ export async function ResearchScreen({
     }
   return (
     <Screen title={title}>
+      {view === "intelligence" && (
+        <section className="section">
+          <p>
+            Follow the evidence behind an alpha: checked sources, unanswered
+            questions, earlier contributions and later observations.
+          </p>
+          <p>
+            <strong>AI analysis is not connected yet.</strong> These are saved
+            source checks, not AI reasoning. Retrieving a source does not prove
+            an alpha is correct.
+          </p>
+        </section>
+      )}
       {data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
         <p className="notice">
           Isolated sample account. Work, evaluations and XP here are test
@@ -94,6 +110,8 @@ export async function ResearchScreen({
           </Link>
           .
         </p>
+      ) : view === "intelligence" ? (
+        <GrindIntelligence data={data} id={id} />
       ) : view === "workbench" ? (
         <Workbench data={data} profileId={profile} />
       ) : view === "new" ? (

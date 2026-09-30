@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   House,
+  ScanSearch,
 } from "lucide-react";
 import { clearChatDrafts } from "@/chat/drafts";
 
@@ -43,6 +44,7 @@ export function Navigation({
     { href: "/", title: "Home", icon: House },
     { href: "/workbench", title: "Hub", icon: icons.workbench },
     { href: "/findings/new", title: "Submit alpha", icon: icons.submit },
+    { href: "/intelligence", title: "Grind Intelligence", icon: ScanSearch },
     ...(reviewer
       ? [{ href: "/review", title: "Review Desk", icon: icons.review }]
       : []),

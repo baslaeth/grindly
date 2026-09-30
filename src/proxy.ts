@@ -45,6 +45,7 @@ export const config = {
     "/",
     "/join",
     "/workbench",
+    "/intelligence",
     "/findings/:path*",
     "/submit",
     "/review",

@@ -86,6 +86,17 @@ export default async function Home({
         </p>
       )}
       <section className="section">
+        <h2>Grind Intelligence</h2>
+        <p>
+          Explore your alpha&apos;s checked sources, missing information, earlier
+          work and later outcomes. Source checks are not proof that a claim is
+          correct.
+        </p>
+        <Link className="inline-link" href="/intelligence">
+          Explore Grind Intelligence
+        </Link>
+      </section>
+      <section className="section">
         <div className="section-heading">
           <h2>{sample ? "Sample opportunities" : "Opportunities"}</h2>
         </div>

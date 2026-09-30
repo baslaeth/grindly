@@ -19,12 +19,12 @@ for (const screen of screens) {
       await expect(page.getByRole("navigation")).toBeHidden();
       await toggle.click();
       await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
-        4,
+        5,
       );
       await page.getByRole("button", { name: "Close navigation" }).click();
     } else {
       await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(
-        4,
+        5,
       );
     }
     expect(

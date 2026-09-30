@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { type ResearchData, person } from "@/research/model";
 import {
   categoryFields,
@@ -12,6 +13,24 @@ import { SourceObservations } from "./source-observations";
 
 export const alphaTime = (s: string) =>
   new Date(s).toISOString().replace("T", " ").slice(0, 19) + " UTC";
+function Question({
+  enabled,
+  title,
+  children,
+}: {
+  enabled: boolean;
+  title: string;
+  children: ReactNode;
+}) {
+  return enabled ? (
+    <details className="intelligence-question">
+      <summary>{title}</summary>
+      {children}
+    </details>
+  ) : (
+    <>{children}</>
+  );
+}
 export function CheckedEvidence({
   source,
   operator = false,
@@ -49,9 +68,11 @@ export function CheckedEvidence({
 export function ReviewAssistant({
   data,
   version,
+  questions = false,
 }: {
   data: ResearchData;
   version: string;
+  questions?: boolean;
 }) {
   const a = data.alphas?.find((a) => a.version_id === version);
   const v = data.versions.find((v) => v.id === version);
@@ -62,6 +83,10 @@ export function ReviewAssistant({
       ?.filter((r) => r.version_id === version)
       .sort((a, b) => b.created_at.localeCompare(a.created_at)) ?? [];
   const run = runs.find((r) => r.status === "complete") ?? runs[0];
+  const hints = (run?.hints ?? []).filter((hint) => {
+    const prior = data.versions.find((v) => v.id === hint.version);
+    return prior && data.findings.some((f) => f.id === prior.finding_id);
+  });
   const old = data.preliminary
     ?.filter((r) => r.version_id === version)
     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
@@ -69,7 +94,7 @@ export function ReviewAssistant({
   const versioned = data.checklistVersions?.find(
     (c) => c.version_id === version,
   );
-  const questions = reviewChecklist(a.category, a.contribution_type);
+  const checklist = reviewChecklist(a.category, a.contribution_type);
   const gaps = categoryFields[a.category].filter(
     (field) => !a.details[field.key] || unspecified(a.details[field.key] ?? ""),
   );
@@ -93,6 +118,11 @@ export function ReviewAssistant({
         Evidence checks help you and an independent reviewer assess this alpha.
         Retrieving a source does not establish that the claim is supported.
       </p>
+      {!questions && (
+        <Link href={`/intelligence?alpha=${f.id}`} className="inline-link">
+          Explore in Grind Intelligence
+        </Link>
+      )}
       <h4>Completeness and provenance</h4>
       <p>
         Saved {alphaTime(a.created_at)}.{" "}
@@ -125,90 +155,98 @@ export function ReviewAssistant({
           ))}
         </ul>
       </details>
-      <h4>Retrieved evidence</h4>
-      {!sources.length ? (
-        <p>
-          {runs[0]?.status === "running"
-            ? "Checking the permitted sources. Your alpha is saved; you can continue while checks finish."
-            : "No source observations saved yet. Refresh sources to check available references."}
-        </p>
-      ) : (
-        <ul className="source-list">
-          {sources.map((s) => (
-            <CheckedEvidence
-              key={s.id}
-              source={s}
-              operator={data.roles.includes("steward")}
-            />
-          ))}
-        </ul>
-      )}
-      {runs[0]?.status === "failed" && (
-        <p role="status">
-          The latest source check could not finish. Earlier observations remain;
-          you can retry.
-        </p>
-      )}
-      {canRefresh && data.evaluationAvailable !== false && (
-        <AlphaAction
-          action="refreshSources"
-          version={version}
-          label="Refresh sources"
-        />
-      )}
-      {data.evaluationAvailable === false && (
-        <p>
-          Source refresh is temporarily unavailable while the review service is
-          updated. Existing observations are preserved.
-        </p>
-      )}
-      <h4>Missing information and assessment questions</h4>
-      {gaps.length ? (
-        <ul>
-          {gaps.map((g) => (
-            <li key={g.key}>
-              {g.label}: {a.details[g.key] || "not supplied in this version"}.
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>
-          Category context is recorded. Completeness does not establish factual
-          support.
-        </p>
-      )}
-      <details>
-        <summary>Category and contribution-type checklist</summary>
-        <ul>
-          {questions.questions.map((q) => (
-            <li key={q}>{q}</li>
-          ))}
-        </ul>
-      </details>
-      <h4>Related prior work</h4>
-      {!run?.hints.length ? (
-        <p>
-          No visible prior-work hints are recorded. This is not proof of
-          originality; semantic comparison is not connected.
-        </p>
-      ) : (
-        run.hints.map((h) => {
-          const prior = data.versions.find((v) => v.id === h.version);
-          const finding = data.findings.find((f) => f.id === prior?.finding_id);
-          return prior && finding ? (
-            <p key={h.version}>
-              <Link href={`/findings/${finding.id}#version-${prior.id}`}>
-                {prior.claim}
-              </Link>
-              {" / "}
-              {person(data, finding.author_id)} / version {prior.version},{" "}
-              {alphaTime(prior.submitted_at)}. {h.signals.join("; ")}. Shared
-              sources or similar wording are hints for review, not copying
-              accusations.
-            </p>
-          ) : null;
-        })
-      )}
+      <Question enabled={questions} title="What sources were checked?">
+        <h4>Retrieved evidence</h4>
+        {!sources.length ? (
+          <p>
+            {runs[0]?.status === "running"
+              ? "Checking the permitted sources. Your alpha is saved; you can continue while checks finish."
+              : "No source observations saved yet. Refresh sources to check available references."}
+          </p>
+        ) : (
+          <ul className="source-list">
+            {sources.map((s) => (
+              <CheckedEvidence
+                key={s.id}
+                source={s}
+                operator={data.roles.includes("steward")}
+              />
+            ))}
+          </ul>
+        )}
+        {runs[0]?.status === "failed" && (
+          <p role="status">
+            The latest source check could not finish. Earlier observations
+            remain; you can retry.
+          </p>
+        )}
+        {canRefresh && data.evaluationAvailable !== false && (
+          <AlphaAction
+            action="refreshSources"
+            version={version}
+            label="Refresh sources"
+          />
+        )}
+        {data.evaluationAvailable === false && (
+          <p>
+            Source refresh is temporarily unavailable while the review service
+            is updated. Existing observations are preserved.
+          </p>
+        )}
+      </Question>
+      <Question enabled={questions} title="What information is missing?">
+        <h4>Missing information and assessment questions</h4>
+        {gaps.length ? (
+          <ul>
+            {gaps.map((g) => (
+              <li key={g.key}>
+                {g.label}: {a.details[g.key] || "not supplied in this version"}.
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>
+            Category context is recorded. Completeness does not establish
+            factual support.
+          </p>
+        )}
+        <details>
+          <summary>Category and contribution-type checklist</summary>
+          <ul>
+            {checklist.questions.map((q) => (
+              <li key={q}>{q}</li>
+            ))}
+          </ul>
+        </details>
+      </Question>
+      <Question enabled={questions} title="Is there related earlier alpha?">
+        <h4>Related prior work</h4>
+        {!hints.length ? (
+          <p>
+            No visible prior-work hints are recorded. This is not proof of
+            originality; semantic comparison is not connected.
+          </p>
+        ) : (
+          hints.map((h) => {
+            const prior = data.versions.find((v) => v.id === h.version);
+            const finding = data.findings.find(
+              (f) => f.id === prior?.finding_id,
+            );
+            return prior && finding ? (
+              <p key={h.version}>
+                <Link href={`/findings/${finding.id}#version-${prior.id}`}>
+                  {prior.claim}
+                </Link>
+                {" / "}
+                {person(data, finding.author_id)} / version {prior.version},{" "}
+                {alphaTime(prior.submitted_at)}. {h.signals.join("; ")}. Shared
+                sources or similar wording are hints for review, not copying
+                accusations.
+              </p>
+            ) : null;
+          })
+        )}
+      </Question>
       <h4>AI analysis</h4>
       <p>AI analysis is not connected yet.</p>
       <p className="muted">
