@@ -1488,3 +1488,98 @@ context/evidence (Unknown permitted) -> receipt -> Grind Intelligence. Genuine
 independent reviewer staffing and XP policy remain separately unconfigured.
 
 Commit/remote/CI identity is recorded in the delivery; no production deployment.
+
+## 2026-09-30: approved 026 activation, free evidence and local reasoning
+
+Branch `codex/category-alpha-review`, continuing pushed `ec97802`; no merge or
+deployment. Current implementation/coverage: `docs/evidence-sources.md`. This
+entry supersedes the earlier pending-approval/authentication/schema blocker.
+
+### Activation and preservation
+
+- Preflight confirmed 026 source checks/submit_v2 absent. The authenticated
+  Supabase dashboard ran the generated **026-only** transaction. All existing
+  public-table digests were unchanged; forced RLS and browser-RPC denial passed.
+  Catalog postflight confirmed both new objects, zero unprotected tables and
+  zero browser RPC grants. Existing 023-025 were not edited/reapplied.
+- An editor replacement left earlier SQL behind during initial postflight; the
+  repeat attempt failed on an existing column and rolled back, without a second
+  commit. After clearing the editor and rollback, the read-only postflight passed.
+  Evidence: `docs/screenshots/evidence-sources/migration-026*.jpg`.
+- Genuine research, roles and award rules were not changed. Shared writes use
+  existing labeled isolated accounts only. No fabricated production reviewers,
+  wallet approvals, live Silver proof or manual transfer exercise.
+
+### Evidence and model verification
+
+- Nine real public observations retrieved at the timestamps in
+  `docs/evidence-sources/public-probes.json`: Coinbase ETH spot/hourly history,
+  DEX pairs, DefiLlama current/historical prices and protocol TVL, GoPlus flags,
+  Solana account/mint, and official Coinbase documentation. Two optional
+  Alchemy/Helius observations correctly stayed unconfigured. Transaction and
+  keyed-adapter matching have mocked tests, not live-account verification.
+- Saved sources preserve version, asset/network, dates, units, reference and
+  limitations. Cache/deadline/body/request limits, wrong-chain/quote-side
+  rejection, invalid IDs, missing history, 429/outage and credential redaction
+  are tested. Retrieved is not supported; current data cannot resolve history.
+- **Real local inference ran**, Ollama v0.35.0 / qwen3:4b on RTX 3080 Ti. CPU
+  inference timed out at the existing bound; an ASCII runtime path restored GPU
+  discovery, not a larger timeout. Two isolated real primary-document cases
+  produced supported/contradicted/unverified distinctions. Source/member content
+  was untrusted; no model could approve or award. JSON reports retain source
+  references/digests, not full primary documents or private context.
+- One actual desktop browser request persisted a validated preliminary card,
+  survived reload and left alpha pending with no XP. Later similar requests
+  failed strict output validation. Failure was persisted with no successful
+  card; UI retry remains available. Local reasoning is experimental, not
+  measured accuracy or complete injection protection. The successful market
+  card also missed available historical context and suggested an unnecessary
+  follow-up; neither changes a horizon or schedules anything. No paid calls.
+
+### Checks and browser evidence
+
+- `pnpm check`: **223 unit, 230 database, 11 contract**; lint, typecheck,
+  database type drift and production build passed. This includes additive
+  upgrade preservation, exact-rank/private evidence, self-review, immutable
+  versions/outcomes and duplicate-award boundaries.
+- Chrome foundation suite: **52 passed** desktop/mobile with four workers and
+  unchanged timeouts. An earlier 12-worker run had a loading-state timeout and
+  an image-decode race; the logo assertion now polls the same decoded-image
+  condition. No access or behavioral assertion was removed.
+- Activated shared journeys passed on desktop and mobile: all nine category
+  forms with Unknown, receipts, reload/pending sharing, source failure/refresh;
+  independent rejection and appeal with a different reviewer; saved version
+  retry, due/inconclusive outcome entry and Profile chronology; Grind Intelligence
+  Home/sidebar/selection/questions/alpha and unavailable-identifier paths.
+- The source walkthrough initially tried to fill a collapsed provenance section;
+  it now opens that section through the UI. The legacy award-retry harness sent
+  an obsolete request without the required assessment; it now replays the actual
+  browser acceptance payload. Permissions and required assessment remain intact.
+- Free-source browser checks report the actual model status separately. A pass
+  for a truthful failed-analysis UI is **not** a successful model result.
+  `docs/evidence-sources/{desktop,mobile}/local-analysis-status.json` records it.
+  The first successful persisted card is preserved in
+  `desktop/local-analysis-first-complete.png`.
+
+Final source-state and correction/award batch: **4/4 passed**, desktop/mobile.
+Both correction journeys used the actual reassigned reviewer's session, accepted
+version 2, replayed three valid requests without another award, and matched the
+existing demo XP ledger, brief and Profile. Across this activation pass there
+were **14 distinct successful shared journey cases** (including the earlier
+category-retry/outcome cases), not 14 genuine-member or live-Silver trials.
+Final source UI results: desktop persisted invalid_output with no card; mobile
+persisted a validated real card. An earlier desktop run also persisted a valid
+card. In total, four in-app local model attempts yielded two valid cards and two
+rejected outputs; this tiny synthetic set is not an accuracy estimate.
+
+Captured and inspected desktop/mobile navigation and source/model screens under
+`docs/evidence-sources/`; category/outcome/Profile captures are under
+`docs/evaluation-foundation/` and `docs/alpha-review/`. They contain labeled QA
+content, public sources and public testnet identifiers, not genuine private
+research, emails, OTPs, cookies or keys. The model runtime, environment and raw
+isolated diagnostic response remain ignored. `git diff --check` passed.
+
+Genuine reviewer staffing, genuine category XP rules, optional
+provider keys and broad model accuracy remain separate blockers/limitations.
+Automatic outcome scheduling is unimplemented. The old hosted executable is
+unchanged; these checks do not establish production readiness.

@@ -10,17 +10,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
-Latest addition: `docs/grind-intelligence.md`. The owner APPROVED shared migration
-026 on 2026-09-30, but activation is blocked by missing Supabase administrator
-access in this shell (CLI has no access token). GET schema/function probes confirm
-026 tables/functions are missing; do not treat a HEAD-only table probe as proof.
-Do not reapply 023-025 or bypass unavailable saves. Grind Intelligence reuses
-permitted saved checks/outcomes; no model calls, awards, or production deployment.
+Latest addition: `docs/evidence-sources.md`. Owner-approved migration 026 was
+applied through the authenticated Supabase SQL editor on 2026-09-30. The prepared
+026-only transaction passed all old-table digest, forced-RLS and browser-RPC
+assertions. Catalog postflight: source_checks/submit_v2 present; zero unprotected
+tables and zero browser RPC grants. Do not reapply or edit 023-026. See latest
+verification for actual shared journeys, free probes and optional local AI status.
+No paid calls, genuine reviewer appointments, awards or production deployment.
 
 Latest refinement: `docs/evaluation-foundation.md` (2026-09-30), continuing the
-same branch from reviewed `40addac`. Migration 026 is locally tested but NOT
-shared-applied: approval is now granted, administrator access is pending.
-New save/refresh/outcome paths are not live-verified until then. Source checks
+same branch from reviewed `40addac`. Migration 026 is now shared-applied with
+preservation checks; the previous authentication/approval blocker is resolved. Source checks
 never invoke a model, even if a key later appears. See the current handoff and
 verification entry for precise classifications; no production deployment.
 
@@ -30,7 +30,7 @@ connected member brief on `codex/category-alpha-review`. Preserve annotations
 are applied to the shared database with preservation assertions. Do not reapply
 them or edit applied SQL; the older production executable is unchanged.
 OpenAI is approved for QA and genuine submissions, but the owner explicitly
-declined adding the key for now. Real model calls are BLOCKED/unverified; never
+declined adding the key for now. Real OpenAI calls are BLOCKED/unverified; never
 substitute sample output. Do not ask for the key again. Genuine category XP
 requires an owner-approved rule, and genuine reviewers require designated scopes.
 Read `docs/QA05_CATEGORY_ALPHA_HANDOFF.md` for boundaries and verification.

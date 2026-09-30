@@ -4,6 +4,7 @@ import {
   alphaMutation,
   preparePreliminary,
   executePreliminary,
+  executeLocalReview,
 } from "@/server/alpha/service";
 import {
   assertSameOrigin,
@@ -20,6 +21,15 @@ export async function POST(request: Request) {
     try {
       assertSameOrigin(request, getEnvironment().APP_URL);
       const input = await readJson(request, alphaAction, 30000);
+      if (input.action === "localReview") {
+        const context = await preparePreliminary(input.version, true);
+        await executeLocalReview(context);
+        return jsonResponse({
+          run: context.run,
+          message:
+            "Local analysis request finished. Inspect the saved status below; this is not independent approval.",
+        });
+      }
       if (input.action === "preliminary" || input.action === "refreshSources") {
         const context = await preparePreliminary(input.version);
         await executePreliminary(context);

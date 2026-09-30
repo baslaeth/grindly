@@ -16,6 +16,8 @@ import { collectSources } from "./sources";
 import { reportFailure } from "../diagnostics";
 import { ServiceError } from "../errors";
 import { checklistVersion } from "@/alpha/checklists";
+import { localModelConfiguration } from "./local-model";
+import { modelReview, PreliminaryError } from "./provider";
 export const alphaAction = z.union([
   alphaSubmission,
   outcomeAssessment,
@@ -28,6 +30,7 @@ export const alphaAction = z.union([
     })
     .strict(),
   z.object({ action: z.literal("refreshSources"), version: z.uuid() }).strict(),
+  z.object({ action: z.literal("localReview"), version: z.uuid() }).strict(),
   z.object({ action: z.literal("preliminary"), version: z.uuid() }).strict(),
   z.object({ action: z.literal("outcomeCheck"), version: z.uuid() }).strict(),
   z
@@ -72,7 +75,7 @@ export const alphaAction = z.union([
     })
     .strict(),
 ]);
-export async function preparePreliminary(version: string) {
+export async function preparePreliminary(version: string, local = false) {
   const active = await requireActiveMembership(true);
   const db = createDataClient();
   const finding = privateResult(
@@ -107,13 +110,55 @@ export async function preparePreliminary(version: string) {
         403,
       );
   }
+  if (local) {
+    const profile = await db
+      .from("research_profiles")
+      .select("is_demo")
+      .eq("member_id", finding.author_id)
+      .single();
+    if (profile.error) throw profile.error;
+    localModelConfiguration(profile.data.is_demo);
+  }
   return privateResult(
-    await db.rpc("alpha_begin_sources", {
+    await db.rpc(local ? "alpha_begin_review" : "alpha_begin_sources", {
       p_member: active.member.id,
       p_binding: active.binding.id,
       p_version: version,
     }),
   ) as unknown as ReviewContext;
+}
+export async function executeLocalReview(context: ReviewContext) {
+  if (context.existing) return;
+  const configuration = localModelConfiguration(context.isDemo);
+  let sources: CheckedSource[] = [];
+  try {
+    sources = await collectSources(context.alpha);
+    const result = await modelReview(context, sources, configuration);
+    const saved = await createDataClient().rpc("alpha_finish_review", {
+      p_id: context.run,
+      p_status: "complete",
+      p_provider: "ollama-local",
+      p_model: result.model,
+      p_card: result.card as unknown as Json,
+      p_sources: sources as unknown as Json,
+      p_checks: result.checks,
+    });
+    if (saved.error) throw saved.error;
+  } catch (e) {
+    const saved = await createDataClient().rpc("alpha_finish_review", {
+      p_id: context.run,
+      p_status: "failed",
+      p_provider: "ollama-local",
+      p_model: configuration.model,
+      p_sources: sources as unknown as Json,
+      p_error: e instanceof PreliminaryError ? e.code : "provider_failed",
+    });
+    if (saved.error)
+      reportFailure(
+        "alpha.persist",
+        new Error("Local analysis persistence unavailable"),
+      );
+  }
 }
 export async function executePreliminary(context: ReviewContext) {
   if (context.existing) return;

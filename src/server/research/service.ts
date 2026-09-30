@@ -6,6 +6,7 @@ import { createDataClient } from "../supabase";
 import { ServiceError } from "../errors";
 import type { ResearchInput } from "@/research/input";
 import type { ResearchData, Snapshot } from "@/research/model";
+import { localModelConfiguration } from "../alpha/local-model";
 
 export type ResearchContext = {
   room?: string;
@@ -109,10 +110,21 @@ export async function readResearch(
     .eq("status", "confirmed")
     .maybeSingle();
   if (mint.error) throw mint.error;
+  let localAIEnabled = false;
+  try {
+    localModelConfiguration(
+      snapshot.profiles.find((p) => p.member_id === active.member.id)
+        ?.is_demo === true,
+    );
+    localAIEnabled = true;
+  } catch {
+    /* Optional local inference stays disconnected. */
+  }
   return {
     ...snapshot,
     evaluationAvailable: snapshot.evaluationAvailable === true,
     alphaSchemaAvailable,
+    localAIEnabled,
     memberId: active.member.id,
     tiers,
     token: {

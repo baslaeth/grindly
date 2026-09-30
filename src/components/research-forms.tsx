@@ -454,7 +454,12 @@ export function ResearchForm({
           ))}
         <label className="field">
           Decision
-          <select name="decision" required defaultValue="">
+          <select
+            aria-label="Decision"
+            name="decision"
+            required
+            defaultValue=""
+          >
             <option value="" disabled>
               Choose a decision
             </option>

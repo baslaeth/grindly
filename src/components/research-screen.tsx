@@ -75,9 +75,13 @@ export async function ResearchScreen({
             questions, earlier contributions and later observations.
           </p>
           <p>
-            <strong>AI analysis is not connected yet.</strong> These are saved
-            source checks, not AI reasoning. Retrieving a source does not prove
-            an alpha is correct.
+            <strong>
+              {data?.localAIEnabled
+                ? "Optional local AI analysis is configured."
+                : "AI analysis is not connected yet."}
+            </strong>{" "}
+            Source checks are separate from model reasoning. Retrieving a source
+            does not prove an alpha is correct.
           </p>
         </section>
       )}

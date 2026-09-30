@@ -6,12 +6,30 @@ import { createPublicClient, http } from "viem";
 import { robinhoodTestnet } from "viem/chains";
 import { getEnvironment } from "../environment";
 import type { AlphaVersion, CheckedSource } from "@/alpha/model";
+import { evidenceJson } from "./evidence-http";
+import {
+  dexSource,
+  llamaPriceSource,
+  llamaProtocolSource,
+  goPlusSource,
+  solanaSource,
+  optionalAccountSource,
+  evidenceAsset,
+} from "./public-sources";
 
 export const primaryHosts = new Set([
   "docs.chain.robinhood.com",
   "docs.robinhood.com",
   "ethereum.org",
   "docs.cdp.coinbase.com",
+  "solana.com",
+  "docs.uniswap.org",
+  "developers.uniswap.org",
+  "aave.com",
+  "docs.aave.com",
+  "blog.ethereum.org",
+  "www.optimism.io",
+  "docs.optimism.io",
 ]);
 export function primaryUrl(value: string) {
   try {
@@ -67,7 +85,47 @@ const unknown = (
   facts,
   digest: null,
 });
+const documentCache = new Map<
+  string,
+  { until: number; source: CheckedSource }
+>();
+const documentPending = new Map<string, Promise<CheckedSource>>();
+export function clearDocumentCache() {
+  documentCache.clear();
+  documentPending.clear();
+}
 export async function primaryDocument(
+  value: string,
+  id: string,
+): Promise<CheckedSource> {
+  const url = primaryUrl(value);
+  if (!url) return loadPrimaryDocument(value, id);
+  const saved = documentCache.get(url.href);
+  if (saved && saved.until > Date.now()) return { ...saved.source, id };
+  const pending = documentPending.get(url.href);
+  if (pending) return { ...(await pending), id };
+  if (documentPending.size >= 6)
+    return unknown(
+      id,
+      "Primary document",
+      url.href,
+      "Unknown: source capacity is temporarily unavailable. Retry later.",
+    );
+  const job = loadPrimaryDocument(value, id);
+  documentPending.set(url.href, job);
+  try {
+    const source = await job;
+    if (source.status === "retrieved") {
+      if (documentCache.size >= 32)
+        documentCache.delete(documentCache.keys().next().value!);
+      documentCache.set(url.href, { source, until: Date.now() + 120000 });
+    }
+    return source;
+  } finally {
+    documentPending.delete(url.href);
+  }
+}
+async function loadPrimaryDocument(
   value: string,
   id: string,
 ): Promise<CheckedSource> {
@@ -94,7 +152,7 @@ export async function primaryDocument(
       !/^text\/(html|plain|markdown)/i.test(r.headers.get("content-type") ?? "")
     )
       throw new Error("Unavailable source");
-    const raw = await boundedBody(r);
+    const raw = await boundedBody(r, 1000000);
     const $ = load(raw);
     const published = $("meta[property='article:published_time']").attr(
       "content",
@@ -154,6 +212,8 @@ const marketPairs: Record<string, string> = {
   BTC: "BTC-USD",
   BITCOIN: "BTC-USD",
   "BTC-USD": "BTC-USD",
+  SOL: "SOL-USD",
+  "SOL-USD": "SOL-USD",
 };
 export async function marketSource(subject: string): Promise<CheckedSource> {
   const pair = marketPairs[subject.trim().toUpperCase()];
@@ -162,17 +222,12 @@ export async function marketSource(subject: string): Promise<CheckedSource> {
       "market",
       "Market coverage",
       null,
-      "Unknown: only BTC-USD and ETH-USD spot ticker snapshots are supported. No historical outcome, price target or security conclusion follows.",
+      "Unknown: only BTC-USD, ETH-USD and SOL-USD spot ticker snapshots are supported. No historical outcome, price target or security conclusion follows.",
     );
   const url = `https://api.exchange.coinbase.com/products/${pair}/ticker`;
   try {
-    const r = await fetch(url, {
-      redirect: "error",
-      signal: AbortSignal.timeout(8000),
-      cache: "no-store",
-    });
-    if (!r.ok) throw new Error("Provider unavailable");
-    const data = ticker.parse(JSON.parse(await boundedBody(r, 16000)));
+    const retrieved = await evidenceJson(url);
+    const data = ticker.parse(retrieved.data);
     if (Math.abs(Date.now() - Date.parse(data.time)) > 15 * 60 * 1000)
       throw new Error("Stale ticker");
     const facts = JSON.stringify({
@@ -185,7 +240,7 @@ export async function marketSource(subject: string): Promise<CheckedSource> {
       id: "market",
       label: `Coinbase Exchange ${pair}`,
       url,
-      checkedAt: new Date().toISOString(),
+      checkedAt: retrieved.at,
       publishedAt: data.time,
       status: "retrieved",
       facts,
@@ -218,7 +273,8 @@ const candle = z
       close <= high,
   );
 export async function marketHistorySource(
-  alpha: Pick<AlphaVersion, "subject" | "horizon">,
+  alpha: Pick<AlphaVersion, "subject" | "horizon"> &
+    Partial<Pick<AlphaVersion, "created_at">>,
 ): Promise<CheckedSource> {
   const pair = marketPairs[alpha.subject.trim().toUpperCase()];
   if (!pair)
@@ -226,15 +282,21 @@ export async function marketHistorySource(
       "market-history",
       "Historical market coverage",
       null,
-      "Unknown: historical observations support only BTC-USD and ETH-USD. Other identifiers remain unverified references.",
+      "Unknown: historical observations support only BTC-USD, ETH-USD and SOL-USD. Other identifiers remain unverified references.",
     );
   const now = Date.now();
   const target =
     alpha.horizon && Date.parse(alpha.horizon) <= now
       ? Date.parse(alpha.horizon)
       : now;
-  const end = Math.floor(target / 3600000) * 3600,
-    start = end - 24 * 3600;
+  const end = Math.floor(target / 3600000) * 3600;
+  const submitted = alpha.created_at
+    ? Date.parse(alpha.created_at) / 1000
+    : NaN;
+  const hours = Number.isFinite(submitted)
+    ? Math.min(168, Math.max(24, Math.ceil((end - submitted) / 3600)))
+    : 24;
+  const start = end - hours * 3600;
   const url = new URL(
     `https://api.exchange.coinbase.com/products/${pair}/candles`,
   );
@@ -244,16 +306,8 @@ export async function marketHistorySource(
     end: new Date(end * 1000).toISOString(),
   }).toString();
   try {
-    const response = await fetch(url, {
-      redirect: "error",
-      signal: AbortSignal.timeout(8000),
-      cache: "no-store",
-    });
-    if (!response.ok) throw new Error("Unavailable history");
-    const parsed = z
-      .array(candle)
-      .max(300)
-      .parse(JSON.parse(await boundedBody(response, 64000)));
+    const response = await evidenceJson(url.href);
+    const parsed = z.array(candle).max(300).parse(response.data);
     const candles = parsed
       .filter((c) => c[0] >= start && c[0] < end && c[0] % 3600 === 0)
       .sort((a, b) => a[0] - b[0]);
@@ -267,19 +321,19 @@ export async function marketHistorySource(
       bucketSeconds: 3600,
       start: new Date(start * 1000).toISOString(),
       endExclusive: new Date(end * 1000).toISOString(),
-      expectedBuckets: 24,
+      expectedBuckets: hours,
       receivedBuckets: candles.length,
-      missingBuckets: 24 - candles.length,
+      missingBuckets: hours - candles.length,
       columns: ["bucketStartUnix", "low", "high", "open", "close", "volume"],
       candles,
       limitations:
-        "One venue, 24 completed hourly buckets before the declared due horizon or retrieval hour. Gaps are Unknown. Buckets do not establish intrahour event order, execution, all-venue prices or a forecast result. No automated success determination.",
+        "One venue, 24 to 168 completed hourly buckets before the declared due horizon or retrieval hour, bounded by saved submission time. Longer periods and gaps remain Unknown. Prices are USD; volume is base asset. Buckets do not establish intrahour event order, execution, all-venue prices or a forecast result. No automated success determination.",
     });
     return {
       id: "market-history",
       label: `Coinbase Exchange ${pair} hourly observations`,
       url: url.href,
-      checkedAt: new Date().toISOString(),
+      checkedAt: response.at,
       publishedAt: null,
       status: "retrieved",
       facts,
@@ -304,9 +358,9 @@ export async function chainSource(alpha: AlphaVersion): Promise<CheckedSource> {
   )
     return unknown(
       "chain",
-      "Chain coverage",
+      "Direct EVM RPC coverage",
       null,
-      "Unknown: only Robinhood Chain testnet 46630 is supported. No mainnet security claims are verified.",
+      "Unknown: this direct EVM RPC check supports only Robinhood Chain testnet 46630. Other provider observations are listed separately; no mainnet security claim is verified here.",
     );
   try {
     // This bounded read-only evidence client is separate from membership verification.
@@ -395,7 +449,20 @@ export async function collectSources(alpha: AlphaVersion) {
   if (alpha.category === "Traders")
     checks.push(marketSource(alpha.subject), marketHistorySource(alpha));
   if (alpha.contract || alpha.evidence.some((e) => e.kind === "transaction"))
-    checks.push(chainSource(alpha));
+    checks.push(
+      alpha.chain.toLowerCase().startsWith("solana")
+        ? solanaSource(alpha)
+        : chainSource(alpha),
+    );
+  if (evidenceAsset(alpha)) {
+    checks.push(dexSource(alpha), llamaPriceSource(alpha), goPlusSource(alpha));
+    if (alpha.horizon && Date.parse(alpha.horizon) <= Date.now())
+      checks.push(llamaPriceSource(alpha, true));
+    const optional = optionalAccountSource(alpha);
+    if (optional) checks.push(optional);
+  }
+  const protocol = llamaProtocolSource(alpha);
+  if (protocol) checks.push(protocol);
   result.push(...(await Promise.all(checks)));
   for (const [i, e] of alpha.evidence
     .filter((e) => e.kind === "attachment")

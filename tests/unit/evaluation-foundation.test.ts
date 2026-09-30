@@ -5,13 +5,18 @@ vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }));
-import { primaryDocument, marketHistorySource } from "@/server/alpha/sources";
+import {
+  primaryDocument,
+  marketHistorySource,
+  clearDocumentCache,
+} from "@/server/alpha/sources";
 import { categoryRecord, type AlphaVersion } from "@/alpha/model";
 import { ReviewAssistant } from "@/components/review-assistant";
 import { SourceObservations } from "@/components/source-observations";
 import { opportunityDescription } from "@/components/opportunity-card";
 import type { ResearchData } from "@/research/model";
 afterEach(() => {
+  clearDocumentCache();
   vi.unstubAllGlobals();
   vi.useRealTimers();
 });

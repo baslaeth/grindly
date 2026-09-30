@@ -1,0 +1,8 @@
+{
+  "status": "complete",
+  "error": null,
+  "model": "qwen3:4b",
+  "createdAt": "2026-09-30T12:25:03.950253+00:00",
+  "isolated": true,
+  "scope": "Real call and persistence; failed output is not a working model result"
+}

@@ -39,6 +39,7 @@ export async function rankFixture(
     extraHTTPHeaders: { Origin: baseURL },
   });
   let stage = "returning_intent";
+  let safeFailure = "";
   try {
     expect(
       (
@@ -65,6 +66,11 @@ export async function rankFixture(
     }
     stage = "protected_snapshot";
     const response = await context.request.get("/api/research");
+    if (!response.ok()) {
+      const body = await response.json().catch(() => ({}));
+      const code = String(body.error?.code ?? "UNKNOWN");
+      safeFailure = ` HTTP ${response.status()} ${/^[A-Z_]{1,60}$/.test(code) ? code : "UNKNOWN"}`;
+    }
     expect(response.ok(), `Snapshot status ${response.status()}`).toBe(true);
     const data = (await response.json()) as ResearchData;
     expect(data.memberId).toBe(fixture.member);
@@ -82,7 +88,7 @@ export async function rankFixture(
     await context.close();
     // Playwright transport errors can include request cookies. Never forward them.
     throw new Error(
-      `Isolated fixture setup failed at ${stage}; no request headers recorded`,
+      `Isolated fixture setup failed at ${stage}${safeFailure}; no request headers recorded`,
     );
   }
 }

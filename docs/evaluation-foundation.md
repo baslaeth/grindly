@@ -15,10 +15,11 @@ deferred; do not request it again. Further shared migrations require approval.
 - [x] Member-facing Home/language, isolated evaluation set and coverage matrix.
 - [x] Final browser evidence, handoff, push and CI inspection; shared-write sign-off remains blocked below.
 
-These are implementation stages, not blanket live verification. New persistence
-requires migration 026, which is locally tested but NOT shared-applied pending
-explicit authorization. New alpha/profile saves and source refresh show a truthful
-unavailable state until then. Existing records, chat and ownership checks remain.
+These are historical implementation stages, not blanket live verification.
+Owner-approved migration 026 is now shared-applied with preservation/security
+assertions. See `evidence-sources.md` and the latest verification for actual live
+journeys and optional local-model results. Older unverified classifications below
+describe the pre-activation checkpoint. Existing ownership checks remain intact.
 
 Checklists are evidence requirements, not a scoring or reward policy. Unknown
 and Not applicable are explicit answers, not verified facts. Retrieval is not

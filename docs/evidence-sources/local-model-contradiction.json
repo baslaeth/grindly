@@ -1,0 +1,61 @@
+{
+  "status": "real_model_result",
+  "model": "qwen3:4b",
+  "ranAt": "2026-09-30T12:06:58.083Z",
+  "elapsedMs": 7285,
+  "inputClassification": "Isolated synthetic claims with actual public document",
+  "sources": [
+    {
+      "id": "official-doc",
+      "label": "docs.cdp.coinbase.com",
+      "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
+      "checkedAt": "2026-09-30T12:06:58.523Z",
+      "publishedAt": null,
+      "status": "retrieved",
+      "facts": "Primary text omitted from the public report; exact selected quotations are in the card.",
+      "digest": "ce66414274ecc32b6c5317d6a595f8e131f7db602596b9cad0bac485e987548f"
+    }
+  ],
+  "card": {
+    "summary": "The analysis focuses on Coinbase's API documentation for candlestick data. The documentation states that the maximum number of candles per request is 300, not 500 as claimed. The claim about ETH doubling tomorrow is unsupported by the documentation and is considered a future market prediction, not a documented fact.",
+    "claims": [
+      {
+        "claim": "The Coinbase candle endpoint permits 500 candles in one request.",
+        "status": "contradicted",
+        "reason": "The documentation explicitly states: 'The maximum number of data points for a single request is `300` candles.'",
+        "sources": [
+          "official-doc"
+        ],
+        "evidenceLinks": [
+          {
+            "source": "official-doc",
+            "excerpt": "## Max Candles The maximum number of data points for a single request is `300` candles.",
+            "relationship": "Directly contradicts the claim by specifying the exact limit",
+            "sourceDate": null
+          }
+        ]
+      },
+      {
+        "claim": "This documentation also proves ETH will double tomorrow.",
+        "status": "unverified",
+        "reason": "The documentation does not contain any market predictions or future price projections for ETH",
+        "sources": [
+          "official-doc"
+        ],
+        "evidenceLinks": []
+      }
+    ],
+    "missingEvidence": [
+      "No evidence of ETH price doubling in the documentation",
+      "No timestamp for ETH price prediction"
+    ],
+    "riskQuestions": [
+      "Is the ETH price prediction based on real market data or a speculative claim?",
+      "What is the source of the ETH price prediction claim?",
+      "How does the prediction align with current market conditions?"
+    ],
+    "priorWork": [],
+    "nextCheck": "Verify the ETH price prediction claim with independent market data sources before considering its validity"
+  },
+  "limitation": "One smoke case is not model accuracy or complete injection/semantic evaluation. No approval or XP authority."
+}

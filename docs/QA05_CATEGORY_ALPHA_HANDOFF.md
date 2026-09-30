@@ -1,11 +1,34 @@
 # Chat 05: Category Alpha Review
 
+## Current target: free evidence and local reasoning
+
+Migration 026 is now APPLIED with the prepared preservation/security transaction.
+Postflight confirms source_checks/submit_v2 and zero unsafe table/RPC grants.
+The historical approval/authentication blocker below is resolved; do not reapply.
+Review `evidence-sources.md`, `src/server/alpha/public-sources.ts`,
+`evidence-http.ts`, local-model/provider/service boundaries and shared source UI.
+Check exact chain/address, free endpoint hosts, Unknown dates/history, cached
+retrieval timestamps, wrong-chain/quote-side rejection, private citations and
+explicit model invocation. Source refresh never calls AI. Ollama qwen3:4b ran
+an isolated real smoke case; initial hallucinated citations were rejected, not
+shown as conclusions. Alchemy/Helius are unconfigured. No paid calls or deployment.
+Latest verification below/`verification.md` records actual shared browser outcomes.
+
+Final local checks: 223 unit / 230 database / 11 contract, build/type/lint/drift,
+52 Chrome foundation cases; 14 distinct activated shared cases across desktop
+and mobile. Four final source/correction/award cases passed. Model result is
+reported separately: two persisted valid in-app cards, two rejected outputs,
+plus two isolated document probes. Inspect rejected-output UI, exact citations,
+provider time/asset limitations and current/earlier outcome history. Do not infer
+general model accuracy from these cases. Correction replay now uses the actual
+browser request including required assessment; the former harness sent stale
+fields. Independent review and duplicate-award assertions remain unchanged.
+
 ## New target: Grind Intelligence
 
-Review `/intelligence` on the same feature branch. Owner approval for 026 is now
-granted; actual activation is blocked by missing Supabase administrator login.
-Five table GET probes return PGRST205 and new RPCs PGRST202. Do not rely on a
-HEAD-only table probe. No shared migration, genuine research or roles changed in this pass.
+Historical introduction checkpoint: `/intelligence` uses the same feature branch.
+The former missing-administrator-login blocker is resolved; see current target.
+No genuine research or roles were changed by activation.
 
 Check Home link -> sidebar below Submit alpha -> permitted alpha selector -> four
 questions -> original Review Assistant -> My Profile. Page reuses the existing
@@ -16,7 +39,7 @@ AI-offline language, Unknown sources and all-version outcome link. New targets:
 Review Assistant question mode and session-refresh proxy route. No duplicate
 checks store, model request, authority grant or claim activation.
 
-Migration/write tests remain blocked, not passed. Exact evidence and captures are
+At that historical checkpoint write tests were blocked, not passed. Evidence and captures are
 in `grind-intelligence.md` and the latest verification entry; old results below
 remain historical. No production deployment.
 
@@ -28,7 +51,8 @@ Check the feature-branch HEAD and the newest `verification.md` entry for push/CI
 identity. Preserve earlier verified work; the original checkpoint below remains
 historical evidence, not a claim that new persistence has been deployed.
 
-**Shared migration 026 is NOT applied.** An explicit approval request is pending.
+**Historical pre-activation results below are superseded by the current target.**
+Shared migration 026 is now approved and applied.
 023-025 are unchanged and must not be reapplied. New saves, profile-focus updates,
 source-refresh persistence, qualitative review assessments and independent outcome
 entries are implemented and local-database tested, but live sign-off is BLOCKED

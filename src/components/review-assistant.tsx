@@ -224,7 +224,7 @@ export function ReviewAssistant({
         {!hints.length ? (
           <p>
             No visible prior-work hints are recorded. This is not proof of
-            originality; semantic comparison is not connected.
+            originality or a semantic originality determination.
           </p>
         ) : (
           hints.map((h) => {
@@ -248,10 +248,76 @@ export function ReviewAssistant({
         )}
       </Question>
       <h4>AI analysis</h4>
-      <p>AI analysis is not connected yet.</p>
+      <p>
+        {data.localAIEnabled
+          ? "Optional local AI analysis is configured. Results require independent assessment."
+          : "AI analysis is not connected yet."}
+      </p>
+      {data.localAIEnabled &&
+        (f.author_id === data.memberId ||
+          assigned?.reviewer_id === data.memberId) && (
+          <AlphaAction
+            version={version}
+            action="localReview"
+            label="Run local preliminary analysis"
+          />
+        )}
+      {old?.provider === "ollama-local" && (
+        <div>
+          <p>
+            Local model: {old.model}.{" "}
+            {old.status === "complete"
+              ? "Preliminary analysis saved"
+              : old.status === "running"
+                ? "Analysis pending"
+                : "Analysis unavailable or failed validation; no conclusion saved"}
+            .
+          </p>
+          {old.status === "complete" && old.card && (
+            <>
+              <p>{old.card.summary}</p>
+              {old.card.claims.map((c, i) => (
+                <details key={i}>
+                  <summary>
+                    {c.status === "unverified" ? "Unknown" : c.status} /{" "}
+                    {c.claim}
+                  </summary>
+                  <p>{c.reason}</p>
+                  {c.evidenceLinks.map((link, j) => {
+                    const s = old.sources.find((s) => s.id === link.source);
+                    return (
+                      <div key={j}>
+                        <blockquote>{link.excerpt}</blockquote>
+                        <p>{link.relationship}</p>
+                        {s && (
+                          <ul>
+                            <CheckedEvidence source={s} />
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
+                </details>
+              ))}
+              <p>
+                Missing evidence:{" "}
+                {old.card.missingEvidence.join("; ") ||
+                  "No additional gaps identified by this model; not proof of completeness."}
+              </p>
+              <ul>
+                {old.card.riskQuestions.map((q, i) => (
+                  <li key={i}>{q}</li>
+                ))}
+              </ul>
+              <p>Suggested next check (not scheduled): {old.card.nextCheck}</p>
+            </>
+          )}
+        </div>
+      )}
       <p className="muted">
-        The checks above are recorded source and submission checks, not AI
-        interpretation. No model result or quality score is implied.
+        Source and submission checks are not AI interpretation. Local model
+        output, when explicitly requested, is preliminary and cannot approve
+        work or award XP. No quality score is implied.
       </p>
       <h4>Independent review</h4>
       {decisions.length ? (

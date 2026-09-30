@@ -1,5 +1,32 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Free evidence and activation (2026-09-30)
+
+Review branch `codex/category-alpha-review`, local http://localhost:3000/intelligence.
+Owner-approved 026 is APPLIED through the authenticated dashboard: old table
+digests preserved, forced RLS intact, browser RPC grants zero. Do not reapply
+023-026. Older pending approval/login/activation entries below are historical.
+Current scope, coverage, exact runtime and verification: `evidence-sources.md`
+and newest `verification.md` entry. No production deployment or merge.
+
+Free Coinbase/DEX Screener/DefiLlama/GoPlus/Solana observations are connected to
+the existing saved source runs and Review Assistant. Real public probes passed;
+provider-specific limits, unavailable history and unknown fields remain explicit.
+Optional Alchemy/Helius need server-only free-account keys (not requested or created).
+Ollama qwen3:4b ran locally against synthetic claims and actual official evidence.
+Initial fabricated citations were rejected; constrained exact excerpts/dates then
+passed a supported-vs-unverified smoke case. This is not broad model accuracy.
+Paid/OpenAI calls remain off; source refresh never invokes a model.
+
+Activated shared journeys: all nine forms/Unknown, saved receipts, retries,
+source failures, pending sharing, correction/reassignment, independent acceptance,
+rejection/appeal, outcomes and Profile/history passed with isolated identities.
+Final batch 4/4; 14 distinct shared cases across this pass. `pnpm check` passed
+223 unit / 230 database / 11 contract; Chrome foundation 52/52. Real in-app local
+calls produced two validated cards and two rejected outputs; reasoning remains
+experimental. Desktop/mobile evidence: `docs/evidence-sources/`. Review source
+checks now; do not treat a model card as approval or production readiness.
+
 ## Grind Intelligence addition (2026-09-30)
 
 Current branch remains `codex/category-alpha-review`. New local route:
@@ -8,13 +35,9 @@ alpha, Home introduction, permitted alpha selection and four expandable question
 reuse existing Review Assistant/outcome records. Top-right My Profile and all
 annotation/security boundaries remain. Details: `grind-intelligence.md`.
 
-Owner now APPROVES 026. Activation remains blocked by missing Supabase CLI
-administrator login, not pending owner authorization. Read-only GET checks show
-five new tables missing (PGRST205) and new submission functions missing (PGRST202).
-No migration was attempted, no historical research data/roles changed, no model called.
-Shared write journeys remain blocked; never label local database passes as hosted
-activation evidence. Latest verification entry supersedes older pending-approval
-wording below. No production deployment or merge.
+Historical Grind Intelligence-only checkpoint: activation was initially blocked
+by missing CLI login. This is now resolved by authorized dashboard access; see the
+activation section above and current verification. No genuine roles changed.
 
 ## Current local refinement (2026-09-30)
 
@@ -32,9 +55,9 @@ Scope/checklists/coverage/walkthrough: `evaluation-foundation.md`; QA targets:
   grants reviewer authority or limits same-rank category submissions.
 - Source-first Review Assistant, clear saved receipt, independent assessment,
   qualified prior-version hints, immutable outcome entry/due queue and complete
-  profile chronology. New SQL is additive migration 026. **BLOCKED for live
-  saving/refresh/review/outcome sign-off:** further shared-database authorization
-  is pending. 026 has NOT been applied; 023-025 are untouched. Local database
+  profile chronology. SQL is additive migration 026, now approved and applied.
+  Consult current verification for live saving/refresh/review/outcome results;
+  023-025 are untouched. Local database
   tests validate persisted behavior and preservation with populated old records.
   The UI truthfully disables affected new saves until the schema is available.
 - Read-only source probes retrieved ETH spot, 24/24 completed hourly observations,
@@ -42,10 +65,11 @@ Scope/checklists/coverage/walkthrough: `evaluation-foundation.md`; QA targets:
   or unavailable primary paths remained Unknown. Retrieval is not claim support.
   Live external coverage is deepest for Traders and Project Analysts; all other
   category limits are explicit in the matrix. No invented successful outcomes.
-- OpenAI remains an approved future boundary, but **no real model calls** or
-  sample model cards. The owner deferred the key; do not request it. Source refresh
-  is model-free even if a key later appears. Semantic detection/model accuracy
-  and real-model instruction-injection behavior remain unverified.
+- OpenAI remains an approved future boundary with no calls; the owner deferred
+  the key, which must not be requested. The later local Ollama experiment above
+  supersedes this refinement's original disconnected-only status. Source refresh
+  remains model-free even if a key later appears. Broad semantic accuracy and
+  instruction-injection resistance remain unverified beyond isolated cases.
 - Genuine work remains pending without independently designated category scopes;
   genuine category XP still needs an approved rule. No roles were granted and no
   genuine findings were submitted/changed. Demo XP policies are absent from

@@ -388,9 +388,13 @@ export function AlphaForm({
                   max={160}
                 />
                 <p className="muted">
-                  Use Unknown or Not applicable when needed. Automatic chain
-                  checks cover Robinhood Chain testnet 46630 and EVM addresses
-                  only. Other identifiers remain unverified references.
+                  Use Unknown or Not applicable when needed. Evidence supports
+                  Robinhood Chain testnet 46630; Ethereum 1, Base 8453, Arbitrum
+                  42161, Polygon 137 and BSC 56 token references; and Solana
+                  mainnet-beta or Solana devnet. Use an exact contract or mint
+                  address. Coverage varies by provider; unsupported identifiers
+                  stay unverified. Solana transactions may be linked with an
+                  explorer.solana.com/tx/ URL (add ?cluster=devnet for devnet).
                 </p>
               </>
             )}

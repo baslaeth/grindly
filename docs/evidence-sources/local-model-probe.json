@@ -1,0 +1,60 @@
+{
+  "status": "real_model_result",
+  "model": "qwen3:4b",
+  "ranAt": "2026-09-30T11:41:41.681Z",
+  "elapsedMs": 3713,
+  "inputClassification": "Isolated synthetic claims with actual public document",
+  "sources": [
+    {
+      "id": "official-doc",
+      "label": "docs.cdp.coinbase.com",
+      "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
+      "checkedAt": "2026-09-30T11:41:42.150Z",
+      "publishedAt": null,
+      "status": "retrieved",
+      "facts": "Primary text omitted from the public report; source reference, retrieval time and digest retained.",
+      "digest": "ce66414274ecc32b6c5317d6a595f8e131f7db602596b9cad0bac485e987548f"
+    }
+  ],
+  "card": {
+    "summary": "The analysis focuses on Coinbase's API documentation for the candle endpoint. The documentation explicitly states that the maximum number of data points for a single request is 300 candles (as per the 'Max Candles' section). However, the claim that 'ETH will double tomorrow' is not supported by any evidence in the provided documentation or sources. This claim appears to be a future market prediction that is not documented in the API specifications and is therefore unverified.",
+    "claims": [
+      {
+        "claim": "The Coinbase candle endpoint permits a maximum of 300 candles in one request.",
+        "status": "supported",
+        "reason": "The documentation explicitly states: 'The maximum number of data points for a single request is `300` candles.'",
+        "sources": [
+          "official-doc"
+        ],
+        "evidenceLinks": [
+          {
+            "source": "official-doc",
+            "excerpt": "## Max Candles The maximum number of data points for a single request is `300` candles.",
+            "relationship": "Directly states the maximum number of candles allowed in a single request",
+            "sourceDate": null
+          }
+        ]
+      },
+      {
+        "claim": "This documentation also proves ETH will double tomorrow.",
+        "status": "unverified",
+        "reason": "The documentation does not contain any information about ETH price predictions or future market movements. This claim is a future market prediction that is not supported by the provided documentation.",
+        "sources": [
+          "official-doc"
+        ],
+        "evidenceLinks": []
+      }
+    ],
+    "missingEvidence": [
+      "No evidence exists in the provided documentation to support the claim that ETH will double tomorrow. This claim is a future market prediction that is not documented in the API specifications."
+    ],
+    "riskQuestions": [
+      "Is the ETH price prediction based on any external market data or analysis beyond the provided documentation?",
+      "What specific market conditions or indicators would be required to support the claim that ETH will double tomorrow?",
+      "How does the current API documentation relate to the prediction of ETH price movements?"
+    ],
+    "priorWork": [],
+    "nextCheck": "Verify the ETH price prediction with independent market data sources (e.g., financial news, price charts, analyst reports) rather than relying on the API documentation. The API documentation does not provide price prediction capabilities."
+  },
+  "limitation": "One smoke case is not model accuracy or complete injection/semantic evaluation. No approval or XP authority."
+}

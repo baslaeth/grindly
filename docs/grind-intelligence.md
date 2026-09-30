@@ -21,7 +21,14 @@ No model calls, new reviewer roles, economics, merge or production deployment.
   dates, missing history and refresh unavailability remain visible. No made-up AI
   answers, scores, successful forecasts or XP. Claim $GRIND remains unchanged.
 
-## Activation blocker
+## Activation (resolved)
+
+The owner-approved 026-only transaction was applied on 2026-09-30 through the
+authenticated Supabase dashboard. All old-table preservation/RLS/RPC assertions
+passed. Catalog postflight confirms activation. No additional owner login step is
+needed. See `evidence-sources.md` and current verification. Do not reapply 023-026.
+
+### Historical blocker
 
 026 is approved but **not activated by this pass**. Supabase CLI `projects list`
 reports no access token. App service credentials cannot execute migration SQL.
@@ -30,7 +37,7 @@ Read-only GET probes return PGRST205 for all five new tables and PGRST202 for
 the browser reports `evaluationAvailable=false`. A HEAD-only probe misleadingly
 returned no error; this was rejected as insufficient and not used for activation.
 
-Owner action: run `pnpm exec supabase login` locally and complete authentication.
+Former suggested action (no longer needed): Supabase CLI authentication.
 Do not paste the token into chat. Then inspect actual SQL/catalog state; if pending,
 execute the already prepared 026-only transaction with old-table digests, forced
 RLS and browser-function-denial assertions. Roll back on any assertion failure.
@@ -46,8 +53,7 @@ expand one of the four questions. Only permitted rank/audience content appears.
 Open alpha and Review Assistant links to its original version/history. My Profile
 stays top-right; category history and Activity retain their existing links.
 
-New genuine saving remains unavailable until activation. After activation and
-the blocked write tests pass: Hub -> own-rank category -> Submit alpha -> category
+026 is now active. Founder navigation: Hub -> own-rank category -> Submit alpha -> category
 and type -> required context (explicit Unknown is allowed) -> evidence, personal
 addition and uncertainty -> Submit for review. A saved receipt links the alpha.
 Source unavailability must not undo saving. Inspect it via Grind Intelligence;

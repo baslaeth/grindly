@@ -12,6 +12,7 @@ export const specialties = {
 export type Specialty = keyof typeof specialties;
 export type Snapshot = Partial<AlphaSnapshot> & {
   alphaSchemaAvailable?: boolean;
+  localAIEnabled?: boolean;
   question: Row<"research_questions">;
   profiles: (Row<"research_profiles"> & { primary_focus?: string | null })[];
   messages: (Row<"discussion_messages"> & {

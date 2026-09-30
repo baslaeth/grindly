@@ -346,16 +346,21 @@ test("labeled specialists collaborate, correct, independently accept and receive
     await review.getByLabel("Decision").selectOption("correct");
     if (categoryAlpha) await fillAssessment(review);
     await review.screenshot({ path: info.outputPath("assigned-review.png") });
+    stage = "initial_review_reasons";
     await review
       .getByLabel("Reasons and scope limits")
       .fill(
         "DEMO QA: explicitly distinguish the source discussion from your added checklist.",
       );
+    stage = "initial_review_conflicts";
     await review
       .getByLabel("Conflicts disclosure")
       .fill("None within this labeled synthetic QA scenario.");
+    stage = "initial_review_confirmation";
     await review.getByRole("checkbox").check();
+    stage = "initial_review_submit";
     await review.getByRole("button", { name: "Record decision" }).click();
+    stage = "await_correction_decision";
     await expect
       .poll(
         async () =>
@@ -405,16 +410,28 @@ test("labeled specialists collaborate, correct, independently accept and receive
       });
     await review.getByLabel("Decision").selectOption("accept");
     if (categoryAlpha) await fillAssessment(review);
+    stage = "reassigned_review_reasons";
     await review
       .getByLabel("Reasons and scope limits")
       .fill(
         "DEMO QA: accepted exact corrected version for synthetic source-lineage and limitation coverage only.",
       );
+    stage = "reassigned_review_conflicts";
     await review
       .getByLabel("Conflicts disclosure")
       .fill("None within this labeled synthetic QA scenario.");
+    stage = "reassigned_review_confirmation";
     await review.getByRole("checkbox").check();
+    stage = "reassigned_review_submit";
+    const acceptanceRequest = reviewerPage.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        new URL(request.url()).pathname ===
+          (categoryAlpha ? "/api/alpha" : "/api/research"),
+    );
     await review.getByRole("button", { name: "Record decision" }).click();
+    const acceptedPayload = (await acceptanceRequest).postDataJSON();
+    stage = "await_acceptance_decision";
     await expect
       .poll(
         async () =>
@@ -422,17 +439,10 @@ test("labeled specialists collaborate, correct, independently accept and receive
         { timeout: 30000 },
       )
       .toBe("accepted");
+    stage = "repeat_acceptance";
     const repeated = await Promise.all(
       Array.from({ length: 3 }, () =>
-        mutate(contexts.get(assignment.reviewer_id)!, {
-          action: "review",
-          version: f.current_version,
-          assignment: assignment.id,
-          decision: "accept",
-          reason: "DEMO QA repeated acceptance request",
-          conflicts: "None in fixture",
-          conflictFree: true,
-        }),
+        mutate(contexts.get(assignment.reviewer_id)!, acceptedPayload),
       ),
     );
     expect(repeated).toHaveLength(3);

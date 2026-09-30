@@ -98,7 +98,12 @@ test("all nine category forms save, share pending alpha and preserve source fail
         page.getByRole("heading", { name: "Review Assistant", exact: true }),
       ).toBeInViewport();
       await expect(
-        page.getByText("AI analysis is not connected yet.", { exact: true }),
+        page.getByText(
+          author.data.localAIEnabled
+            ? "Optional local AI analysis is configured. Results require independent assessment."
+            : "AI analysis is not connected yet.",
+          { exact: true },
+        ),
       ).toBeVisible();
       await page
         .getByRole("button", { name: "Refresh sources", exact: true })
@@ -178,9 +183,11 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
   const contexts = new Map(
     [author, ...peers].map((p) => [p.fixture.member, p.context]),
   );
+  let stage = "open_submission";
+  const page = await author.context.newPage();
+  let inspection = page;
   try {
     expect(author.data.evaluationAvailable).toBe(true);
-    const page = await author.context.newPage();
     await page.goto("/workbench?room=bronze-project-analysts");
     await page
       .getByRole("link", { name: "Submit alpha", exact: true })
@@ -216,6 +223,7 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
         "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
       );
     await page.getByRole("checkbox").check();
+    stage = "save_receipt";
     await page
       .getByRole("button", { name: "Submit for review", exact: true })
       .click();
@@ -228,6 +236,7 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
         await author.context.request.get("/api/research")
       ).json()) as ResearchData;
     let s = await snapshot();
+    stage = "review_assignment";
     const f = s.findings.find((f) => f.id === id)!;
     const assignment = s.assignments.find(
       (a) => a.version_id === f.current_version && !a.completed_at,
@@ -235,6 +244,8 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
     expect(assignment).toBeDefined();
     expect(assignment.reviewer_id).not.toBe(author.fixture.member);
     const reviewer = await contexts.get(assignment.reviewer_id)!.newPage();
+    inspection = reviewer;
+    stage = "review_form";
     await reviewer.goto("/review");
     const form = reviewer
       .locator("article.record")
@@ -242,6 +253,7 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
       .filter({
         has: reviewer.getByRole("button", { name: "Record decision" }),
       });
+    stage = `assessment_form_${await form.count()}_fields_${await form.getByLabel("Evidence and dated sources", { exact: true }).count()}`;
     await fillAssessment(form);
     await form.getByLabel("Decision", { exact: true }).selectOption("reject");
     await form
@@ -254,6 +266,7 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
       .fill("None in this isolated synthetic case");
     await form.getByRole("checkbox").check();
     await form.getByRole("button", { name: "Record decision" }).click();
+    stage = "rejection_saved";
     await expect
       .poll(
         async () =>
@@ -262,9 +275,12 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
       )
       .toBe("rejected");
     await page.reload();
+    inspection = page;
+    stage = "appeal_form";
     await page
       .getByText("Request an independent appeal", { exact: true })
       .click();
+    stage = "appeal_saved";
     await page
       .getByLabel("Reason for independent appeal")
       .fill(
@@ -296,9 +312,42 @@ test("independent rejection and appeal preserve reasons and cannot reuse the ini
         ),
       ),
     ).toBe(true);
-  } catch {
+  } catch (error) {
+    await inspection
+      .screenshot({
+        path: info.outputPath("isolated-appeal-failure.png"),
+        fullPage: false,
+      })
+      .catch(() => undefined);
+    const diagnostics = await inspection
+      .locator("main [role=alert]")
+      .allTextContents()
+      .catch(() => []);
+    const invalid = await inspection
+      .locator("main input:invalid, main textarea:invalid, main select:invalid")
+      .evaluateAll((elements) =>
+        elements.map((e) => ({
+          name: e.getAttribute("name"),
+          type: e.getAttribute("type"),
+        })),
+      )
+      .catch(() => []);
+    await writeFile(
+      info.outputPath("sanitized-appeal-failure.json"),
+      JSON.stringify({
+        stage,
+        path: new URL(page.url()).pathname,
+        locatorFailure:
+          error instanceof Error &&
+          /^locator\.(fill|selectOption|check|click)/.test(error.message)
+            ? error.message.split("\n")[0]?.slice(0, 240)
+            : "assertion_or_request_failure",
+        diagnostics,
+        invalid,
+      }),
+    );
     throw new Error(
-      "Isolated reject/appeal navigation failed; no request credentials recorded",
+      `Isolated reject/appeal navigation failed at ${stage}; no request credentials recorded`,
     );
   } finally {
     for (const context of contexts.values()) await context.close();

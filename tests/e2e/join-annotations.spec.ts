@@ -58,11 +58,13 @@ test("annotated shell has concise labels, profile shortcut and unchanged access 
         .locator(".network")
         .getByRole("img", { name: logo, exact: true });
       await expect(img).toBeVisible();
-      expect(
-        await img.evaluate(
-          (node: HTMLImageElement) => node.complete && node.naturalWidth > 0,
-        ),
-      ).toBe(true);
+      await expect
+        .poll(() =>
+          img.evaluate(
+            (node: HTMLImageElement) => node.complete && node.naturalWidth > 0,
+          ),
+        )
+        .toBe(true);
     }
   } else await page.getByRole("button", { name: "Close navigation" }).click();
   expect(

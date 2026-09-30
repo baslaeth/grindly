@@ -1,6 +1,20 @@
 import { z } from "zod";
 
 const observations = z.object({
+  provider: z.string().optional(),
+  network: z.string().optional(),
+  asset: z.string().optional(),
+  observedAt: z.string().nullable().optional(),
+  readings: z
+    .array(
+      z.object({
+        label: z.string(),
+        value: z.string(),
+        unit: z.string().optional(),
+      }),
+    )
+    .max(60)
+    .optional(),
   excerpt: z.string().optional(),
   publicationDateProvenance: z.string().optional(),
   limitations: z.string().optional(),
@@ -25,7 +39,7 @@ const observations = z.object({
         z.number(),
       ]),
     )
-    .max(24)
+    .max(168)
     .optional(),
   chain: z.number().optional(),
   block: z.string().optional(),
@@ -52,6 +66,27 @@ export function SourceObservations({ facts }: { facts: string }) {
   if (!value) return <p className="source-facts">{facts}</p>;
   return (
     <>
+      {value.provider && (
+        <p>
+          {value.provider} / {value.network} / {value.asset}. Observation time:{" "}
+          {value.observedAt ??
+            "Unknown; retrieval time is not observation time"}
+          .
+        </p>
+      )}
+      {value.readings && (
+        <dl className="source-readings">
+          {value.readings.map((r, i) => (
+            <div key={i}>
+              <dt>{r.label}</dt>
+              <dd className="source-facts">
+                {r.value}
+                {r.unit ? ` (${r.unit})` : ""}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
       {value.excerpt && (
         <blockquote className="source-facts">{value.excerpt}</blockquote>
       )}
