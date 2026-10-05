@@ -10,6 +10,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+Latest launch completion: `docs/launch-completion.md` (2026-10-06). Owner-approved
+027-028 and the separately approved, function-only 029 repair are SHARED-APPLIED.
+Old-table preservation, forced RLS and denied browser RPC grants passed. Do not
+edit or replay 023-029. The isolated appointment UI, nine launch category saves,
+150 work XP with a pending forecast, correction/appeal and monitoring journeys
+have browser evidence. Published rules are at `/xp`; My Profile remains top-right.
+Genuine reviewer appointments remain unmade. No production deployment, paid AI,
+claiming or upgrade execution. See current verification for coverage limits.
+
 Latest addition: `docs/evidence-sources.md`. Owner-approved migration 026 was
 applied through the authenticated Supabase SQL editor on 2026-09-30. The prepared
 026-only transaction passed all old-table digest, forced-RLS and browser-RPC

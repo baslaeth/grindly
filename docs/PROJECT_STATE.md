@@ -1,13 +1,44 @@
 # Grindly: Member Journey and Evaluation Foundation
 
-## Launch policy checkpoint (2026-10-05)
+## Launch completion (2026-10-06)
+
+Continue `codex/category-alpha-review`, local review `http://localhost:3000/`.
+Current handoff: [launch-completion.md](launch-completion.md). Migrations 027-028
+and explicitly approved 029 are **shared-applied**, not awaiting approval. 026
+was verified, not replayed. Both prepared transactions preserved prior public
+table digests and passed forced-RLS/browser-RPC checks. 029 changes only the
+guarded reviewer-appointment function's execution privileges.
+
+The published guide is `/xp`, linked from Home, Hub, Submit alpha and My Profile.
+Nine realistically populated category forms saved through the signed-in app.
+The controlled Coinbase BTC prediction has a receipt, immutable terms, saved
+sources and a real local qwen3:4b preliminary card, with zero posting XP. A
+separate isolated reviewer awarded the official-document analysis 150 work XP
+while its November forecast stayed pending. Correction, rejection/appeal,
+original-version history and a matured isolated inconclusive observation were
+exercised without backdating. No genuine roles, awards or findings were created.
+
+A local timer scheduler checked an approved alpha document and persisted
+coverage. Its next tick delivered the BTC checkpoint reminder. A separate
+synthetic material-change event was labeled, operator-confirmed and acknowledged;
+it is not evidence that Coinbase changed its document. Scheduling requires this
+machine/process to remain running; there is no hosted deployment.
+
+`pnpm check` passed: 234 unit, 292 database and 11 contract tests plus lint, types,
+type drift and build; foundation Chrome 52/52. Responsive/shared results and
+screenshots are in the newest verification entry. High losses/caps/enhanced
+settlements have isolated transactional coverage, not a newly completed genuine
+forecast. Genuine reviewer/steward designation, upgrade burn/transaction
+integration and claiming remain blocked/inactive. Local reasoning is experimental,
+not established AI accuracy. No paid model or cloud fallback was used.
+
+## Historical pre-activation checkpoint (2026-10-05)
 
 Current branch `codex/category-alpha-review`; local review `http://localhost:3000/`.
 See `launch-policy-handoff.md` for the implementation checklist, exact status,
 policy coverage, migration procedure, legacy upgrade conflict and recording
-route. The new 027-028 transaction is prepared and passed populated local
-database/security tests, but is **not shared-applied** pending explicit
-authorization and authenticated SQL execution. Migration 026 remains applied;
+route. At that checkpoint 027-028 were prepared and locally tested only; their
+subsequent approved shared activation is recorded above. Migration 026 remains applied;
 do not replay or edit 023-026. No genuine records, roles, awards or NFT tiers
 were changed. Existing member journey remains available; new launch submission
 is disabled until the shared schema is active. The local server requires

@@ -35,7 +35,7 @@ Map each material claim to supplied evidence. Use supported, contradicted, or un
 Use only supplied source IDs. Never invent a citation, URL, fact, or retrieval time. Supported/contradicted claims require retrieved source evidence. A document can support what is documented, not real-world adoption or promised returns.
 Compare the supplied authorized prior work for possible derivatives, including semantic paraphrases. Distinguish shared sources from independent new evidence; flag for human review without accusing or auto-rejecting. Only return provided candidate version IDs.
 Self-reported times do not establish priority. First in Grindly is not first in the world. No quality score, success probability, prices beyond supplied facts, token promises, or automatic final decision.
-Give tailored risk questions and a next check based on the declared horizon, not daily polling. Non-predictions are not judged by price. Return the requested JSON only.`;
+Give tailored risk questions and a next check based on the declared horizon, not daily polling. Non-predictions are not judged by price. A registered hypothetical price setup is not a claim that the author placed a trade; do not demand proof of a personal position to assess its future price path. Entry activation and outcomes need dated market evidence, not an author's claim of execution. Return the requested JSON only.`;
 export function evidenceExcerpts(source: CheckedSource): string[] {
   if (source.status !== "retrieved") return [];
   let text = source.facts;
@@ -98,6 +98,9 @@ export async function modelReview(
     claims: z
       .array(
         reviewCardSchema.shape.claims.element.extend({
+          sources: z
+            .array(z.enum(sources.map((s) => s.id) as [string, ...string[]]))
+            .max(8),
           evidenceLinks: z
             .array(links.length ? z.union(links) : z.never())
             .max(8),

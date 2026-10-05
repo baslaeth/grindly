@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FilePlus2, Paperclip, X } from "lucide-react";
 import {
   alphaCategories,
@@ -23,42 +24,65 @@ function CategoryField({
   value = "",
   prefix = "detail",
 }: {
-  field: (typeof categoryFields)[AlphaCategory][number] | (typeof launchFields)[AlphaCategory][number];
+  field:
+    | (typeof categoryFields)[AlphaCategory][number]
+    | (typeof launchFields)[AlphaCategory][number];
   value?: string;
   prefix?: string;
 }) {
   const [mode, setMode] = useState(
-    /^(unknown|not applicable)$/i.test(value) ? value.toLowerCase() : !value && "core" in field && !field.core ? "unknown" : "details",
+    /^(unknown|not applicable)$/i.test(value)
+      ? value.toLowerCase()
+      : !value && prefix === "launch" && !("core" in field && field.core)
+        ? "unknown"
+        : "details",
   );
   return (
     <div className="category-field">
       <label className="field">
         <span>{field.label} *</span>
-        {mode === "details" ? ("options" in field && field.options ?
-          <select key={mode} name={`${prefix}-${field.key}`} required defaultValue={value}>
-            <option value="" disabled>Choose</option>
-            {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
-          </select>
-        : <input
-            key={mode}
-            name={`${prefix}-${field.key}`}
-            type={
-              field.kind === "date"
-                ? "datetime-local"
-                : field.kind === "url"
-                  ? "url"
-                  : field.kind === "number" ? "number" : "text"
-            }
-            required
-            maxLength={1000}
-            defaultValue={
-              /^(unknown|not applicable)$/i.test(value)
-                ? ""
-                : field.kind === "date"
-                  ? value.slice(0, 16)
-                  : value
-            }
-          />
+        {mode === "details" ? (
+          "options" in field && field.options ? (
+            <select
+              key={mode}
+              aria-label={`${field.label} *`}
+              name={`${prefix}-${field.key}`}
+              required
+              defaultValue={value}
+            >
+              <option value="" disabled>
+                Choose
+              </option>
+              {field.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              key={mode}
+              name={`${prefix}-${field.key}`}
+              type={
+                field.kind === "date"
+                  ? "datetime-local"
+                  : field.kind === "url"
+                    ? "url"
+                    : field.kind === "number"
+                      ? "number"
+                      : "text"
+              }
+              required
+              maxLength={1000}
+              defaultValue={
+                /^(unknown|not applicable)$/i.test(value)
+                  ? ""
+                  : field.kind === "date"
+                    ? value.slice(0, 16)
+                    : value
+              }
+            />
+          )
         ) : (
           <input
             key={mode}
@@ -109,7 +133,9 @@ function Field({
           name={name}
           defaultValue={value}
           required={required}
-          minLength={name === "usefulAction" ? 10 : name === "costOrRisk" ? 5 : undefined}
+          minLength={
+            name === "usefulAction" ? 10 : name === "costOrRisk" ? 5 : undefined
+          }
           maxLength={max}
           rows={rows}
         />
@@ -160,7 +186,9 @@ export function AlphaForm({
   const [kind, setKind] = useState<keyof typeof contributionTypes>(
     version ? "correction" : "find",
   );
-  const [includePrediction, setIncludePrediction] = useState(!!launchTerm?.prediction);
+  const [includePrediction, setIncludePrediction] = useState(
+    !!launchTerm?.prediction,
+  );
   const showPrediction = kind === "prediction" || includePrediction;
   const [files, setFiles] = useState<
     { id: string; file: File; progress: number; uploaded: boolean }[]
@@ -252,31 +280,42 @@ export function AlphaForm({
         });
       const date = (key: string) =>
         get(key) ? new Date(get(key) + "Z").toISOString() : null;
-      const predictionContext: Record<string, string> = showPrediction ? {
-        direction: get("direction") || "Unknown", entry: get("entry") || "Unknown",
-        stop: get("stop") || "Unknown", target: get("target") || "Unknown",
-        invalidation: get("invalidation") || "Unknown", expiry: date("horizon") || "Unknown",
-        sourceType: get("sourceType") || "Unknown",
-      } : {};
+      const predictionContext: Record<string, string> = showPrediction
+        ? {
+            direction: get("direction") || "Unknown",
+            entry: get("entry") || "Unknown",
+            stop: get("stop") || "Unknown",
+            target: get("target") || "Unknown",
+            invalidation: get("invalidation") || "Unknown",
+            expiry: date("horizon") || "Unknown",
+            sourceType: get("sourceType") || "Unknown",
+          }
+        : {};
       const launchContext = Object.fromEntries(
         launchContextFields.map((f) => [
           f.key,
-          f.fromPrediction ? predictionContext[f.key] || "Unknown" :
-          f.kind === "date" && !/^(unknown|not applicable)$/i.test(get(`launch-${f.key}`)) && get(`launch-${f.key}`)
-            ? new Date(get(`launch-${f.key}`) + "Z").toISOString()
-            : get(`launch-${f.key}`) || "Unknown",
+          f.fromPrediction
+            ? predictionContext[f.key] || "Unknown"
+            : f.kind === "date" &&
+                !/^(unknown|not applicable)$/i.test(get(`launch-${f.key}`)) &&
+                get(`launch-${f.key}`)
+              ? new Date(get(`launch-${f.key}`) + "Z").toISOString()
+              : get(`launch-${f.key}`) || "Unknown",
         ]),
       );
-      const details = launchActive && category
-        ? legacyDetails(category, launchContext)
-        : Object.fromEntries(
-            contextFields.map((f) => [
-              f.key,
-              f.kind === "date" && !/^(unknown|not applicable)$/i.test(get(`detail-${f.key}`)) && get(`detail-${f.key}`)
-                ? new Date(get(`detail-${f.key}`) + "Z").toISOString()
-                : get(`detail-${f.key}`),
-            ]),
-          );
+      const details =
+        launchActive && category
+          ? legacyDetails(category, launchContext)
+          : Object.fromEntries(
+              contextFields.map((f) => [
+                f.key,
+                f.kind === "date" &&
+                !/^(unknown|not applicable)$/i.test(get(`detail-${f.key}`)) &&
+                get(`detail-${f.key}`)
+                  ? new Date(get(`detail-${f.key}`) + "Z").toISOString()
+                  : get(`detail-${f.key}`),
+              ]),
+            );
       const payload = {
         action: "submit",
         finding: finding?.id ?? null,
@@ -289,29 +328,44 @@ export function AlphaForm({
         addition: get("addition"),
         limitations: launchActive ? get("costOrRisk") : get("limitations"),
         subject: get("subject"),
-        chain: launchActive ? (launchContext.chain ?? launchContext.network ?? "") : get("chain"),
-        contract: launchActive ? (["Degens", "NFT Specialists"].includes(category) ?
-          (launchContext.identifier ?? (launchContext.official && !launchContext.official.startsWith("https://") ? launchContext.official : "Unknown")) : "") : get("contract"),
+        chain: launchActive
+          ? (launchContext.chain ?? launchContext.network ?? "")
+          : get("chain"),
+        contract: launchActive
+          ? ["Degens", "NFT Specialists"].includes(category)
+            ? (launchContext.identifier ??
+              (launchContext.official &&
+              !launchContext.official.startsWith("https://")
+                ? launchContext.official
+                : "Unknown"))
+            : ""
+          : get("contract"),
         details,
-        ...(launchActive ? { launch: {
-          policyVersion: launchPolicy.version,
-          opportunity: get("subject"),
-          usefulAction: get("usefulAction"),
-          costOrRisk: get("costOrRisk"),
-          context: launchContext,
-          prediction: showPrediction ? {
-            commitment: get("commitment"),
-            predictionClass: get("predictionClass"),
-            baseline: get("baseline") || "Unknown",
-            target: get("target") || "Unknown",
-            invalidation: get("invalidation") || "Unknown",
-            sourceType: get("sourceType"),
-            startsAt: date("startsAt"),
-            direction: get("direction") || null,
-            entry: get("entry"),
-            stop: get("stop"),
-          } : null,
-        } } : {}),
+        ...(launchActive
+          ? {
+              launch: {
+                policyVersion: launchPolicy.version,
+                opportunity: get("subject"),
+                usefulAction: get("usefulAction"),
+                costOrRisk: get("costOrRisk"),
+                context: launchContext,
+                prediction: showPrediction
+                  ? {
+                      commitment: get("commitment"),
+                      predictionClass: get("predictionClass"),
+                      baseline: get("baseline") || "Unknown",
+                      target: get("target") || "Unknown",
+                      invalidation: get("invalidation") || "Unknown",
+                      sourceType: get("sourceType"),
+                      startsAt: date("startsAt"),
+                      direction: get("direction") || null,
+                      entry: get("entry"),
+                      stop: get("stop"),
+                    }
+                  : null,
+              },
+            }
+          : {}),
         checklist: checklistVersion,
         evidence,
         firstNoticed: date("firstNoticed"),
@@ -357,6 +411,15 @@ export function AlphaForm({
   }
   return (
     <form onSubmit={submit} className="research-form" aria-busy={busy}>
+      <Link className="inline-link" href="/xp">
+        How XP and ranks work
+      </Link>
+      {data.launchAllowance && (
+        <p className="muted">
+          {data.launchAllowance.dailyRemaining} new alphas remaining today
+          (UTC). Corrections and material updates do not use this allowance.
+        </p>
+      )}
       {(!data.evaluationAvailable || !launchActive) && (
         <p className="notice" role="status">
           Launch submissions are unavailable until the approved policy database
@@ -394,11 +457,13 @@ export function AlphaForm({
               setKind(e.target.value as keyof typeof contributionTypes)
             }
           >
-            {Object.entries(contributionTypes).filter(([key]) => key !== "followup").map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
+            {Object.entries(contributionTypes)
+              .filter(([key]) => key !== "followup")
+              .map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
           </select>
         </label>
         <Field
@@ -411,85 +476,220 @@ export function AlphaForm({
         {!!category && (
           <section className="form-step" aria-label="Category context">
             <h3>{category}</h3>
-            {launchActive ? <>
-              {launchContextFields.filter((f) => f.core && !f.fromPrediction).map((field) => (
-                <CategoryField key={`${category}:${field.key}`} field={field} prefix="launch" value={launchTerm?.context[field.key]} />
-              ))}
-              {launchContextFields.some((f) => !f.core && !f.fromPrediction) && <details>
-                <summary>Additional category details</summary>
-                {launchContextFields.filter((f) => !f.core && !f.fromPrediction).map((field) => (
-                  <CategoryField key={`${category}:${field.key}`} field={field} prefix="launch" value={launchTerm?.context[field.key]} />
-                ))}
-              </details>}
-            </> : contextFields.map((field) => (
-              <CategoryField
-                key={`${category}:${field.key}`}
-                field={field}
-                value={av?.details[field.key]}
-              />
-            ))}
-            {!launchActive && ["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
-              category,
-            ) && (
+            {launchActive ? (
               <>
+                {launchContextFields
+                  .filter((f) => f.core && !f.fromPrediction)
+                  .map((field) => (
+                    <CategoryField
+                      key={`${category}:${field.key}`}
+                      field={field}
+                      prefix="launch"
+                      value={launchTerm?.context[field.key]}
+                    />
+                  ))}
+                {launchContextFields.some(
+                  (f) => !f.core && !f.fromPrediction,
+                ) && (
+                  <details>
+                    <summary>Additional category details</summary>
+                    {launchContextFields
+                      .filter((f) => !f.core && !f.fromPrediction)
+                      .map((field) => (
+                        <CategoryField
+                          key={`${category}:${field.key}`}
+                          field={field}
+                          prefix="launch"
+                          value={launchTerm?.context[field.key]}
+                        />
+                      ))}
+                  </details>
+                )}
+              </>
+            ) : (
+              contextFields.map((field) => (
+                <CategoryField
+                  key={`${category}:${field.key}`}
+                  field={field}
+                  value={av?.details[field.key]}
+                />
+              ))
+            )}
+            {!launchActive &&
+              ["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
+                category,
+              ) && (
+                <>
+                  <Field
+                    label="Chain or network"
+                    name="chain"
+                    value={av?.chain}
+                    required
+                    max={40}
+                  />
+                  <Field
+                    label="Asset or contract identifier"
+                    name="contract"
+                    value={av?.contract}
+                    required={["Degens", "NFT Specialists"].includes(category)}
+                    max={160}
+                  />
+                  <p className="muted">
+                    Use Unknown or Not applicable when needed. Evidence supports
+                    Robinhood Chain testnet 46630; Ethereum 1, Base 8453,
+                    Arbitrum 42161, Polygon 137 and BSC 56 token references; and
+                    Solana mainnet-beta or Solana devnet. Use an exact contract
+                    or mint address. Coverage varies by provider; unsupported
+                    identifiers stay unverified. Solana transactions may be
+                    linked with an explorer.solana.com/tx/ URL (add
+                    ?cluster=devnet for devnet).
+                  </p>
+                </>
+              )}
+            {kind !== "prediction" && launchActive && (
+              <label className="check-field">
+                <input
+                  type="checkbox"
+                  checked={includePrediction}
+                  onChange={(e) => setIncludePrediction(e.target.checked)}
+                />
+                Include a measurable later prediction
+              </label>
+            )}
+            {showPrediction && (
+              <div className="form-step">
+                <h3>Prediction terms</h3>
+                <div className="form-actions">
+                  <label className="field">
+                    Commitment
+                    <select
+                      name="commitment"
+                      defaultValue={
+                        launchTerm?.prediction?.commitment ?? "normal"
+                      }
+                    >
+                      <option value="normal">Normal</option>
+                      <option value="high">
+                        High (requires unused XP reserve)
+                      </option>
+                    </select>
+                  </label>
+                  <label className="field">
+                    Class
+                    <select
+                      name="predictionClass"
+                      defaultValue={
+                        launchTerm?.prediction?.predictionClass ?? "standard"
+                      }
+                    >
+                      <option value="standard">Standard</option>
+                      <option value="enhanced">
+                        Approved long-term (30+ days)
+                      </option>
+                    </select>
+                  </label>
+                  <label className="field">
+                    Source type
+                    <select
+                      name="sourceType"
+                      defaultValue={
+                        launchTerm?.prediction?.sourceType ?? "unknown"
+                      }
+                    >
+                      <option value="unknown">Unknown</option>
+                      <option value="public_research">Public research</option>
+                      <option value="private_lead">Private lead</option>
+                      <option value="claimed_insider">Claimed insider</option>
+                    </select>
+                  </label>
+                </div>
                 <Field
-                  label="Chain or network"
-                  name="chain"
-                  value={av?.chain}
-                  required
-                  max={40}
+                  label="Original baseline (Unknown allowed)"
+                  name="baseline"
+                  value={launchTerm?.prediction?.baseline}
                 />
                 <Field
-                  label="Asset or contract identifier"
-                  name="contract"
-                  value={av?.contract}
-                  required={["Degens", "NFT Specialists"].includes(category)}
-                  max={160}
+                  label="Measurable target (Unknown allowed)"
+                  name="target"
+                  value={launchTerm?.prediction?.target}
+                />
+                <Field
+                  label="Failure or invalidation condition (Unknown allowed)"
+                  name="invalidation"
+                  value={launchTerm?.prediction?.invalidation}
+                />
+                {["Traders", "Degens"].includes(category) && (
+                  <>
+                    <label className="field">
+                      Direction
+                      <select
+                        name="direction"
+                        defaultValue={launchTerm?.prediction?.direction ?? ""}
+                      >
+                        <option value="">Unknown</option>
+                        <option value="long">Long</option>
+                        <option value="short">Short</option>
+                      </select>
+                    </label>
+                    <Field
+                      label="Registered entry or trigger"
+                      name="entry"
+                      value={launchTerm?.prediction?.entry}
+                    />
+                    <Field
+                      label="Registered stop"
+                      name="stop"
+                      value={launchTerm?.prediction?.stop}
+                    />
+                  </>
+                )}
+                <Field
+                  label="Deadline or observation horizon (UTC)"
+                  name="horizon"
+                  type="datetime-local"
+                  value={av?.horizon?.slice(0, 16)}
+                />
+                <Field
+                  label="How will the outcome be checked?"
+                  name="checkCondition"
+                  value={av?.check_condition}
+                />
+                <Field
+                  label="Scored window begins (enhanced only, UTC)"
+                  name="startsAt"
+                  type="datetime-local"
+                  value={launchTerm?.prediction?.startsAt?.slice(0, 16)}
                 />
                 <p className="muted">
-                  Use Unknown or Not applicable when needed. Evidence supports
-                  Robinhood Chain testnet 46630; Ethereum 1, Base 8453, Arbitrum
-                  42161, Polygon 137 and BSC 56 token references; and Solana
-                  mainnet-beta or Solana devnet. Use an exact contract or mint
-                  address. Coverage varies by provider; unsupported identifiers
-                  stay unverified. Solana transactions may be linked with an
-                  explorer.solana.com/tx/ URL (add ?cluster=devnet for devnet).
+                  Incomplete terms can be saved and shared, but are unvalidated
+                  and cannot earn outcome XP. High commitment reserves unused XP
+                  only for a validated call. Ordered price settlement currently
+                  supports BTC, ETH or SOL spot on Coinbase Exchange, with the
+                  same asset in Subject and Asset, an exact UTC-hour expiry
+                  within seven days, and complete historical observations. Other
+                  venues, derivatives, contracts and longer paths remain
+                  unvalidated.
                 </p>
-              </>
-            )}
-            {kind !== "prediction" && launchActive && <label className="check-field"><input type="checkbox" checked={includePrediction} onChange={(e) => setIncludePrediction(e.target.checked)} />Include a measurable later prediction</label>}
-            {showPrediction && <div className="form-step">
-              <h3>Prediction terms</h3>
-              <div className="form-actions">
-                <label className="field">Commitment
-                  <select name="commitment" defaultValue={launchTerm?.prediction?.commitment ?? "normal"}><option value="normal">Normal</option><option value="high">High (requires unused XP reserve)</option></select>
-                </label>
-                <label className="field">Class
-                  <select name="predictionClass" defaultValue={launchTerm?.prediction?.predictionClass ?? "standard"}><option value="standard">Standard</option><option value="enhanced">Approved long-term (30+ days)</option></select>
-                </label>
-                <label className="field">Source type
-                  <select name="sourceType" defaultValue={launchTerm?.prediction?.sourceType ?? "unknown"}><option value="unknown">Unknown</option><option value="public_research">Public research</option><option value="private_lead">Private lead</option><option value="claimed_insider">Claimed insider</option></select>
-                </label>
               </div>
-              <Field label="Original baseline (Unknown allowed)" name="baseline" value={launchTerm?.prediction?.baseline} />
-              <Field label="Measurable target (Unknown allowed)" name="target" value={launchTerm?.prediction?.target} />
-              <Field label="Failure or invalidation condition (Unknown allowed)" name="invalidation" value={launchTerm?.prediction?.invalidation} />
-              {(["Traders", "Degens"].includes(category)) && <>
-                <label className="field">Direction<select name="direction" defaultValue={launchTerm?.prediction?.direction ?? ""}><option value="">Unknown</option><option value="long">Long</option><option value="short">Short</option></select></label>
-                <Field label="Registered entry or trigger" name="entry" value={launchTerm?.prediction?.entry} />
-                <Field label="Registered stop" name="stop" value={launchTerm?.prediction?.stop} />
-              </>}
-              <Field label="Deadline or observation horizon (UTC)" name="horizon" type="datetime-local" value={av?.horizon?.slice(0, 16)} />
-              <Field label="How will the outcome be checked?" name="checkCondition" value={av?.check_condition} />
-              <Field label="Scored window begins (enhanced only, UTC)" name="startsAt" type="datetime-local" value={launchTerm?.prediction?.startsAt?.slice(0, 16)} />
-              <p className="muted">Incomplete terms can be saved and shared, but are unvalidated and cannot earn outcome XP. High commitment reserves unused XP only for a validated call. Ordered price settlement currently supports BTC, ETH or SOL spot on Coinbase Exchange, with the same asset in Subject and Asset, an exact UTC-hour expiry within seven days, and complete historical observations. Other venues, derivatives, contracts and longer paths remain unvalidated.</p>
-            </div>}
+            )}
           </section>
         )}
-        {launchActive && <div className="form-step">
-          <Field label="Useful action or claim" name="usefulAction" value={launchTerm?.useful_action ?? version?.claim} required />
-          <Field label="Cost or main risk" name="costOrRisk" value={launchTerm?.cost_or_risk ?? version?.limitations} required />
-        </div>}
+        {launchActive && (
+          <div className="form-step">
+            <Field
+              label="Useful action or claim"
+              name="usefulAction"
+              value={launchTerm?.useful_action ?? version?.claim}
+              required
+            />
+            <Field
+              label="Cost or main risk"
+              name="costOrRisk"
+              value={launchTerm?.cost_or_risk ?? version?.limitations}
+              required
+            />
+          </div>
+        )}
         {message && (
           <aside className="notice">
             Source: {person(data, message.author_id)}. Posted{" "}
@@ -502,12 +702,14 @@ export function AlphaForm({
           </aside>
         )}
         <div className="form-step">
-          {!launchActive && <Field
-            label="What did you find or conclude?"
-            name="claim"
-            value={version?.claim}
-            required
-          />}
+          {!launchActive && (
+            <Field
+              label="What did you find or conclude?"
+              name="claim"
+              value={version?.claim}
+              required
+            />
+          )}
           <Field
             label="Why does it matter to members?"
             name="purpose"
@@ -612,12 +814,14 @@ export function AlphaForm({
             required
             max={2000}
           />
-          {!launchActive && <Field
-            label="What is uncertain or risky?"
-            name="limitations"
-            value={version?.limitations}
-            required
-          />}
+          {!launchActive && (
+            <Field
+              label="What is uncertain or risky?"
+              name="limitations"
+              value={version?.limitations}
+              required
+            />
+          )}
         </div>
         <details>
           <summary>Additional provenance</summary>
@@ -703,6 +907,33 @@ export function AlphaForm({
           <input required type="checkbox" /> I have permission to share this
           evidence and have identified my own contribution.
         </label>
+        <aside className="notice" aria-label="XP before submission">
+          <strong>
+            {kind === "prediction"
+              ? "Outcome credit, not a posting reward"
+              : "Potential work credit after independent review"}
+          </strong>
+          <p>
+            {kind === "prediction"
+              ? "A raw prediction earns no work XP merely for being posted. Standard outcomes: Normal +50 / -10 XP; High +150 / -50 XP with a 50 XP reserve."
+              : kind === "correction"
+                ? "Correcting your own error earns no additional correction XP. A verified improvement can receive only the difference to a higher work class."
+                : "Verified useful work can earn 50, 150 or 300 XP according to its work class and remaining allowance. A later forecast is assessed separately."}
+          </p>
+          {showPrediction && (
+            <p>
+              {category === "Degens"
+                ? "Degen memecoin predictions are currently unvalidated for outcome XP. You may save and share this call, but no outcome award is promised."
+                : category === "Traders"
+                  ? "Outcome eligibility requires matching BTC, ETH or SOL Coinbase Exchange Spot terms, at least 2:1 reward to downside, and an exact UTC-hour expiry within seven days. Missing or ambiguous history remains Inconclusive."
+                  : "A baseline, measurable target, failure condition and future horizon are needed for outcome eligibility. Incomplete terms remain unvalidated."}
+            </p>
+          )}
+          <p>
+            Saving preserves the record even if a source or model is
+            unavailable.
+          </p>
+        </aside>
         <button
           className="button"
           type="submit"

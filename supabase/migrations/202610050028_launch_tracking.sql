@@ -84,7 +84,9 @@ create table public.launch_watch_preferences (
 );
 create table public.launch_monitor_sources (
  id uuid primary key default gen_random_uuid(),
- opportunity_id uuid not null references public.opportunities(id),
+ opportunity_id uuid references public.opportunities(id),
+ finding_id uuid references public.findings(id),
+ version_id uuid references public.alpha_versions(version_id),
  url text not null check(url ~ '^https://[^[:space:]]+$'),
  cadence_hours integer not null default 24 check(cadence_hours between 1 and 168),
  enabled boolean not null default false,
@@ -94,7 +96,10 @@ create table public.launch_monitor_sources (
  last_status text not null default 'not_checked' check(last_status in ('not_checked','no_new_confirmed_event','source_unavailable','change_queued')),
  configured_by uuid not null references public.members(id),
  created_at timestamptz not null default now(),
- unique(opportunity_id,url)
+ unique(opportunity_id,url),
+ unique(finding_id,url),
+ check((opportunity_id is null)<>(finding_id is null)),
+ check((finding_id is null)=(version_id is null))
 );
 create table public.launch_monitor_runs (
  id uuid primary key default gen_random_uuid(),
@@ -108,7 +113,9 @@ create table public.launch_monitor_runs (
 create table public.launch_monitor_events (
  id uuid primary key default gen_random_uuid(),
  source_id uuid not null references public.launch_monitor_sources(id),
- opportunity_id uuid not null references public.opportunities(id),
+ opportunity_id uuid references public.opportunities(id),
+ finding_id uuid references public.findings(id),
+ version_id uuid references public.alpha_versions(version_id),
  digest text not null,
  source_url text not null,
  source_date timestamptz,
@@ -185,6 +192,8 @@ declare s public.launch_monitor_sources; run_id uuid; event_id uuid;
 begin
  select * into s from public.launch_monitor_sources where id=p_source and enabled and next_due<=now() for update;
  if s.id is null then raise exception 'research: monitor source not due'; end if;
+ if s.finding_id is not null and not public.research_can_view_v2(s.configured_by,s.finding_id) then
+  raise exception 'research: monitor authorization expired'; end if;
  if p_status not in ('retrieved','source_unavailable') or length(p_detail)>500 or (p_status='retrieved' and p_digest !~ '^[0-9a-f]{64}$')
   then raise exception 'research: invalid monitor observation'; end if;
  insert into public.launch_monitor_runs(source_id,status,digest,source_date,detail) values(p_source,p_status,p_digest,p_source_date,p_detail) returning id into run_id;
@@ -193,8 +202,8 @@ begin
   return jsonb_build_object('run',run_id,'status','source_unavailable');
  end if;
  if s.last_digest is not null and s.last_digest<>p_digest then
-  insert into public.launch_monitor_events(source_id,opportunity_id,digest,source_url,source_date)
-  values(s.id,s.opportunity_id,p_digest,s.url,p_source_date) on conflict(source_id,digest) do nothing returning id into event_id;
+  insert into public.launch_monitor_events(source_id,opportunity_id,finding_id,version_id,digest,source_url,source_date)
+  values(s.id,s.opportunity_id,s.finding_id,s.version_id,p_digest,s.url,p_source_date) on conflict(source_id,digest) do nothing returning id into event_id;
  end if;
  update public.launch_monitor_sources set next_due=now()+make_interval(hours=>cadence_hours),last_success_at=now(),last_digest=p_digest,
   last_status=case when event_id is null then 'no_new_confirmed_event' else 'change_queued' end where id=p_source;
@@ -222,6 +231,29 @@ begin
  return item;
 end $$;
 
+create function public.launch_set_alpha_monitor_source(p_actor uuid,p_binding uuid,p_finding uuid,p_url text,p_cadence integer,p_enabled boolean) returns uuid
+language plpgsql set search_path='' as $$
+declare f public.findings; a public.alpha_versions; item uuid;
+begin
+ select * into f from public.findings where id=p_finding;
+ if f.id is null or not public.research_can_view_v2(p_actor,f.id) or not public.research_compatible(p_actor,f.author_id)
+  then raise exception 'research: alpha unavailable'; end if;
+ perform public.member_room_guard(p_actor,p_binding,f.question_id);
+ if not exists(select 1 from public.member_roles where member_id=p_actor and role='steward')
+  then raise exception 'research: steward required'; end if;
+ select * into a from public.alpha_versions where version_id=f.current_version;
+ if a.version_id is null or p_cadence not between 24 and 168 or p_url !~ '^https://[^[:space:]]+$'
+  or not exists(select 1 from jsonb_array_elements(a.evidence) e where e->>'kind'='link' and e->>'value'=p_url)
+  then raise exception 'research: approved alpha evidence source required'; end if;
+ insert into public.launch_monitor_sources(finding_id,version_id,url,cadence_hours,enabled,configured_by)
+ values(f.id,a.version_id,p_url,p_cadence,p_enabled,p_actor)
+ on conflict(finding_id,url) do update set cadence_hours=excluded.cadence_hours,enabled=excluded.enabled,
+  next_due=now(),configured_by=excluded.configured_by returning id into item;
+ insert into public.audit_events(actor_member_id,event_type,subject_id,details)
+ values(p_actor,'launch.alpha_monitor_configured',item,jsonb_build_object('version',a.version_id,'enabled',p_enabled));
+ return item;
+end $$;
+
 create function public.launch_confirm_event(p_actor uuid,p_binding uuid,p_event uuid,p_confirm boolean,p_change text,p_action text,p_deadline timestamptz,p_priority text) returns integer
 language plpgsql set search_path='' as $$
 declare e public.launch_monitor_events; room text; notified integer:=0;
@@ -232,7 +264,11 @@ begin
   then raise exception 'research: steward required'; end if;
  select * into e from public.launch_monitor_events where id=p_event for update;
  if e.id is null or e.status<>'needs_verification' then raise exception 'research: event unavailable'; end if;
- if (select is_demo from public.opportunities where id=e.opportunity_id) is distinct from
+ if e.finding_id is not null then
+  if not public.research_can_view_v2(p_actor,e.finding_id) or not public.research_compatible(p_actor,(select author_id from public.findings where id=e.finding_id))
+   then raise exception 'research: event unavailable'; end if;
+  perform public.member_room_guard(p_actor,p_binding,(select question_id from public.findings where id=e.finding_id));
+ elsif (select is_demo from public.opportunities where id=e.opportunity_id) is distinct from
   coalesce((select is_demo from public.research_profiles where member_id=p_actor),false)
   then raise exception 'research: incompatible operator'; end if;
  if p_priority not in ('urgent','nonurgent') or (p_confirm and (length(btrim(p_change))<10 or length(btrim(p_action))<5))
@@ -242,11 +278,13 @@ begin
   required_action=case when p_confirm then p_action end,deadline=p_deadline,priority=p_priority where id=p_event;
  if p_confirm then
   insert into public.launch_notifications(member_id,follow_id,event_id,kind,title,detail,delivered_at)
-  select f.member_id,f.id,p_event,'material_change',o.name||' changed',p_change||' Next: '||p_action,
+  select f.member_id,f.id,p_event,'material_change',left(coalesce(o.name,a.subject,'Alpha')||' changed',150),p_change||' Next: '||p_action,
    case when p_priority='urgent' or not coalesce(prefs.nonurgent_digest,true) then now() end
-  from public.launch_follows f join public.opportunities o on o.id=f.opportunity_id
+  from public.launch_follows f left join public.opportunities o on o.id=f.opportunity_id
+  left join public.alpha_versions a on a.version_id=e.version_id
   left join public.launch_watch_preferences prefs on prefs.member_id=f.member_id
-  where f.opportunity_id=e.opportunity_id and f.done_at is null and f.removed_at is null
+  where (f.opportunity_id=e.opportunity_id or (f.finding_id=e.finding_id and public.research_can_view_v2(f.member_id,f.finding_id)))
+   and f.done_at is null and f.removed_at is null
   on conflict do nothing;
   get diagnostics notified=row_count;
  end if;
@@ -322,23 +360,26 @@ begin
     then coalesce((select jsonb_agg(to_jsonb(r)) from public.launch_reviewer_scopes r
       where r.rank=s->'question'->>'rank' and public.research_compatible(p_member,r.member_id)),'[]') else '[]'::jsonb end,
   'monitorQueue',case when exists(select 1 from public.member_roles where member_id=p_member and role='steward')
-    then coalesce((select jsonb_agg(to_jsonb(e)||jsonb_build_object('opportunityName',o.name) order by e.detected_at) from public.launch_monitor_events e
-      join public.opportunities o on o.id=e.opportunity_id where e.status='needs_verification'
-       and o.is_demo=coalesce((select is_demo from public.research_profiles where member_id=p_member),false)),'[]') else '[]'::jsonb end,
+    then coalesce((select jsonb_agg(to_jsonb(e)||jsonb_build_object('opportunityName',coalesce(o.name,a.subject)) order by e.detected_at) from public.launch_monitor_events e
+      left join public.opportunities o on o.id=e.opportunity_id left join public.alpha_versions a on a.version_id=e.version_id where e.status='needs_verification'
+       and ((e.opportunity_id is not null and o.is_demo=coalesce((select is_demo from public.research_profiles where member_id=p_member),false))
+        or exists(select 1 from jsonb_array_elements(s->'findings') v where v->>'id'=e.finding_id::text))),'[]') else '[]'::jsonb end,
   'operatorOpportunities',case when exists(select 1 from public.member_roles where member_id=p_member and role='steward')
     then coalesce((select jsonb_agg(jsonb_build_object('id',o.id,'name',o.name,'isDemo',o.is_demo)) from public.opportunities o
       where o.public_visible and o.is_demo=coalesce((select is_demo from public.research_profiles where member_id=p_member),false)),'[]') else '[]'::jsonb end,
   'operatorMonitorSources',case when exists(select 1 from public.member_roles where member_id=p_member and role='steward')
     then coalesce((select jsonb_agg(to_jsonb(m) order by m.created_at desc) from public.launch_monitor_sources m
-      join public.opportunities o on o.id=m.opportunity_id
-      where o.is_demo=coalesce((select is_demo from public.research_profiles where member_id=p_member),false)),'[]') else '[]'::jsonb end,
+      left join public.opportunities o on o.id=m.opportunity_id
+      where (m.opportunity_id is not null and o.is_demo=coalesce((select is_demo from public.research_profiles where member_id=p_member),false))
+       or exists(select 1 from jsonb_array_elements(s->'findings') v where v->>'id'=m.finding_id::text)),'[]') else '[]'::jsonb end,
   'follows',coalesce((select jsonb_agg(to_jsonb(f)||jsonb_build_object('opportunityName',(select o.name from public.opportunities o where o.id=f.opportunity_id)) order by f.updated_at desc) from public.launch_follows f
     where f.member_id=p_member and f.removed_at is null and ((f.opportunity_id is not null and exists(select 1 from public.opportunities o where o.id=f.opportunity_id and o.public_visible and o.status<>'draft')) or exists(select 1 from jsonb_array_elements(s->'findings') v where v->>'id'=f.finding_id::text))),'[]'),
   'notifications',coalesce((select jsonb_agg(to_jsonb(n)||jsonb_build_object('sourceUrl',(select e.source_url from public.launch_monitor_events e where e.id=n.event_id and e.status='confirmed'),'sourceDate',(select e.source_date from public.launch_monitor_events e where e.id=n.event_id and e.status='confirmed')) order by n.created_at desc) from public.launch_notifications n
     join public.launch_follows f on f.id=n.follow_id where n.member_id=p_member and n.delivered_at is not null and f.removed_at is null and ((f.opportunity_id is not null and exists(select 1 from public.opportunities o where o.id=f.opportunity_id and o.public_visible and o.status<>'draft')) or exists(select 1 from jsonb_array_elements(s->'findings') v where v->>'id'=f.finding_id::text))),'[]'),
-  'watchCoverage',coalesce((select jsonb_agg(jsonb_build_object('opportunity',m.opportunity_id,'lastSuccessAt',m.last_success_at,'status',m.last_status,'nextDue',m.next_due)) from public.launch_monitor_sources m
-   where exists(select 1 from public.launch_follows f where f.member_id=p_member and f.opportunity_id=m.opportunity_id and f.removed_at is null)
-    and exists(select 1 from public.opportunities o where o.id=m.opportunity_id and o.public_visible and o.status<>'draft')),'[]'),
+  'watchCoverage',coalesce((select jsonb_agg(jsonb_build_object('opportunity',m.opportunity_id,'finding',m.finding_id,'version',m.version_id,'lastSuccessAt',m.last_success_at,'status',m.last_status,'nextDue',m.next_due)) from public.launch_monitor_sources m
+   where exists(select 1 from public.launch_follows f where f.member_id=p_member and (f.opportunity_id=m.opportunity_id or f.finding_id=m.finding_id) and f.removed_at is null)
+    and (exists(select 1 from public.opportunities o where o.id=m.opportunity_id and o.public_visible and o.status<>'draft')
+     or exists(select 1 from jsonb_array_elements(s->'findings') v where v->>'id'=m.finding_id::text))),'[]'),
   'watchPreferences',coalesce((select to_jsonb(p) from public.launch_watch_preferences p where p.member_id=p_member),'{"reminders":true,"nonurgent_digest":true}'::jsonb));
 end $$;
 
@@ -355,4 +396,6 @@ do $$ declare t text; begin
 end $$;
 revoke all on function public.alpha_authorized_reviewer(uuid,uuid,text),public.launch_set_reviewer(uuid,uuid,uuid,text,text,boolean),public.launch_follow_mutate(uuid,uuid,text,uuid,text,text,text,timestamptz),public.launch_monitor_ingest(uuid,text,text,timestamptz,text),public.launch_set_monitor_source(uuid,uuid,uuid,text,integer,boolean),public.launch_confirm_event(uuid,uuid,uuid,boolean,text,text,timestamptz,text),public.launch_notification_mutate(uuid,uuid,uuid,text),public.launch_watch_preferences_set(uuid,uuid,boolean,boolean),public.launch_due_reminders(),public.launch_deliver_digest(),public.alpha_snapshot(uuid,uuid,text) from public,anon,authenticated;
 grant execute on function public.alpha_authorized_reviewer(uuid,uuid,text),public.launch_set_reviewer(uuid,uuid,uuid,text,text,boolean),public.launch_follow_mutate(uuid,uuid,text,uuid,text,text,text,timestamptz),public.launch_monitor_ingest(uuid,text,text,timestamptz,text),public.launch_set_monitor_source(uuid,uuid,uuid,text,integer,boolean),public.launch_confirm_event(uuid,uuid,uuid,boolean,text,text,timestamptz,text),public.launch_notification_mutate(uuid,uuid,uuid,text),public.launch_watch_preferences_set(uuid,uuid,boolean,boolean),public.launch_due_reminders(),public.launch_deliver_digest(),public.alpha_snapshot(uuid,uuid,text) to service_role;
+revoke all on function public.launch_set_alpha_monitor_source(uuid,uuid,uuid,text,integer,boolean) from public,anon,authenticated;
+grant execute on function public.launch_set_alpha_monitor_source(uuid,uuid,uuid,text,integer,boolean) to service_role;
 commit;

@@ -1,5 +1,12 @@
 # Launch member journey checkpoint (2026-10-05)
 
+**Updated 2026-10-06:** the completion authority and walkthrough are in
+[launch-completion.md](launch-completion.md). 027-028 and the separately approved
+029 repair are applied with preservation/security checks. The isolated signed-in
+review, award, correction/appeal and scheduled-monitor paths have now run. Approval
+is not pending. The older classifications below describe the pre-activation
+checkpoint, not current availability. No genuine reviewer was appointed.
+
 Branch: `codex/category-alpha-review`. Review the local project at
 `http://localhost:3000/`; this is not production. Preserve 023-026, genuine
 records, the approved branding, top-right My Profile and exact-rank security.
@@ -11,11 +18,11 @@ records, the approved branding, top-right My Profile and exact-rank security.
 - [x] Add transactional local-schema tests for submission, review, signed XP, High reserves, caps, transfer continuity and preservation.
 - [x] Add watchlist, scoped reviewer appointment, monitored-source queue, notification and daily runner boundaries.
 - [x] Inspect public desktop/mobile Home, sample opportunities and Grind Intelligence.
-- [ ] Activate 027-028 on the shared database after explicit migration authorization and authenticated access.
-- [ ] Run the live member, independent-review and scheduled-monitor journeys after activation.
+- [x] Activate 027-028 on the shared database with explicit owner authorization and preservation assertions.
+- [x] Run the isolated shared member, independent-review and scheduled-monitor journeys after activation; see completion evidence.
 - [ ] Designate a genuine founder/steward and independently scoped reviewer through authorized administration.
 
-## Classification
+## Historical pre-activation classification
 
 | Area | Status at this checkpoint | Evidence or limit |
 | --- | --- | --- |
@@ -32,16 +39,16 @@ records, the approved branding, top-right My Profile and exact-rank security.
 
 ## Shared migration and preservation
 
-Migration 026 is shared-applied. Migrations 027 and 028 are **not** shared-applied.
-Generate the 027-028-only transaction with
+Migrations 026-029 are now shared-applied. Do not replay them on the shared
+project. The reproducible 027-028-only transaction generator is
 `pnpm exec tsx scripts/prepare-launch-migration.ts`; its ignored output is
 `.local/launch-migrations.sql`. It checks 026, rejects an already-applied launch
 schema, records every existing public table digest, runs both additive files in
 one transaction, then asserts unchanged old rows, forced RLS, no browser RPC
 grants and the new tables/functions. The same prepared transaction passed on a
-populated isolated database and rejected a second run. Shared application needs
-the existing explicit authorization and authenticated SQL editor; a failed
-assertion must roll back. Never replay 023-026.
+populated isolated database and rejected a second run. Shared application was
+subsequently approved and completed through the authenticated SQL editor; all
+preservation assertions passed. Never replay 023-029.
 
 Existing rank accounting has an execution conflict: `promotion_decisions` still
 permits only Silver and `nft_tier_events` has one unique row per NFT, with the
@@ -61,9 +68,9 @@ allocations are shown as provisional and cannot fund High reservations.
 
 The proposed recording route is Home -> Hub/category -> Submit alpha -> receipt
 -> Grind Intelligence -> independent Review Desk/work XP -> Follow -> next action
-or notification -> My Profile/history. It is **not yet video-ready**: shared
-activation, real independent staffing, a real monitoring run and a genuine
-author-supplied fast prediction plus long-term guide/analysis are still needed.
+or notification -> My Profile/history. The isolated route is now exercised;
+genuine independent staffing is still needed for a real founder award. The
+completion handoff distinguishes controlled records from genuine submissions.
 Any accelerated isolated case must be visibly labeled as a walkthrough.
 
 Public, sanitized captures: `launch-review/home-public-desktop.png`,

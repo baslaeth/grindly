@@ -1,0 +1,54 @@
+{
+  "isolated": true,
+  "results": [
+    {
+      "category": "Whitelist Hunters",
+      "id": "ee35f3a5-2411-450a-8cc0-5a97eccfa1ca",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "Airdrop Hunters",
+      "id": "aa6009ed-89ab-4d9a-96c4-aae7daf3ee41",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "Presale Hunters",
+      "id": "754c3efd-0043-4bfc-b532-1cea83fe1126",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "Degens",
+      "id": "093b480e-bc06-4733-a865-be835f66e0ba",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "Seed and Early Stage Investors",
+      "id": "73285f64-781f-49ee-8024-aec1eff9383f",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "NFT Specialists",
+      "id": "3d420ef5-67be-4761-bf6d-f6c2af4e7fc5",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    },
+    {
+      "category": "Meta Catchers",
+      "id": "22a9398b-bfc7-42bf-a068-d9b4ac6981ea",
+      "resumed": true,
+      "replaySameId": true,
+      "reloaded": true
+    }
+  ]
+}

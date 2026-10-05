@@ -7,6 +7,8 @@ const config: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Private snapshots must stay fresh during the local review as well as production.
+  experimental: { serverComponentsHmrCache: false },
   async redirects() {
     return [
       { source: "/submit", destination: "/findings/new", permanent: true },

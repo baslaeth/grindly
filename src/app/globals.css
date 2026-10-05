@@ -1864,6 +1864,20 @@ dd,
   max-width: 100%;
   overflow-x: auto;
 }
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-scroll th,
+.table-scroll td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
 .source-table table {
   border-collapse: collapse;
   font-size: 13px;

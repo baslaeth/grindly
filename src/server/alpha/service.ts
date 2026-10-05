@@ -22,13 +22,79 @@ import { modelReview, PreliminaryError } from "./provider";
 export const alphaAction = z.union([
   alphaSubmission,
   outcomeAssessment,
-  z.object({ action: z.literal("appointReviewer"), candidate: z.uuid(), category: z.enum(alphaCategories), scope: z.string().trim().min(10).max(500), grant: z.boolean() }).strict(),
-  z.object({ action: z.literal("follow"), kind: z.enum(["alpha", "opportunity"]), id: z.uuid(), operation: z.enum(["follow", "participated", "update", "remove", "acknowledge", "done"]), note: z.string().max(500), nextAction: z.string().max(500), deadline: z.iso.datetime({ offset: true }).nullable() }).strict(),
-  z.object({ action: z.literal("notification"), id: z.uuid(), operation: z.enum(["acknowledge", "done"]) }).strict(),
-  z.object({ action: z.literal("watchPreferences"), reminders: z.boolean(), digest: z.boolean() }).strict(),
-  z.object({ action: z.literal("monitorConfigure"), opportunity: z.uuid(), url: z.url().max(500), cadenceHours: z.number().int().min(24).max(168), enabled: z.boolean() }).strict(),
-  z.object({ action: z.literal("monitorConfirm"), id: z.uuid(), confirmed: z.boolean(), change: z.string().trim().max(500), nextAction: z.string().trim().max(500), deadline: z.iso.datetime({ offset: true }).nullable(), priority: z.enum(["urgent", "nonurgent"]) }).strict(),
-  z.object({ action: z.literal("reverseWork"), award: z.uuid(), reason: z.string().trim().min(20).max(1500), source: z.url().max(500).refine((url) => url.startsWith("https://")) }).strict(),
+  z
+    .object({
+      action: z.literal("appointReviewer"),
+      candidate: z.uuid(),
+      category: z.enum(alphaCategories),
+      scope: z.string().trim().min(10).max(500),
+      grant: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("follow"),
+      kind: z.enum(["alpha", "opportunity"]),
+      id: z.uuid(),
+      operation: z.enum([
+        "follow",
+        "participated",
+        "update",
+        "remove",
+        "acknowledge",
+        "done",
+      ]),
+      note: z.string().max(500),
+      nextAction: z.string().max(500),
+      deadline: z.iso.datetime({ offset: true }).nullable(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("notification"),
+      id: z.uuid(),
+      operation: z.enum(["acknowledge", "done"]),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("watchPreferences"),
+      reminders: z.boolean(),
+      digest: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("monitorConfigure"),
+      opportunity: z.uuid(),
+      kind: z.enum(["opportunity", "alpha"]).default("opportunity"),
+      url: z.url().max(500),
+      cadenceHours: z.number().int().min(24).max(168),
+      enabled: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("monitorConfirm"),
+      id: z.uuid(),
+      confirmed: z.boolean(),
+      change: z.string().trim().max(500),
+      nextAction: z.string().trim().max(500),
+      deadline: z.iso.datetime({ offset: true }).nullable(),
+      priority: z.enum(["urgent", "nonurgent"]),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("reverseWork"),
+      award: z.uuid(),
+      reason: z.string().trim().min(20).max(1500),
+      source: z
+        .url()
+        .max(500)
+        .refine((url) => url.startsWith("https://")),
+    })
+    .strict(),
   z
     .object({
       action: z.literal("focusProfile"),
@@ -74,7 +140,9 @@ export const alphaAction = z.union([
           alternatives: z.string().trim().min(10).max(600),
         })
         .strict(),
-      workClass: z.enum(["none", "actionable", "tested", "substantial"]).optional(),
+      workClass: z
+        .enum(["none", "actionable", "tested", "substantial"])
+        .optional(),
       version: z.uuid(),
       assignment: z.uuid(),
       decision: z.enum(["accept", "correct", "reject"]),
@@ -207,34 +275,100 @@ export async function executePreliminary(context: ReviewContext) {
 export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   const active = await requireActiveMembership(true);
   const db = createDataClient();
-  if (input.action === "reverseWork") return privateResult(await db.rpc("launch_reverse_work", {
-    p_member: active.member.id, p_binding: active.binding.id, p_award: input.award,
-    p_reason: input.reason, p_evidence: [{ url: input.source }],
-  }));
-  if (input.action === "appointReviewer") return privateResult(await db.rpc("launch_set_reviewer", {
-    p_actor: active.member.id, p_binding: active.binding.id, p_candidate: input.candidate,
-    p_category: input.category, p_scope: input.scope, p_grant: input.grant,
-  }));
-  if (input.action === "follow") return privateResult(await db.rpc("launch_follow_mutate", {
-    p_member: active.member.id, p_binding: active.binding.id, p_kind: input.kind,
-    p_id: input.id, p_action: input.operation, p_note: input.note,
-    p_next: input.nextAction, p_deadline: input.deadline ?? undefined,
-  }));
-  if (input.action === "notification") return privateResult(await db.rpc("launch_notification_mutate", {
-    p_member: active.member.id, p_binding: active.binding.id, p_id: input.id, p_action: input.operation,
-  }));
-  if (input.action === "watchPreferences") return privateResult(await db.rpc("launch_watch_preferences_set", {
-    p_member: active.member.id, p_binding: active.binding.id, p_reminders: input.reminders, p_digest: input.digest,
-  }));
+  if (input.action === "reverseWork")
+    return privateResult(
+      await db.rpc("launch_reverse_work", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_award: input.award,
+        p_reason: input.reason,
+        p_evidence: [{ url: input.source }],
+      }),
+    );
+  if (input.action === "appointReviewer")
+    return privateResult(
+      await db.rpc("launch_set_reviewer", {
+        p_actor: active.member.id,
+        p_binding: active.binding.id,
+        p_candidate: input.candidate,
+        p_category: input.category,
+        p_scope: input.scope,
+        p_grant: input.grant,
+      }),
+    );
+  if (input.action === "follow")
+    return privateResult(
+      await db.rpc("launch_follow_mutate", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_kind: input.kind,
+        p_id: input.id,
+        p_action: input.operation,
+        p_note: input.note,
+        p_next: input.nextAction,
+        p_deadline: input.deadline ?? undefined,
+      }),
+    );
+  if (input.action === "notification")
+    return privateResult(
+      await db.rpc("launch_notification_mutate", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_id: input.id,
+        p_action: input.operation,
+      }),
+    );
+  if (input.action === "watchPreferences")
+    return privateResult(
+      await db.rpc("launch_watch_preferences_set", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_reminders: input.reminders,
+        p_digest: input.digest,
+      }),
+    );
   if (input.action === "monitorConfigure") {
-    if (!primaryUrl(input.url)) throw new ServiceError("SOURCE_UNSUPPORTED", "Use a supported official public document without query parameters.", 400);
-    return privateResult(await db.rpc("launch_set_monitor_source", { p_actor: active.member.id, p_binding: active.binding.id,
-      p_opportunity: input.opportunity, p_url: input.url, p_cadence: input.cadenceHours, p_enabled: input.enabled }));
+    if (!primaryUrl(input.url))
+      throw new ServiceError(
+        "SOURCE_UNSUPPORTED",
+        "Use a supported official public document without query parameters.",
+        400,
+      );
+    if (input.kind === "alpha")
+      return privateResult(
+        await db.rpc("launch_set_alpha_monitor_source", {
+          p_actor: active.member.id,
+          p_binding: active.binding.id,
+          p_finding: input.opportunity,
+          p_url: input.url,
+          p_cadence: input.cadenceHours,
+          p_enabled: input.enabled,
+        }),
+      );
+    return privateResult(
+      await db.rpc("launch_set_monitor_source", {
+        p_actor: active.member.id,
+        p_binding: active.binding.id,
+        p_opportunity: input.opportunity,
+        p_url: input.url,
+        p_cadence: input.cadenceHours,
+        p_enabled: input.enabled,
+      }),
+    );
   }
-  if (input.action === "monitorConfirm") return privateResult(await db.rpc("launch_confirm_event", {
-    p_actor: active.member.id, p_binding: active.binding.id, p_event: input.id, p_confirm: input.confirmed,
-    p_change: input.change, p_action: input.nextAction, p_deadline: input.deadline as string, p_priority: input.priority,
-  }));
+  if (input.action === "monitorConfirm")
+    return privateResult(
+      await db.rpc("launch_confirm_event", {
+        p_actor: active.member.id,
+        p_binding: active.binding.id,
+        p_event: input.id,
+        p_confirm: input.confirmed,
+        p_change: input.change,
+        p_action: input.nextAction,
+        p_deadline: input.deadline as string,
+        p_priority: input.priority,
+      }),
+    );
   if (input.action === "focusProfile")
     return privateResult(
       await db.rpc("alpha_focus_profile", {
@@ -248,42 +382,97 @@ export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   if (input.action === "outcomeAssess") {
     const { action: _action, request, version, ...data } = input;
     void _action;
-    privateResult(await db.rpc("alpha_version_guard", {
-      p_member: active.member.id,
-      p_binding: active.binding.id,
-      p_version: version,
-    }));
-    const launch = await db.from("launch_submission_terms").select("version_id").eq("version_id", version).maybeSingle();
+    privateResult(
+      await db.rpc("alpha_version_guard", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_version: version,
+      }),
+    );
+    const launch = await db
+      .from("launch_submission_terms")
+      .select("version_id")
+      .eq("version_id", version)
+      .maybeSingle();
     if (launch.error && launch.error.code !== "PGRST205") throw launch.error;
     let marketStatus: string | undefined;
-    let marketEvidence: { url: string | null; checkedAt: string; digest: string | null; limitation: string } | undefined;
+    let marketEvidence:
+      | {
+          url: string | null;
+          checkedAt: string;
+          digest: string | null;
+          limitation: string;
+        }
+      | undefined;
     if (launch.data) {
-      const alpha = await db.from("alpha_versions").select("*").eq("version_id", version).single();
+      const alpha = await db
+        .from("alpha_versions")
+        .select("*")
+        .eq("version_id", version)
+        .single();
       if (alpha.error) throw alpha.error;
-      if (alpha.data.category === "Traders" || alpha.data.category === "Degens") {
-        const terms = await db.from("launch_submission_terms").select("prediction,context").eq("version_id", version).single();
+      if (
+        alpha.data.category === "Traders" ||
+        alpha.data.category === "Degens"
+      ) {
+        const terms = await db
+          .from("launch_submission_terms")
+          .select("prediction,context")
+          .eq("version_id", version)
+          .single();
         if (terms.error) throw terms.error;
-        const context = terms.data.context as Record<string, string> ?? {};
-        if (alpha.data.category === "Traders" && supportsCoinbaseSpot(alpha.data.subject, context, alpha.data.category)) {
+        const context = (terms.data.context as Record<string, string>) ?? {};
+        if (
+          alpha.data.category === "Traders" &&
+          supportsCoinbaseSpot(alpha.data.subject, context, alpha.data.category)
+        ) {
           const history = await marketHistorySource(alpha.data as AlphaVersion);
-          const verification = verifyCoinbasePath(history, alpha.data.subject, alpha.data.created_at, alpha.data.horizon ?? "", terms.data.prediction as Record<string, string> ?? {}, context);
+          const verification = verifyCoinbasePath(
+            history,
+            alpha.data.subject,
+            alpha.data.created_at,
+            alpha.data.horizon ?? "",
+            (terms.data.prediction as Record<string, string>) ?? {},
+            context,
+          );
           marketStatus = verification.status;
-          marketEvidence = { url: history.url, checkedAt: history.checkedAt, digest: history.digest, limitation: verification.reason };
+          marketEvidence = {
+            url: history.url,
+            checkedAt: history.checkedAt,
+            digest: history.digest,
+            limitation: verification.reason,
+          };
         } else {
           marketStatus = "Inconclusive";
-          marketEvidence = { url: null, checkedAt: new Date().toISOString(), digest: null, limitation: "No supported ordered history for the registered asset, venue, instrument or chain." };
+          marketEvidence = {
+            url: null,
+            checkedAt: new Date().toISOString(),
+            digest: null,
+            limitation:
+              "No supported ordered history for the registered asset, venue, instrument or chain.",
+          };
         }
       }
     }
     return privateResult(
-      await db.rpc(launch.data ? "launch_assess_outcome" : "alpha_assess_outcome", {
-        p_member: active.member.id,
-        p_binding: active.binding.id,
-        p_version: version,
-        p_request: request,
-        p_data: { ...data, status: input.status === "cancelled" ? "inconclusive" : input.status,
-          launchStatus: input.status === "cancelled" ? "Cancelled" : undefined, marketStatus, marketEvidence } as unknown as Json,
-      }),
+      await db.rpc(
+        launch.data ? "launch_assess_outcome" : "alpha_assess_outcome",
+        {
+          p_member: active.member.id,
+          p_binding: active.binding.id,
+          p_version: version,
+          p_request: request,
+          p_data: {
+            ...data,
+            status:
+              input.status === "cancelled" ? "inconclusive" : input.status,
+            launchStatus:
+              input.status === "cancelled" ? "Cancelled" : undefined,
+            marketStatus,
+            marketEvidence,
+          } as unknown as Json,
+        },
+      ),
     );
   }
   if (input.action === "feedback")
@@ -308,21 +497,44 @@ export async function alphaMutation(input: z.infer<typeof alphaAction>) {
       }),
     );
   if (input.action === "submit") {
-    if (!input.launch) throw new ServiceError("LAUNCH_UNAVAILABLE", "Launch submission terms are required. Your draft is retained.", 409);
+    if (!input.launch)
+      throw new ServiceError(
+        "LAUNCH_UNAVAILABLE",
+        "Launch submission terms are required. Your draft is retained.",
+        409,
+      );
     const { request, ...data } = input;
-    return privateResult(
-      await db.rpc("launch_submit", {
-        p_member: active.member.id,
-        p_binding: active.binding.id,
-        p_request: request,
-        p_data: data as unknown as Json,
-      }),
-    ) as { id: string; version: string };
+    const result = await db.rpc("launch_submit", {
+      p_member: active.member.id,
+      p_binding: active.binding.id,
+      p_request: request,
+      p_data: data as unknown as Json,
+    });
+    // This exact, member-local limit is safe to explain; other private errors stay opaque.
+    if (
+      result.error?.message ===
+      "research: three new alphas already submitted today"
+    )
+      throw new ServiceError(
+        "DAILY_ALPHA_LIMIT",
+        "You have submitted three new alphas today. Your draft is retained. New submissions reopen at 00:00 UTC; chat, corrections and material updates remain available.",
+        409,
+      );
+    return privateResult(result) as { id: string; version: string };
   }
   if (input.action === "review") {
-    const launch = await db.from("launch_submission_terms").select("version_id").eq("version_id", input.version).maybeSingle();
+    const launch = await db
+      .from("launch_submission_terms")
+      .select("version_id")
+      .eq("version_id", input.version)
+      .maybeSingle();
     if (launch.error && launch.error.code !== "PGRST205") throw launch.error;
-    if (launch.data && !input.workClass) throw new ServiceError("WORK_CLASS_REQUIRED", "Choose a work classification before recording the decision.", 409);
+    if (launch.data && !input.workClass)
+      throw new ServiceError(
+        "WORK_CLASS_REQUIRED",
+        "Choose a work classification before recording the decision.",
+        409,
+      );
     return privateResult(
       await db.rpc(launch.data ? "launch_decide" : "alpha_decide_v2", {
         p_member: active.member.id,

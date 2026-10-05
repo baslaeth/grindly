@@ -66,25 +66,35 @@ export const categoryPrompts: Record<AlphaCategory, string[]> = {
   ],
 };
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
-export const launchTermsSchema = z.object({
-  policyVersion: z.literal(launchPolicy.version),
-  opportunity: text(2, 120),
-  usefulAction: text(5, 1000),
-  costOrRisk: text(2, 1000),
-  context: z.record(z.string().max(100), z.string().trim().min(1).max(1000)),
-  prediction: z.object({
-    commitment: z.enum(["normal", "high"]),
-    predictionClass: z.enum(["standard", "enhanced"]),
-    baseline: z.string().trim().max(80),
-    target: z.string().trim().max(80),
-    invalidation: z.string().trim().max(500),
-    sourceType: z.enum(["public_research", "private_lead", "claimed_insider", "unknown"]),
-    startsAt: z.iso.datetime({ offset: true }).nullable(),
-    direction: z.enum(["long", "short"]).nullable(),
-    entry: z.string().trim().max(80),
-    stop: z.string().trim().max(80),
-  }).strict().nullable(),
-}).strict();
+export const launchTermsSchema = z
+  .object({
+    policyVersion: z.literal(launchPolicy.version),
+    opportunity: text(2, 120),
+    usefulAction: text(5, 1000),
+    costOrRisk: text(2, 1000),
+    context: z.record(z.string().max(100), z.string().trim().min(1).max(1000)),
+    prediction: z
+      .object({
+        commitment: z.enum(["normal", "high"]),
+        predictionClass: z.enum(["standard", "enhanced"]),
+        baseline: z.string().trim().max(80),
+        target: z.string().trim().max(80),
+        invalidation: z.string().trim().max(500),
+        sourceType: z.enum([
+          "public_research",
+          "private_lead",
+          "claimed_insider",
+          "unknown",
+        ]),
+        startsAt: z.iso.datetime({ offset: true }).nullable(),
+        direction: z.enum(["long", "short"]).nullable(),
+        entry: z.string().trim().max(80),
+        stop: z.string().trim().max(80),
+      })
+      .strict()
+      .nullable(),
+  })
+  .strict();
 export const alphaEvidence = z.discriminatedUnion("kind", [
   z
     .object({
@@ -159,7 +169,11 @@ export const alphaSubmission = z
   })
   .strict()
   .superRefine((v, c) => {
-    if (v.type === "prediction" && !v.launch && (!v.horizon || v.checkCondition.length < 10))
+    if (
+      v.type === "prediction" &&
+      !v.launch &&
+      (!v.horizon || v.checkCondition.length < 10)
+    )
       c.addIssue({
         code: "custom",
         message:
@@ -197,13 +211,49 @@ export const alphaSubmission = z
     if (v.launch) {
       const keys = launchFields[v.category].map((f) => f.key);
       for (const key of keys)
-        if (!v.launch.context[key]?.trim()) c.addIssue({ code: "custom", message: `${key}: answer or choose Unknown.`, path: ["launch", "context", key] });
+        if (!v.launch.context[key]?.trim())
+          c.addIssue({
+            code: "custom",
+            message: `${key}: answer or choose Unknown.`,
+            path: ["launch", "context", key],
+          });
       if (Object.keys(v.launch.context).some((key) => !keys.includes(key)))
-        c.addIssue({ code: "custom", message: "Unexpected category field.", path: ["launch", "context"] });
+        c.addIssue({
+          code: "custom",
+          message: "Unexpected category field.",
+          path: ["launch", "context"],
+        });
+      for (const field of launchFields[v.category]) {
+        const value = v.launch.context[field.key];
+        if (!value || /^(unknown|not applicable)$/i.test(value)) continue;
+        if (
+          field.kind === "date" &&
+          !z.iso.datetime({ offset: true }).safeParse(value).success
+        )
+          c.addIssue({
+            code: "custom",
+            message: `${field.label}: provide a valid UTC date or choose Unknown.`,
+            path: ["launch", "context", field.key],
+          });
+        if (field.kind === "url" && !/^https:\/\/[^\s]+$/.test(value))
+          c.addIssue({
+            code: "custom",
+            message: `${field.label}: use an HTTPS source or choose Unknown.`,
+            path: ["launch", "context", field.key],
+          });
+      }
       if (v.type === "prediction" && !v.launch.prediction)
-        c.addIssue({ code: "custom", message: "Prediction terms are required, even when incomplete.", path: ["launch", "prediction"] });
+        c.addIssue({
+          code: "custom",
+          message: "Prediction terms are required, even when incomplete.",
+          path: ["launch", "prediction"],
+        });
       if (v.type === "update" && !v.finding && !v.relatedVersion)
-        c.addIssue({ code: "custom", message: "An update must link earlier work.", path: ["relatedVersion"] });
+        c.addIssue({
+          code: "custom",
+          message: "An update must link earlier work.",
+          path: ["relatedVersion"],
+        });
     }
     if (
       (v.contract ||
@@ -378,20 +428,105 @@ export type AlphaSnapshot = {
   serverTime: string;
   evaluationAvailable?: boolean;
   launchAvailable?: boolean;
-  launchTerms?: { version_id: string; member_id: string; policy_version: string; opportunity: string; useful_action: string; cost_or_risk: string; context: Record<string, string>; prediction: z.infer<typeof launchTermsSchema>["prediction"]; prediction_validated: boolean; created_at: string }[];
-  launchXp?: { id: string; finding_id: string; version_id: string; member_id: string; kind: string; xp: number; ordinary: boolean; basis_id: string; created_at: string }[];
-  launchSettlements?: { version_id: string; assessment_id: string; status: "Met" | "Failed" | "Inconclusive" | "Cancelled"; reason: string; awarded_xp: number; settled_at: string }[];
+  launchTerms?: {
+    version_id: string;
+    member_id: string;
+    policy_version: string;
+    opportunity: string;
+    useful_action: string;
+    cost_or_risk: string;
+    context: Record<string, string>;
+    prediction: z.infer<typeof launchTermsSchema>["prediction"];
+    prediction_validated: boolean;
+    created_at: string;
+  }[];
+  launchXp?: {
+    id: string;
+    finding_id: string;
+    version_id: string;
+    member_id: string;
+    kind: string;
+    xp: number;
+    ordinary: boolean;
+    basis_id: string;
+    created_at: string;
+  }[];
+  launchSettlements?: {
+    version_id: string;
+    assessment_id: string;
+    status: "Met" | "Failed" | "Inconclusive" | "Cancelled";
+    reason: string;
+    awarded_xp: number;
+    settled_at: string;
+  }[];
   launchAllowance?: { dailyRemaining: number; weeklyRemaining: number };
-  launchProgress?: { netPersonalXp: number; applied: number; reserved: number; available: number; unreconciledHistory: boolean };
-  launchReviewerScopes?: { member_id: string; category: AlphaCategory; rank: string; scope: string; granted_by: string; created_at: string }[];
+  launchProgress?: {
+    netPersonalXp: number;
+    applied: number;
+    reserved: number;
+    available: number;
+    unreconciledHistory: boolean;
+  };
+  launchReviewerScopes?: {
+    member_id: string;
+    category: AlphaCategory;
+    rank: string;
+    scope: string;
+    granted_by: string;
+    created_at: string;
+  }[];
   launchReviewable?: string[];
-  follows?: { id: string; opportunity_id: string | null; opportunityName: string | null; finding_id: string | null; participated: boolean; note: string; next_action: string; deadline: string | null; updated_at: string; done_at: string | null }[];
-  notifications?: { id: string; follow_id: string; kind: string; title: string; detail: string; status: string; created_at: string; batch_at: string | null; sourceUrl: string | null; sourceDate: string | null }[];
-  watchCoverage?: { opportunity: string; lastSuccessAt: string | null; status: string; nextDue: string }[];
+  follows?: {
+    id: string;
+    opportunity_id: string | null;
+    opportunityName: string | null;
+    finding_id: string | null;
+    participated: boolean;
+    note: string;
+    next_action: string;
+    deadline: string | null;
+    updated_at: string;
+    done_at: string | null;
+  }[];
+  notifications?: {
+    id: string;
+    follow_id: string;
+    kind: string;
+    title: string;
+    detail: string;
+    status: string;
+    created_at: string;
+    batch_at: string | null;
+    sourceUrl: string | null;
+    sourceDate: string | null;
+  }[];
+  watchCoverage?: {
+    opportunity: string | null;
+    finding: string | null;
+    version: string | null;
+    lastSuccessAt: string | null;
+    status: string;
+    nextDue: string;
+  }[];
   watchPreferences?: { reminders: boolean; nonurgent_digest: boolean };
-  monitorQueue?: { id: string; opportunity_id: string; opportunityName: string; source_url: string; source_date: string | null; detected_at: string }[];
+  monitorQueue?: {
+    id: string;
+    opportunity_id: string;
+    opportunityName: string;
+    source_url: string;
+    source_date: string | null;
+    detected_at: string;
+  }[];
   operatorOpportunities?: { id: string; name: string; isDemo: boolean }[];
-  operatorMonitorSources?: { id: string; opportunity_id: string; url: string; enabled: boolean; last_status: string; last_success_at: string | null; next_due: string }[];
+  operatorMonitorSources?: {
+    id: string;
+    opportunity_id: string;
+    url: string;
+    enabled: boolean;
+    last_status: string;
+    last_success_at: string | null;
+    next_due: string;
+  }[];
   reviewAssessments?: {
     decision_id: string;
     checklist: string;

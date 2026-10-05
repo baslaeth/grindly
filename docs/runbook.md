@@ -1,6 +1,6 @@
 # Setup and operations
 
-## Launch checkpoint operations (2026-10-05)
+## Launch checkpoint operations (2026-10-06)
 
 The older instructions below describe historical deployed checkpoints. The
 current feature branch is `codex/category-alpha-review`; Home is
@@ -9,27 +9,32 @@ set `$env:NODE_USE_SYSTEM_CA='1'` before starting it so server-side Supabase
 requests retain TLS verification. The older production URL is not the local
 review build and must not be deployed or merged by this checkpoint.
 
-Migration 026 is shared-applied. Launch migrations 027 and 028 are prepared but
-not shared-applied. Do not replay 023-026. After explicit shared-migration
-authorization and authenticated SQL Editor access, run
-`pnpm exec tsx scripts/prepare-launch-migration.ts`, inspect the ignored
-`.local/launch-migrations.sql`, and apply that single 027-028 transaction once.
-The transaction rejects missing 026 or already-present launch tables, asserts
-every old public-table digest is unchanged, checks forced RLS and browser RPC
-denial, and rolls back on a failed assertion. Verify live PostgREST and exact-rank
-browser access after commit. Never use the local PGlite bootstrap on Supabase.
+026 was verified active without replay. Corrected 027-028 and separately approved
+029 are now shared-applied. Both preservation transactions passed old-table
+digests, forced RLS and browser RPC denial assertions. 029 changes only the
+already-guarded reviewer-appointment execution boundary. Do not edit or replay
+023-029. Never use the local PGlite bootstrap on Supabase. See
+[launch-completion.md](launch-completion.md) for activation and browser evidence.
 
-The watchlist runner is `/api/monitor` and `vercel.json` schedules it daily at
-05:00 UTC. The route requires server-only `CRON_SECRET`; do not print or commit
-it. Production deployment is not authorized here, so this schedule has not
-run against the shared service. An authorized steward must configure an
-approved public source on a real opportunity; changed page content enters a
-manual-verification queue before a material event is confirmed. A source outage
-is recorded separately from no confirmed change. Digest and deadline reminders
-run with the same protected job. See `launch-policy-handoff.md` for the precise
-live verification gaps and the legacy upgrade-schema conflict.
+The review environment uses `scripts/local-monitor-scheduler.ts`: a real timer
+run checked an approved alpha document and a later tick delivered a deadline
+reminder. It starts after 60 seconds, checks due work every 15 minutes and keeps
+approved-source cadence at 24 hours or longer. Only one local process may run;
+inspect ignored `.local/monitor-scheduler.json` for health. On Windows, start it
+with `Start-Process -FilePath (Get-Command node).Source -ArgumentList
+'--use-system-ca','--import','tsx','scripts/local-monitor-scheduler.ts'
+-WorkingDirectory (Get-Location).Path -WindowStyle Hidden`. This is not installed
+as a startup service; the machine and process must remain running.
 
-## Current checkpoint
+The separate `/api/monitor` route still requires server-only `CRON_SECRET`.
+The `vercel.json` schedule has not been deployed or verified, and no production
+deployment is authorized. Scoped operators configure approved public sources on
+opportunities or permitted alphas; content changes enter manual verification
+before targeted delivery. Source outage and no confirmed change remain distinct.
+Genuine reviewer staffing is still absent; isolated appointments do not authorize
+genuine awards. The legacy upgrade-schema conflict is in the policy handoff.
+
+## Historical Phase 1 checkpoint
 
 The six-screen application includes the authorized research collaboration flow;
 see `research-runbook.md` for reviewer appointments, demo policy, assignment and
@@ -45,7 +50,7 @@ is https://grindly-woad.vercel.app; `deployments/app-testnet.json` records its s
 2. Run `pnpm install --frozen-lockfile`.
 3. Run `pnpm check` for lint, TypeScript, Vitest, PostgreSQL integration tests, generated-type drift, and production build.
 4. Run `pnpm exec playwright install chromium`, then `pnpm test:e2e`. An installed Chrome can be used with `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`.
-5. Run `pnpm dev` and open `http://localhost:3000/join`.
+5. Run `pnpm dev` and open `http://localhost:3000/` (Home).
 
 On this Windows machine, installations require `$env:NODE_USE_SYSTEM_CA = '1'`. This uses the Windows trust store and keeps TLS verification enabled. Browser tests run a separate foundation-mode production server on port 3100 and never send real OTP emails.
 

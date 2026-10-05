@@ -1419,7 +1419,9 @@ export type Database = {
         Row: {
           id: string;
           source_id: string;
-          opportunity_id: string;
+          opportunity_id: string | null;
+          finding_id: string | null;
+          version_id: string | null;
           digest: string;
           source_url: string;
           source_date: string | null;
@@ -1435,7 +1437,9 @@ export type Database = {
         Insert: {
           id?: string;
           source_id: string;
-          opportunity_id: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          version_id?: string | null;
           digest: string;
           source_url: string;
           source_date?: string | null;
@@ -1451,7 +1455,9 @@ export type Database = {
         Update: {
           id?: string;
           source_id?: string;
-          opportunity_id?: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          version_id?: string | null;
           digest?: string;
           source_url?: string;
           source_date?: string | null;
@@ -1473,6 +1479,13 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "launch_monitor_events_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "launch_monitor_events_opportunity_id_fkey";
             columns: ["opportunity_id"];
             isOneToOne: false;
@@ -1485,6 +1498,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "launch_monitor_sources";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_monitor_events_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
           },
         ];
       };
@@ -1529,7 +1549,9 @@ export type Database = {
       launch_monitor_sources: {
         Row: {
           id: string;
-          opportunity_id: string;
+          opportunity_id: string | null;
+          finding_id: string | null;
+          version_id: string | null;
           url: string;
           cadence_hours: number;
           enabled: boolean;
@@ -1542,7 +1564,9 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          opportunity_id: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          version_id?: string | null;
           url: string;
           cadence_hours?: number;
           enabled?: boolean;
@@ -1555,7 +1579,9 @@ export type Database = {
         };
         Update: {
           id?: string;
-          opportunity_id?: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          version_id?: string | null;
           url?: string;
           cadence_hours?: number;
           enabled?: boolean;
@@ -1575,11 +1601,25 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "launch_monitor_sources_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "launch_monitor_sources_opportunity_id_fkey";
             columns: ["opportunity_id"];
             isOneToOne: false;
             referencedRelation: "opportunities";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_monitor_sources_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
           },
         ];
       };
@@ -3648,6 +3688,17 @@ export type Database = {
           p_evidence: Json;
         };
         Returns: Json;
+      };
+      launch_set_alpha_monitor_source: {
+        Args: {
+          p_actor: string;
+          p_binding: string;
+          p_finding: string;
+          p_url: string;
+          p_cadence: number;
+          p_enabled: boolean;
+        };
+        Returns: string;
       };
       launch_set_monitor_source: {
         Args: {

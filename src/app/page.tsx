@@ -65,6 +65,12 @@ export default async function Home({
     ?.is_demo;
   return (
     <Screen title="Home">
+      {demo && (
+        <p className="sample-label">
+          Isolated walkthrough account. Activity and XP here are test records,
+          not genuine member work.
+        </p>
+      )}
       <section className="home-intro">
         <h2>
           Contribute where you have an edge.
@@ -80,6 +86,17 @@ export default async function Home({
           </Link>
         </div>
       </section>
+      <section className="section">
+        <h2>Earn credit for useful work</h2>
+        <p>
+          Share a find, guide, analysis, prediction, warning or update.
+          Independent review determines work credit; forecasts have separate
+          later outcomes.
+        </p>
+        <Link className="inline-link" href="/xp">
+          How XP and ranks work
+        </Link>
+      </section>
       {sample && (
         <p className="notice">
           Separate sample experience. All cards here are fictional. No real
@@ -89,9 +106,9 @@ export default async function Home({
       <section className="section">
         <h2>Grind Intelligence</h2>
         <p>
-          Explore your alpha&apos;s checked sources, missing information, earlier
-          work and later outcomes. Source checks are not proof that a claim is
-          correct.
+          Explore your alpha&apos;s checked sources, missing information,
+          earlier work and later outcomes. Source checks are not proof that a
+          claim is correct.
         </p>
         <Link className="inline-link" href="/intelligence">
           Explore Grind Intelligence
@@ -120,8 +137,13 @@ export default async function Home({
                 card={card}
                 signedIn={signedIn}
                 registration={registrations.get(card.id)}
-                followed={data?.follows?.some((f) => f.opportunity_id === card.id)}
-                participated={data?.follows?.find((f) => f.opportunity_id === card.id)?.participated}
+                followed={data?.follows?.some(
+                  (f) => f.opportunity_id === card.id,
+                )}
+                participated={
+                  data?.follows?.find((f) => f.opportunity_id === card.id)
+                    ?.participated
+                }
                 canFollow={!!data && card.isDemo === demo}
                 locked={participationReason(
                   card,

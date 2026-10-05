@@ -170,7 +170,10 @@ begin
   if lower(value) not in ('unknown','not applicable') then
    if ((p_data->>'category' in ('Whitelist Hunters','Presale Hunters','Project Analysts') and k='official')
      and value !~ '^https://[^[:space:]]+$') then raise exception 'research: official HTTPS source required'; end if;
-   if k in ('deadline','checkpoint','reviewDate','expiry','horizon') then perform value::timestamptz; end if;
+   if k in ('deadline','reviewDate','expiry','horizon') or (k='checkpoint' and p_data->>'category'='Airdrop Hunters') then
+    if value !~ '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.*(Z|[+-]\d{2}:\d{2})$' then raise exception 'research: UTC date required'; end if;
+    perform value::timestamptz;
+   end if;
    if k in ('entry','stop','target') and p_data->>'category' in ('Traders','Degens') and value !~ '^[0-9]+(\.[0-9]+)?$'
     then raise exception 'research: numeric market term required'; end if;
    if k='direction' and p_data->>'category' in ('Traders','Degens') and value not in ('long','short')

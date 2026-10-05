@@ -1,5 +1,73 @@
 # Actual verification
 
+## Launch activation and signed-in completion - 2026-10-06
+
+- Checkout verified `codex/category-alpha-review` at starting `f23db77`.
+  Preserved annotation checkpoints and unrelated untracked branding.
+- Target `errbtterppmvtlfltgzp` verified. 026 already active and not replayed.
+  Owner-approved corrected 027-028 applied once in the prepared preservation
+  transaction. Every old public-table digest unchanged, zero unprotected tables,
+  zero browser RPC execute grants; launch policy/version and snapshot active.
+- Separately approved 029 applied after reproducing the older scope-update grant
+  failure. Function-only change, all prior table digests unchanged. Postflight:
+  `launch_set_reviewer` owner postgres, definer true, empty search_path,
+  anon/authenticated execute false, service_role true. Isolated UI appointment
+  then succeeded. No genuine appointment, credit or record was created.
+- Nine practical category forms saved against the shared DB using three existing
+  explicitly isolated author identities. Project Analysts text checkpoint works;
+  selected Unknown values are accepted. Receipt/reload, same-request replay,
+  permitted same-rank sharing and an injected failed-send retry were exercised.
+  Coinbase BTC and the official-document analysis were entered through the
+  in-app browser; other categories through separate authenticated test contexts.
+- BTC original version `61956839-752f-4c05-8324-a2da70e7cce9` retained its actual
+  Coinbase observation, registered terms and future UTC-hour expiry. Raw posting
+  gave no work XP. Refresh saved two retrieved sources; no automatic success.
+- Real local qwen3:4b card persisted after unavailable/timeout attempts; saved
+  alpha survived all failures. The card left the future claim Unknown. Its
+  unnecessary demand for a personal trade is a recorded experimental limitation;
+  refined future instructions are not claimed as a new accuracy measurement.
+  A repeated completed-version request reused the card, not another model call.
+- Separate isolated reviewer accepted the official-document analysis for exactly
+  150 work XP. Duplicate review did not double-award. Profile/Activity match;
+  original November forecast stayed Pending. Author self-approval denied.
+- Rejection/appeal persisted on a separate controlled alpha. Existing dispute
+  lock preserved. Accepted analysis corrected to v2 after the daily allowance was
+  exhausted, preserving v1 time, award and original horizon. Independent outcome
+  entry on an already-matured isolated fixture saved Inconclusive, no invented
+  success and no backdating. Appeal needs a different independently scoped reviewer.
+- Local timer scheduler actually ran: 21:47:23Z on 2026-10-05 saved one approved
+  official-document check (`no_new_confirmed_event`). Its 22:02:26Z tick delivered
+  one BTC deadline reminder. Health/run state persisted. Windows Task Scheduler
+  attempts failed and are not counted; the verified runner is the local process.
+- A separate labeled synthetic digest change created an operator task, was
+  confirmed by the isolated steward, delivered to the permitted follower and
+  acknowledged after reload. Real official source baseline retained. No actual
+  Coinbase change was claimed. Following preserves version/rank permissions.
+- Final signed-in responsive sweep passed **2/2**: Home, XP guide, Hub's ten
+  Bronze rooms, nine form layouts, BTC receipt/reload, selected Grind Intelligence
+  questions, top-right Profile, 150 award history, inactive Claim, Following and
+  Review Desk. Desktop/mobile width assertions passed; Silver room API denied.
+  A subsequent mobile receipt reload timed out during the combined build/test
+  sweep; the isolated mobile rerun passed without weakening ownership checks.
+  This remains an intermittent live-read reliability observation, not lost data.
+- Five distinct focused shared suites passed individually: category saves,
+  independent work/duplicate award/history, reviewer appointment/monitor/ack,
+  rejection/appeal/correction/matured observation, and daily-limit rejection
+  without an extra record. The last check exposed and repaired an opaque error;
+  the server now explains the UTC reset while preserving other private errors.
+  Repaired/repeated executions
+  are not additional journeys. No new live Silver verification or manual NFT
+  transfer test was manufactured.
+- `pnpm check` passed: lint/types, **234 unit**, **292 isolated DB**, type drift,
+  **11 contract**, production build. Foundation Chrome desktop/mobile **52/52**.
+  Met/Failed/Cancelled, High losses/reservations, concurrent limits, caps,
+  enhanced exclusions, reversals and transfer accounting have deterministic or
+  transactional fixture coverage; not claimed as new genuine browser outcomes.
+- Sanitized actual screenshots: [gallery](launch-completion/README.md). Every
+  signed-in account/balance is isolated. No genuine member data/session files
+  included. Hosted scheduler, genuine reviewer staffing, burns, upgrades and
+  Claim $GRIND remain unconfigured/inactive. No paid calls or deployment.
+
 ## Launch policy local checkpoint - 2026-10-05
 
 - Verified branch `codex/category-alpha-review`; 026 shared-applied, launch

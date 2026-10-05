@@ -168,6 +168,9 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
   return (
     <>
       <div className="room-tools">
+        <Link href="/xp" className="inline-link">
+          How XP and ranks work
+        </Link>
         <Link
           href={`/findings/new?room=${data.question.id}`}
           className="inline-link"
@@ -728,9 +731,21 @@ export function FindingRecord({
                 {versions.find((v) => v.id === a.version_id)?.version}.
               </p>
             ))}
-          {!data.awards.some((a) => a.finding_id === finding.id) && (
-            <p>No acceptance award yet.</p>
-          )}
+          {data.launchXp
+            ?.filter((a) => a.finding_id === finding.id)
+            .map((a) => (
+              <p key={a.id}>
+                {a.xp > 0 ? "+" : ""}
+                {a.xp} XP / {a.kind} / version{" "}
+                {versions.find((v) => v.id === a.version_id)?.version} /{" "}
+                {date(a.created_at)}. Prediction outcomes and work credit are
+                separate.
+              </p>
+            ))}
+          {!data.awards.some((a) => a.finding_id === finding.id) &&
+            !data.launchXp?.some((a) => a.finding_id === finding.id) && (
+              <p>No acceptance award yet.</p>
+            )}
         </section>
       )}
       {data.assignment?.assignee_id === data.memberId && own && (
@@ -756,8 +771,12 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
   );
   return (
     <>
-      {data.launchAvailable && data.roles.includes("steward") && <ReviewerAppointments data={data} />}
-      {data.launchAvailable && data.roles.includes("steward") && <MonitorQueue data={data} />}
+      {data.launchAvailable && data.roles.includes("steward") && (
+        <ReviewerAppointments data={data} />
+      )}
+      {data.launchAvailable && data.roles.includes("steward") && (
+        <MonitorQueue data={data} />
+      )}
       {data.roles.includes("steward") && !data.launchAvailable && (
         <section className="section">
           <h2>Independent Silver assessment</h2>
@@ -1032,10 +1051,18 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             <dt>Accepted contributions</dt>
             <dd>{accepted.length}</dd>
           </div>
-          {data.launchAllowance && <>
-            <div><dt>New alphas left today (UTC)</dt><dd>{data.launchAllowance.dailyRemaining}</dd></div>
-            <div><dt>Ordinary XP left this week (UTC)</dt><dd>{data.launchAllowance.weeklyRemaining}</dd></div>
-          </>}
+          {data.launchAllowance && (
+            <>
+              <div>
+                <dt>New alphas left today (UTC)</dt>
+                <dd>{data.launchAllowance.dailyRemaining}</dd>
+              </div>
+              <div>
+                <dt>Ordinary XP left this week (UTC)</dt>
+                <dd>{data.launchAllowance.weeklyRemaining}</dd>
+              </div>
+            </>
+          )}
         </dl>
         <p className="muted">
           Credit belongs to your member identity, not the transferable NFT. The
@@ -1046,6 +1073,9 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
       </section>
       <section className="section">
         <h2>Your NFT progression</h2>
+        <Link className="inline-link" href="/xp">
+          How XP and ranks work
+        </Link>
         <div className="tier-path">
           <div>
             <Fingerprint size={24} />
@@ -1065,35 +1095,90 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         {next && data.launchAvailable && data.launchProgress ? (
           <>
             <dl className="metrics">
-              <div><dt>XP needed for {data.token.tier} → {next}</dt><dd>{launchPolicy.upgrade[data.token.tier as keyof typeof launchPolicy.upgrade]}</dd></div>
-              <div><dt>{data.launchProgress.unreconciledHistory ? "Provisional progression XP" : "Unused progression XP"}</dt><dd>{data.launchProgress.available}</dd></div>
-              <div><dt>Already applied</dt><dd>{data.launchProgress.applied}</dd></div>
-              <div><dt>Reserved for High predictions</dt><dd>{data.launchProgress.reserved}</dd></div>
+              <div>
+                <dt>
+                  XP needed for {data.token.tier} → {next}
+                </dt>
+                <dd>
+                  {
+                    launchPolicy.upgrade[
+                      data.token.tier as keyof typeof launchPolicy.upgrade
+                    ]
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  {data.launchProgress.unreconciledHistory
+                    ? "Provisional progression XP"
+                    : "Unused progression XP"}
+                </dt>
+                <dd>{data.launchProgress.available}</dd>
+              </div>
+              <div>
+                <dt>Remaining XP for {next}</dt>
+                <dd>
+                  {Math.max(
+                    0,
+                    launchPolicy.upgrade[
+                      data.token.tier as keyof typeof launchPolicy.upgrade
+                    ] - data.launchProgress.available,
+                  )}
+                </dd>
+              </div>
             </dl>
-            <p>{data.launchProgress.unreconciledHistory
-              ? "An earlier NFT advancement has no recorded launch XP allocation. Reconcile that historical step before treating this amount as unused or reserving it for High predictions."
-              : data.launchProgress.available >= launchPolicy.upgrade[data.token.tier as keyof typeof launchPolicy.upgrade]
-                ? "XP requirement met. Upgrade execution remains inactive."
-                : "More unused progression XP is needed for eligibility."}</p>
+            <details>
+              <summary>Progression accounting</summary>
+              <dl className="metrics">
+                <div>
+                  <dt>Already applied to upgrades</dt>
+                  <dd>{data.launchProgress.applied}</dd>
+                </div>
+                <div>
+                  <dt>Reserved for High predictions</dt>
+                  <dd>{data.launchProgress.reserved}</dd>
+                </div>
+              </dl>
+              <p>
+                Net earned progression minus applied XP and active reservations.
+                Losses can reduce available progress below zero. Completed
+                upgrades are not automatically reversed.
+              </p>
+            </details>
+            <p>
+              {data.launchProgress.unreconciledHistory
+                ? "An earlier NFT advancement has no recorded launch XP allocation. Reconcile that historical step before treating this amount as unused or reserving it for High predictions."
+                : data.launchProgress.available >=
+                    launchPolicy.upgrade[
+                      data.token.tier as keyof typeof launchPolicy.upgrade
+                    ]
+                  ? "XP requirement met. Upgrade execution remains inactive."
+                  : "More unused progression XP is needed for eligibility."}
+            </p>
             <p>Token burn: To finalize. No upgrade transaction is available.</p>
           </>
         ) : next ? (
           <dl className="metrics">
             <div>
               <dt>XP threshold</dt>
-              <dd>To finalize</dd>
+              <dd>
+                {launchPolicy.upgrade[
+                  data.token.tier as keyof typeof launchPolicy.upgrade
+                ].toLocaleString("en-US")}
+              </dd>
             </div>
             <div>
-              <dt>Token burn</dt>
-              <dd>To finalize</dd>
+              <dt>Live available progression</dt>
+              <dd>Temporarily unavailable</dd>
             </div>
           </dl>
         ) : (
           <p>Diamond is the final rank. No further rank is configured.</p>
         )}
         <p>
-          Progression is a human decision. No automatic upgrade or token
-          transaction is active.
+          Published XP requirements are shown above. Upgrade execution is
+          inactive until burn parameters and transaction integration are
+          implemented.
         </p>
         <p>
           Silver members can initiate a peer request for complementary
@@ -1114,7 +1199,10 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             </p>
           </details>
         ) : (
-          <p>Reviewed work and outcomes follow the recorded launch policy. XP is not a token balance or claim.</p>
+          <p>
+            Reviewed work and outcomes follow the recorded launch policy. XP is
+            not a token balance or claim.
+          </p>
         )}
       </section>
       <section className="section">

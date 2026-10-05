@@ -434,8 +434,17 @@ export async function chainSource(alpha: AlphaVersion): Promise<CheckedSource> {
 export async function collectSources(alpha: AlphaVersion) {
   const result: CheckedSource[] = [];
   const links = alpha.evidence.filter((e) => e.kind === "link");
+  const pair =
+    alpha.category === "Traders"
+      ? marketPairs[alpha.subject.trim().toUpperCase()]
+      : null;
   const checks: Promise<CheckedSource>[] = links
     .slice(0, 3)
+    .filter(
+      (e) =>
+        !pair ||
+        e.value !== `https://api.exchange.coinbase.com/products/${pair}/ticker`,
+    )
     .map((e, i) => primaryDocument(e.value, `source-${i + 1}`));
   if (links.length > 3)
     result.push(
