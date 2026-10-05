@@ -19,6 +19,7 @@ export function AlphaOutcomes({
     data.outcomes?.filter((o) => o.version_id === version) ?? [];
   const assessments =
     data.outcomeAssessments?.filter((o) => o.version_id === version) ?? [];
+  const settlement = data.launchSettlements?.find((o) => o.version_id === version);
   return (
     <section
       className="section"
@@ -44,6 +45,9 @@ export function AlphaOutcomes({
             : "Outcome pending. Initial evaluation does not establish a successful outcome."}
         </p>
       )}
+      {settlement && <p className="notice">Prediction settlement: {settlement.status}. {settlement.reason} Outcome XP: {settlement.awarded_xp}.</p>}
+      {!settlement && data.launchTerms?.some((t) => t.version_id === version && t.prediction) &&
+        <p>Prediction not settled. A reviewer observation alone does not establish outcome XP.</p>}
       {due && (
         <AlphaAction
           action="outcomeCheck"

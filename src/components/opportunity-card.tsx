@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowUpRight, LockKeyhole } from "lucide-react";
+import { ArrowUpRight, LockKeyhole, Bookmark, Check } from "lucide-react";
 import type { Opportunity } from "@/opportunities/model";
 const sampleDescriptions: Record<string, string> = {
   "Sample: specialist roundtable":
@@ -43,15 +44,38 @@ export function OpportunityCard({
   locked,
   signedIn,
   registration,
+  followed = false,
+  participated: savedParticipation = false,
+  canFollow = false,
 }: {
   card: Opportunity;
   locked: string | null;
   signedIn: boolean;
   registration?: string;
+  followed?: boolean;
+  participated?: boolean;
+  canFollow?: boolean;
 }) {
+  const router = useRouter();
   const [status, setStatus] = useState(registration ?? "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [watching, setWatching] = useState(followed);
+  const [participated, setParticipated] = useState(savedParticipation);
+  async function watch(operation: "follow" | "remove" | "participated", note = "", nextAction = "") {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/alpha", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "follow", kind: "opportunity", id: card.id, operation, note, nextAction, deadline: card.endsAt }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error?.message ?? "Watchlist unavailable.");
+      setWatching(operation !== "remove");
+      if (operation === "participated") setParticipated(true);
+      router.refresh();
+    } catch (error) { setError(error instanceof Error ? error.message : "Watchlist unavailable."); }
+    finally { setBusy(false); }
+  }
   async function participate() {
     setBusy(true);
     setError("");
@@ -72,7 +96,7 @@ export function OpportunityCard({
     }
   }
   return (
-    <article className="opportunity-card">
+    <article className="opportunity-card" id={`opportunity-${card.id}`}>
       <div className="byline">
         <span className="status-label">{card.kind}</span>
         <span>{card.status}</span>
@@ -142,6 +166,24 @@ export function OpportunityCard({
           {status}
         </p>
       )}
+      {canFollow && <div className="form-actions">
+        <button type="button" className="button secondary" disabled={busy} onClick={() => void watch(watching ? "remove" : "follow")}>
+          <Bookmark size={16} />{watching ? "Following" : "Follow"}
+        </button>
+        <details>
+          <summary>I participated</summary>
+          <form onSubmit={(event) => {
+            event.preventDefault();
+            const fields = new FormData(event.currentTarget);
+            void watch("participated", String(fields.get("note") ?? ""), String(fields.get("next") ?? ""));
+          }}>
+            <p>This is your own off-platform note, not a Grindly registration or eligibility approval.</p>
+            <label className="field">What you did (optional)<input name="note" maxLength={500} /></label>
+            <label className="field">Next action (optional)<input name="next" maxLength={500} /></label>
+            <button type="submit" className="button secondary" disabled={busy}><Check size={16} />{participated ? "Update participation" : "Save participation"}</button>
+          </form>
+        </details>
+      </div>}
       {error && (
         <p role="alert" className="error">
           {error}

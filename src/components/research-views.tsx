@@ -31,6 +31,10 @@ import {
   type ResearchData,
 } from "@/research/model";
 import { illustration } from "@/research/illustration";
+import { launchPolicy } from "@/launch/policy";
+import { ReviewerAppointments } from "./reviewer-appointments";
+import { Watchlist } from "./watchlist";
+import { MonitorQueue } from "./monitor-queue";
 
 const date = (value: string) =>
   new Date(value).toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -752,7 +756,9 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
   );
   return (
     <>
-      {data.roles.includes("steward") && (
+      {data.launchAvailable && data.roles.includes("steward") && <ReviewerAppointments data={data} />}
+      {data.launchAvailable && data.roles.includes("steward") && <MonitorQueue data={data} />}
+      {data.roles.includes("steward") && !data.launchAvailable && (
         <section className="section">
           <h2>Independent Silver assessment</h2>
           <p>
@@ -1026,6 +1032,10 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             <dt>Accepted contributions</dt>
             <dd>{accepted.length}</dd>
           </div>
+          {data.launchAllowance && <>
+            <div><dt>New alphas left today (UTC)</dt><dd>{data.launchAllowance.dailyRemaining}</dd></div>
+            <div><dt>Ordinary XP left this week (UTC)</dt><dd>{data.launchAllowance.weeklyRemaining}</dd></div>
+          </>}
         </dl>
         <p className="muted">
           Credit belongs to your member identity, not the transferable NFT. The
@@ -1052,7 +1062,22 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             </>
           )}
         </div>
-        {next ? (
+        {next && data.launchAvailable && data.launchProgress ? (
+          <>
+            <dl className="metrics">
+              <div><dt>XP needed for {data.token.tier} → {next}</dt><dd>{launchPolicy.upgrade[data.token.tier as keyof typeof launchPolicy.upgrade]}</dd></div>
+              <div><dt>{data.launchProgress.unreconciledHistory ? "Provisional progression XP" : "Unused progression XP"}</dt><dd>{data.launchProgress.available}</dd></div>
+              <div><dt>Already applied</dt><dd>{data.launchProgress.applied}</dd></div>
+              <div><dt>Reserved for High predictions</dt><dd>{data.launchProgress.reserved}</dd></div>
+            </dl>
+            <p>{data.launchProgress.unreconciledHistory
+              ? "An earlier NFT advancement has no recorded launch XP allocation. Reconcile that historical step before treating this amount as unused or reserving it for High predictions."
+              : data.launchProgress.available >= launchPolicy.upgrade[data.token.tier as keyof typeof launchPolicy.upgrade]
+                ? "XP requirement met. Upgrade execution remains inactive."
+                : "More unused progression XP is needed for eligibility."}</p>
+            <p>Token burn: To finalize. No upgrade transaction is available.</p>
+          </>
+        ) : next ? (
           <dl className="metrics">
             <div>
               <dt>XP threshold</dt>
@@ -1078,7 +1103,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           Personal XP and delegated NFT progress are separate. No delegated
           credit or current delegates are recorded for this account.
         </p>
-        {profile?.is_demo ? (
+        {profile?.is_demo && !data.launchAvailable ? (
           <details>
             <summary>Evaluation award policy</summary>
             <p>
@@ -1089,10 +1114,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             </p>
           </details>
         ) : (
-          <p>
-            XP rules for these contributions are awaiting approval. A review
-            does not promise a token reward.
-          </p>
+          <p>Reviewed work and outcomes follow the recorded launch policy. XP is not a token balance or claim.</p>
         )}
       </section>
       <section className="section">
@@ -1103,6 +1125,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         <p id="claims-inactive">Claims are not active yet.</p>
       </section>
       <MemberActivity data={data} />
+      <Watchlist data={data} />
       <CategoryHistory data={data} member={data.memberId} />
       <section className="section">
         <h2>Your contribution history in this rank</h2>

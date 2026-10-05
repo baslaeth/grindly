@@ -95,7 +95,7 @@ beforeEach(() => {
   });
 });
 it.each(["hang", "failure"])(
-  "renders an editable correction without irrelevant peer enrichment (%s)",
+  "renders correction fields without peer enrichment but holds launch submission until activation (%s)",
   async (mode) => {
     if (mode === "hang")
       mocks.peer.mockImplementation(() => new Promise(() => {}));
@@ -109,7 +109,8 @@ it.each(["hang", "failure"])(
     expect(html).toContain("Correct version 1");
     expect(html).toContain('name="correction"');
     expect(html).toContain("Submit corrected version");
-    expect(html).not.toMatch(/<(fieldset|button|textarea)[^>]*\bdisabled\b/);
+    expect(html).toContain("Launch submissions are unavailable");
+    expect(html).toMatch(/<button[^>]*\bdisabled\b/);
     expect(mocks.access).toHaveBeenCalledWith(false);
     expect(mocks.peer).not.toHaveBeenCalled();
   },

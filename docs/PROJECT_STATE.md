@@ -1,5 +1,23 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Launch policy checkpoint (2026-10-05)
+
+Current branch `codex/category-alpha-review`; local review `http://localhost:3000/`.
+See `launch-policy-handoff.md` for the implementation checklist, exact status,
+policy coverage, migration procedure, legacy upgrade conflict and recording
+route. The new 027-028 transaction is prepared and passed populated local
+database/security tests, but is **not shared-applied** pending explicit
+authorization and authenticated SQL execution. Migration 026 remains applied;
+do not replay or edit 023-026. No genuine records, roles, awards or NFT tiers
+were changed. Existing member journey remains available; new launch submission
+is disabled until the shared schema is active. The local server requires
+`NODE_USE_SYSTEM_CA=1` on Windows and now serves Home on port 3000.
+
+Genuine reviewer/steward scopes are absent. A scheduled monitoring job has not
+run in the shared service; `CRON_SECRET` is not configured locally and production
+deployment is not authorized. Upgrades and Claim $GRIND remain inactive. The
+new policy must not be called live or video-ready on the strength of local tests.
+
 ## Free evidence and activation (2026-09-30)
 
 Review branch `codex/category-alpha-review`, local http://localhost:3000/intelligence.

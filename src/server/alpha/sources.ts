@@ -294,7 +294,7 @@ export async function marketHistorySource(
     ? Date.parse(alpha.created_at) / 1000
     : NaN;
   const hours = Number.isFinite(submitted)
-    ? Math.min(168, Math.max(24, Math.ceil((end - submitted) / 3600)))
+    ? Math.min(168, Math.max(1, Math.ceil((end - submitted) / 3600)))
     : 24;
   const start = end - hours * 3600;
   const url = new URL(
@@ -327,7 +327,7 @@ export async function marketHistorySource(
       columns: ["bucketStartUnix", "low", "high", "open", "close", "volume"],
       candles,
       limitations:
-        "One venue, 24 to 168 completed hourly buckets before the declared due horizon or retrieval hour, bounded by saved submission time. Longer periods and gaps remain Unknown. Prices are USD; volume is base asset. Buckets do not establish intrahour event order, execution, all-venue prices or a forecast result. No automated success determination.",
+        "One venue, up to 168 completed hourly buckets before the declared due horizon or retrieval hour. Longer periods and gaps remain Unknown. Prices are USD; volume is base asset. Buckets do not establish intrahour event order, execution or all-venue prices. Only a complete matched path can support an outcome decision.",
     });
     return {
       id: "market-history",

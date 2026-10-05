@@ -150,7 +150,7 @@ it("bounds historical candles to seven days and preserves missing coverage", asy
   const data = JSON.parse(result.facts);
   expect(data.expectedBuckets).toBe(168);
   expect(data.missingBuckets).toBe(167);
-  expect(data.limitations).toContain("No automated success");
+  expect(data.limitations).toContain("Only a complete matched path");
 });
 it("keeps optional providers and local model disconnected without credentials/configuration", async () => {
   vi.stubEnv("ALCHEMY_API_KEY", "");

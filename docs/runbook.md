@@ -1,5 +1,34 @@
 # Setup and operations
 
+## Launch checkpoint operations (2026-10-05)
+
+The older instructions below describe historical deployed checkpoints. The
+current feature branch is `codex/category-alpha-review`; Home is
+`http://localhost:3000/` when this project's `pnpm dev` is running. On Windows,
+set `$env:NODE_USE_SYSTEM_CA='1'` before starting it so server-side Supabase
+requests retain TLS verification. The older production URL is not the local
+review build and must not be deployed or merged by this checkpoint.
+
+Migration 026 is shared-applied. Launch migrations 027 and 028 are prepared but
+not shared-applied. Do not replay 023-026. After explicit shared-migration
+authorization and authenticated SQL Editor access, run
+`pnpm exec tsx scripts/prepare-launch-migration.ts`, inspect the ignored
+`.local/launch-migrations.sql`, and apply that single 027-028 transaction once.
+The transaction rejects missing 026 or already-present launch tables, asserts
+every old public-table digest is unchanged, checks forced RLS and browser RPC
+denial, and rolls back on a failed assertion. Verify live PostgREST and exact-rank
+browser access after commit. Never use the local PGlite bootstrap on Supabase.
+
+The watchlist runner is `/api/monitor` and `vercel.json` schedules it daily at
+05:00 UTC. The route requires server-only `CRON_SECRET`; do not print or commit
+it. Production deployment is not authorized here, so this schedule has not
+run against the shared service. An authorized steward must configure an
+approved public source on a real opportunity; changed page content enters a
+manual-verification queue before a material event is confirmed. A source outage
+is recorded separately from no confirmed change. Digest and deadline reminders
+run with the same protected job. See `launch-policy-handoff.md` for the precise
+live verification gaps and the legacy upgrade-schema conflict.
+
 ## Current checkpoint
 
 The six-screen application includes the authorized research collaboration flow;

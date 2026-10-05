@@ -3,6 +3,7 @@ import { Screen } from "@/components/screen";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { OpportunityManager } from "@/components/opportunity-manager";
 import { MemberActivity } from "@/components/member-activity";
+import { Watchlist } from "@/components/watchlist";
 import { publicOpportunities } from "@/server/opportunities";
 import { readResearch } from "@/server/research/service";
 import { getCurrentMember } from "@/server/auth/session";
@@ -119,6 +120,9 @@ export default async function Home({
                 card={card}
                 signedIn={signedIn}
                 registration={registrations.get(card.id)}
+                followed={data?.follows?.some((f) => f.opportunity_id === card.id)}
+                participated={data?.follows?.find((f) => f.opportunity_id === card.id)?.participated}
+                canFollow={!!data && card.isDemo === demo}
                 locked={participationReason(
                   card,
                   data?.token.tier ?? null,
@@ -131,6 +135,7 @@ export default async function Home({
         )}
       </section>
       {data && <MemberActivity data={data} limit={5} />}
+      {data && <Watchlist data={data} />}
       {data?.roles.includes("steward") && <OpportunityManager />}
     </Screen>
   );

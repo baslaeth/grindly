@@ -6,9 +6,11 @@ export async function prepareAlphaMigration(
     "202609290024_preliminary_review.sql",
     "202609290025_alpha_feedback.sql",
   ],
+  checks: { before?: string; after?: string } = {},
 ) {
-  let sql =
-    "begin;\nset local statement_timeout='60s';\ncreate temp table preserved(table_name text primary key,digest text);\n";
+  let sql = "begin;\nset local statement_timeout='60s';\n";
+  if (checks.before) sql += `${checks.before}\n`;
+  sql += "create temp table preserved(table_name text primary key,digest text) on commit drop;\n";
   sql += `do $$ declare t record; d text; begin
 for t in select tablename from pg_tables where schemaname='public' loop
 execute format('select md5(coalesce(string_agg(to_jsonb(x)::text,'''' order by to_jsonb(x)::text),'''')) from public.%I x',t.tablename) into d;
@@ -20,6 +22,7 @@ end loop; end $$;\n`;
         .replace(/^begin;\s*$/gm, "")
         .replace(/^commit;\s*$/gm, "") + "\n";
   }
+  if (checks.after) sql += `${checks.after}\n`;
   sql += `do $$ declare t record; d text; begin
 for t in select * from preserved loop
 execute format('select md5(coalesce(string_agg(to_jsonb(x)::text,'''' order by to_jsonb(x)::text),'''')) from public.%I x',t.table_name) into d;

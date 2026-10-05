@@ -192,6 +192,7 @@ export function ResearchForm({
         payload.assessment = Object.fromEntries(
           assessmentFields.map((f) => [f.key, get(`assessment-${f.key}`)]),
         );
+        if (data?.launchTerms?.some((t) => t.version_id === versionId)) payload.workClass = get("workClass");
       }
       const response = await fetch(
         categoryReview || kind === "profile" ? "/api/alpha" : "/api/research",
@@ -452,6 +453,16 @@ export function ResearchForm({
               max={600}
             />
           ))}
+        {categoryReview && data?.launchTerms?.some((t) => t.version_id === versionId) && <label className="field">
+          Verified work classification
+          <select name="workClass" required defaultValue="">
+            <option value="" disabled>Choose after assessing evidence</option>
+            <option value="none">No work XP</option>
+            <option value="actionable">Actionable find, warning, correction or material update · 50 XP</option>
+            <option value="tested">Tested guide or focused original research · 150 XP</option>
+            <option value="substantial">Substantial original analysis or complete tested workflow · 300 XP</option>
+          </select>
+        </label>}
         <label className="field">
           Decision
           <select

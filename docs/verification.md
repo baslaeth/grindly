@@ -1,6 +1,37 @@
 # Actual verification
 
-Latest checkpoint: **2026-09-25, Chat 05 confirmed-finding remediation** (see the final
+## Launch policy local checkpoint - 2026-10-05
+
+- Verified branch `codex/category-alpha-review`; 026 shared-applied, launch
+  tables absent in a read-only shared RPC probe. No 027/028 shared write made.
+- The 027-028-only prepared SQL transaction passed on a populated isolated
+  PostgreSQL fixture: all existing table digests unchanged, forced RLS and
+  browser-RPC assertions passed, old read path and new snapshot worked. A
+  second execution stopped at the already-present guard.
+- Focused isolated DB: nine category save pipelines/Unknown, daily/idempotent
+  limit, legacy weekly award inclusion, independent work XP, High reserve and
+  signed loss, transfer isolation, enhancement cap, reversal, appeal history,
+  source monitoring/digest/reminder/acknowledgment, and old-table preservation.
+  These are local transactional tests, **not** live shared-database journeys.
+- Final `pnpm check` passed lint, types, 230 unit, 291 database, 11 contract
+  tests, generated-type drift and build. Chrome foundation-mode Playwright
+  passed 52/52 desktop/mobile tests. These are not a signed-in launch-member
+  walkthrough.
+- Local `http://localhost:3000/` served HTTP 200. Initial server lacked the
+  repository's Windows TLS setting and showed an opportunity-service error;
+  restarted only this project's server with `NODE_USE_SYSTEM_CA=1`. Home then
+  showed the truthful empty genuine opportunity state. Public sample Home and
+  public Grind Intelligence were inspected on desktop/mobile. Sanitized
+  screenshots are in `docs/launch-review/` and contain no member records.
+- Shared live award, reviewer appointment, prediction settlement, monitoring
+  run/notification and signed-in launch screenshots remain **unverified** until
+  027/028 activation, genuine staffing and a configured runner. No genuine
+  alpha was submitted or future outcome fabricated. No production deployment.
+
+The historical heading immediately below is retained for chronological
+context; use the newest entry above for this launch checkpoint.
+
+Historical checkpoint: **2026-09-25, Chat 05 confirmed-finding remediation** (see the final
 section and `PROJECT_STATE.md`). Earlier entries are historical, not current
 completion claims. Phase 1 remains incomplete pending live transfer-back and
 the explicitly listed evidence gaps.

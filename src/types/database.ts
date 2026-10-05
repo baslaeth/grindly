@@ -1270,6 +1270,851 @@ export type Database = {
         };
         Relationships: [];
       };
+      launch_enhanced_approvals: {
+        Row: {
+          version_id: string;
+          decision_id: string;
+          approved_at: string;
+        };
+        Insert: {
+          version_id: string;
+          decision_id: string;
+          approved_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          decision_id?: string;
+          approved_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_enhanced_approvals_decision_id_fkey";
+            columns: ["decision_id"];
+            isOneToOne: true;
+            referencedRelation: "review_decisions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_enhanced_approvals_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_submission_terms";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      launch_follows: {
+        Row: {
+          id: string;
+          member_id: string;
+          opportunity_id: string | null;
+          finding_id: string | null;
+          participated: boolean;
+          note: string;
+          next_action: string;
+          deadline: string | null;
+          acknowledged_at: string | null;
+          done_at: string | null;
+          removed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          participated?: boolean;
+          note?: string;
+          next_action?: string;
+          deadline?: string | null;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+          removed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          opportunity_id?: string | null;
+          finding_id?: string | null;
+          participated?: boolean;
+          note?: string;
+          next_action?: string;
+          deadline?: string | null;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+          removed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_follows_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_follows_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_follows_opportunity_id_fkey";
+            columns: ["opportunity_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_high_reservations: {
+        Row: {
+          version_id: string;
+          member_id: string;
+          amount: number;
+          released_at: string | null;
+          release_reason: string | null;
+          created_at: string;
+        };
+        Insert: {
+          version_id: string;
+          member_id: string;
+          amount: number;
+          released_at?: string | null;
+          release_reason?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          member_id?: string;
+          amount?: number;
+          released_at?: string | null;
+          release_reason?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_high_reservations_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_high_reservations_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_submission_terms";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      launch_monitor_events: {
+        Row: {
+          id: string;
+          source_id: string;
+          opportunity_id: string;
+          digest: string;
+          source_url: string;
+          source_date: string | null;
+          detected_at: string;
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          status: string;
+          priority: string;
+          change: string | null;
+          required_action: string | null;
+          deadline: string | null;
+        };
+        Insert: {
+          id?: string;
+          source_id: string;
+          opportunity_id: string;
+          digest: string;
+          source_url: string;
+          source_date?: string | null;
+          detected_at?: string;
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          status?: string;
+          priority?: string;
+          change?: string | null;
+          required_action?: string | null;
+          deadline?: string | null;
+        };
+        Update: {
+          id?: string;
+          source_id?: string;
+          opportunity_id?: string;
+          digest?: string;
+          source_url?: string;
+          source_date?: string | null;
+          detected_at?: string;
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          status?: string;
+          priority?: string;
+          change?: string | null;
+          required_action?: string | null;
+          deadline?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_monitor_events_confirmed_by_fkey";
+            columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_monitor_events_opportunity_id_fkey";
+            columns: ["opportunity_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_monitor_events_source_id_fkey";
+            columns: ["source_id"];
+            isOneToOne: false;
+            referencedRelation: "launch_monitor_sources";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_monitor_runs: {
+        Row: {
+          id: string;
+          source_id: string;
+          status: string;
+          digest: string | null;
+          checked_at: string;
+          source_date: string | null;
+          detail: string;
+        };
+        Insert: {
+          id?: string;
+          source_id: string;
+          status: string;
+          digest?: string | null;
+          checked_at?: string;
+          source_date?: string | null;
+          detail: string;
+        };
+        Update: {
+          id?: string;
+          source_id?: string;
+          status?: string;
+          digest?: string | null;
+          checked_at?: string;
+          source_date?: string | null;
+          detail?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_monitor_runs_source_id_fkey";
+            columns: ["source_id"];
+            isOneToOne: false;
+            referencedRelation: "launch_monitor_sources";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_monitor_sources: {
+        Row: {
+          id: string;
+          opportunity_id: string;
+          url: string;
+          cadence_hours: number;
+          enabled: boolean;
+          next_due: string;
+          last_success_at: string | null;
+          last_digest: string | null;
+          last_status: string;
+          configured_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          opportunity_id: string;
+          url: string;
+          cadence_hours?: number;
+          enabled?: boolean;
+          next_due?: string;
+          last_success_at?: string | null;
+          last_digest?: string | null;
+          last_status?: string;
+          configured_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          opportunity_id?: string;
+          url?: string;
+          cadence_hours?: number;
+          enabled?: boolean;
+          next_due?: string;
+          last_success_at?: string | null;
+          last_digest?: string | null;
+          last_status?: string;
+          configured_by?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_monitor_sources_configured_by_fkey";
+            columns: ["configured_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_monitor_sources_opportunity_id_fkey";
+            columns: ["opportunity_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_notifications: {
+        Row: {
+          id: string;
+          member_id: string;
+          follow_id: string;
+          event_id: string | null;
+          kind: string;
+          title: string;
+          detail: string;
+          status: string;
+          created_at: string;
+          delivered_at: string | null;
+          batch_at: string | null;
+          acknowledged_at: string | null;
+          done_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          follow_id: string;
+          event_id?: string | null;
+          kind: string;
+          title: string;
+          detail: string;
+          status?: string;
+          created_at?: string;
+          delivered_at?: string | null;
+          batch_at?: string | null;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          follow_id?: string;
+          event_id?: string | null;
+          kind?: string;
+          title?: string;
+          detail?: string;
+          status?: string;
+          created_at?: string;
+          delivered_at?: string | null;
+          batch_at?: string | null;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_notifications_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "launch_monitor_events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_notifications_follow_id_fkey";
+            columns: ["follow_id"];
+            isOneToOne: false;
+            referencedRelation: "launch_follows";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_notifications_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_outcome_settlements: {
+        Row: {
+          version_id: string;
+          assessment_id: string;
+          status: string;
+          reason: string;
+          market_evidence: Json | null;
+          awarded_xp: number;
+          settled_at: string;
+        };
+        Insert: {
+          version_id: string;
+          assessment_id: string;
+          status: string;
+          reason: string;
+          market_evidence?: Json | null;
+          awarded_xp: number;
+          settled_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          assessment_id?: string;
+          status?: string;
+          reason?: string;
+          market_evidence?: Json | null;
+          awarded_xp?: number;
+          settled_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_outcome_settlements_assessment_id_fkey";
+            columns: ["assessment_id"];
+            isOneToOne: true;
+            referencedRelation: "alpha_outcome_assessments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_outcome_settlements_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_submission_terms";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      launch_policy_versions: {
+        Row: {
+          version: string;
+          configured_at: string;
+          new_alphas_per_day: number;
+          ordinary_xp_per_week: number;
+          enhanced_active_limit: number;
+          material_update_xp_per_week: number;
+          awards: Json;
+          upgrades: Json;
+        };
+        Insert: {
+          version: string;
+          configured_at?: string;
+          new_alphas_per_day: number;
+          ordinary_xp_per_week: number;
+          enhanced_active_limit: number;
+          material_update_xp_per_week: number;
+          awards: Json;
+          upgrades: Json;
+        };
+        Update: {
+          version?: string;
+          configured_at?: string;
+          new_alphas_per_day?: number;
+          ordinary_xp_per_week?: number;
+          enhanced_active_limit?: number;
+          material_update_xp_per_week?: number;
+          awards?: Json;
+          upgrades?: Json;
+        };
+        Relationships: [];
+      };
+      launch_reversal_records: {
+        Row: {
+          award_id: string;
+          reversal_id: string;
+          evidence: Json;
+          created_at: string;
+        };
+        Insert: {
+          award_id: string;
+          reversal_id: string;
+          evidence: Json;
+          created_at?: string;
+        };
+        Update: {
+          award_id?: string;
+          reversal_id?: string;
+          evidence?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_reversal_records_award_id_fkey";
+            columns: ["award_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_xp_events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_reversal_records_reversal_id_fkey";
+            columns: ["reversal_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_xp_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_reviewer_scopes: {
+        Row: {
+          member_id: string;
+          category: string;
+          rank: string;
+          scope: string;
+          granted_by: string;
+          created_at: string;
+        };
+        Insert: {
+          member_id: string;
+          category: string;
+          rank: string;
+          scope: string;
+          granted_by: string;
+          created_at?: string;
+        };
+        Update: {
+          member_id?: string;
+          category?: string;
+          rank?: string;
+          scope?: string;
+          granted_by?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_reviewer_scopes_granted_by_fkey";
+            columns: ["granted_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_reviewer_scopes_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_submission_terms: {
+        Row: {
+          version_id: string;
+          member_id: string;
+          policy_version: string;
+          opportunity: string;
+          useful_action: string;
+          cost_or_risk: string;
+          context: Json;
+          prediction: Json | null;
+          prediction_validated: boolean;
+          is_new_alpha: boolean;
+          created_at: string;
+        };
+        Insert: {
+          version_id: string;
+          member_id: string;
+          policy_version: string;
+          opportunity: string;
+          useful_action: string;
+          cost_or_risk: string;
+          context: Json;
+          prediction?: Json | null;
+          prediction_validated: boolean;
+          is_new_alpha: boolean;
+          created_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          member_id?: string;
+          policy_version?: string;
+          opportunity?: string;
+          useful_action?: string;
+          cost_or_risk?: string;
+          context?: Json;
+          prediction?: Json | null;
+          prediction_validated?: boolean;
+          is_new_alpha?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_submission_terms_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_submission_terms_policy_version_fkey";
+            columns: ["policy_version"];
+            isOneToOne: false;
+            referencedRelation: "launch_policy_versions";
+            referencedColumns: ["version"];
+          },
+          {
+            foreignKeyName: "launch_submission_terms_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      launch_upgrade_allocations: {
+        Row: {
+          id: string;
+          member_id: string;
+          contract_address: string;
+          token_id: string;
+          from_tier: string;
+          to_tier: string;
+          xp: number;
+          promotion_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          contract_address: string;
+          token_id: string;
+          from_tier: string;
+          to_tier: string;
+          xp: number;
+          promotion_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          contract_address?: string;
+          token_id?: string;
+          from_tier?: string;
+          to_tier?: string;
+          xp?: number;
+          promotion_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_upgrade_allocations_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_upgrade_allocations_promotion_id_fkey";
+            columns: ["promotion_id"];
+            isOneToOne: true;
+            referencedRelation: "promotion_decisions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_watch_preferences: {
+        Row: {
+          member_id: string;
+          reminders: boolean;
+          nonurgent_digest: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          member_id: string;
+          reminders?: boolean;
+          nonurgent_digest?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          member_id?: string;
+          reminders?: boolean;
+          nonurgent_digest?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_watch_preferences_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: true;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_work_decisions: {
+        Row: {
+          decision_id: string;
+          version_id: string;
+          work_class: string;
+          requested_xp: number;
+          credited_xp: number;
+          reason: string;
+          created_at: string;
+        };
+        Insert: {
+          decision_id: string;
+          version_id: string;
+          work_class: string;
+          requested_xp: number;
+          credited_xp: number;
+          reason: string;
+          created_at?: string;
+        };
+        Update: {
+          decision_id?: string;
+          version_id?: string;
+          work_class?: string;
+          requested_xp?: number;
+          credited_xp?: number;
+          reason?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_work_decisions_decision_id_fkey";
+            columns: ["decision_id"];
+            isOneToOne: true;
+            referencedRelation: "review_decisions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_work_decisions_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      launch_work_levels: {
+        Row: {
+          finding_id: string;
+          member_id: string;
+          eligible_level: number;
+          updated_at: string;
+        };
+        Insert: {
+          finding_id: string;
+          member_id: string;
+          eligible_level: number;
+          updated_at?: string;
+        };
+        Update: {
+          finding_id?: string;
+          member_id?: string;
+          eligible_level?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_work_levels_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: true;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_work_levels_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      launch_xp_events: {
+        Row: {
+          id: string;
+          member_id: string;
+          finding_id: string;
+          version_id: string;
+          policy_version: string;
+          kind: string;
+          xp: number;
+          ordinary: boolean;
+          reviewer_id: string;
+          basis_id: string;
+          reason: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          finding_id: string;
+          version_id: string;
+          policy_version: string;
+          kind: string;
+          xp: number;
+          ordinary: boolean;
+          reviewer_id: string;
+          basis_id: string;
+          reason: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          finding_id?: string;
+          version_id?: string;
+          policy_version?: string;
+          kind?: string;
+          xp?: number;
+          ordinary?: boolean;
+          reviewer_id?: string;
+          basis_id?: string;
+          reason?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "launch_xp_events_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_xp_events_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_xp_events_policy_version_fkey";
+            columns: ["policy_version"];
+            isOneToOne: false;
+            referencedRelation: "launch_policy_versions";
+            referencedColumns: ["version"];
+          },
+          {
+            foreignKeyName: "launch_xp_events_reviewer_id_fkey";
+            columns: ["reviewer_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "launch_xp_events_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: false;
+            referencedRelation: "finding_versions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       member_activity: {
         Row: {
           id: string;
@@ -2381,6 +3226,14 @@ export type Database = {
         };
         Returns: boolean;
       };
+      alpha_authorized_reviewer_pre_launch: {
+        Args: {
+          p_member: string;
+          p_version: string;
+          p_scope: string;
+        };
+        Returns: boolean;
+      };
       alpha_begin_review: {
         Args: {
           p_member: string;
@@ -2410,6 +3263,19 @@ export type Database = {
         Returns: string[];
       };
       alpha_decide: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_assignment: string;
+          p_decision: string;
+          p_reason: string;
+          p_conflicts: string;
+          p_conflict_free: boolean;
+        };
+        Returns: Json;
+      };
+      alpha_decide_pre_launch: {
         Args: {
           p_member: string;
           p_binding: string;
@@ -2513,6 +3379,22 @@ export type Database = {
         Returns: Json;
       };
       alpha_snapshot_pre_foundation: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_snapshot_pre_launch: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_snapshot_pre_tracking: {
         Args: {
           p_member: string;
           p_binding: string;
@@ -2666,6 +3548,148 @@ export type Database = {
         };
         Returns: string;
       };
+      launch_assess_outcome: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      launch_available_progress: {
+        Args: {
+          p_member: string;
+        };
+        Returns: number;
+      };
+      launch_confirm_event: {
+        Args: {
+          p_actor: string;
+          p_binding: string;
+          p_event: string;
+          p_confirm: boolean;
+          p_change: string;
+          p_action: string;
+          p_deadline: string;
+          p_priority: string;
+        };
+        Returns: number;
+      };
+      launch_context_keys: {
+        Args: {
+          p_category: string;
+        };
+        Returns: string[];
+      };
+      launch_decide: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_version: string;
+          p_assignment: string;
+          p_decision: string;
+          p_reason: string;
+          p_conflicts: string;
+          p_conflict_free: boolean;
+          p_checklist: string;
+          p_assessment: Json;
+          p_work_class: string;
+        };
+        Returns: Json;
+      };
+      launch_deliver_digest: { Args: Record<string, never>; Returns: number };
+      launch_due_reminders: { Args: Record<string, never>; Returns: number };
+      launch_follow_mutate: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_kind: string;
+          p_id: string;
+          p_action: string;
+          p_note?: string;
+          p_next?: string;
+          p_deadline?: string;
+        };
+        Returns: Json;
+      };
+      launch_monitor_ingest: {
+        Args: {
+          p_source: string;
+          p_status: string;
+          p_digest: string;
+          p_source_date: string;
+          p_detail: string;
+        };
+        Returns: Json;
+      };
+      launch_notification_mutate: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_action: string;
+        };
+        Returns: boolean;
+      };
+      launch_ordinary_remaining: {
+        Args: {
+          p_member: string;
+        };
+        Returns: number;
+      };
+      launch_reverse_work: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_award: string;
+          p_reason: string;
+          p_evidence: Json;
+        };
+        Returns: Json;
+      };
+      launch_set_monitor_source: {
+        Args: {
+          p_actor: string;
+          p_binding: string;
+          p_opportunity: string;
+          p_url: string;
+          p_cadence: number;
+          p_enabled: boolean;
+        };
+        Returns: string;
+      };
+      launch_set_reviewer: {
+        Args: {
+          p_actor: string;
+          p_binding: string;
+          p_candidate: string;
+          p_category: string;
+          p_scope: string;
+          p_grant: boolean;
+        };
+        Returns: boolean;
+      };
+      launch_submit: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      launch_watch_preferences_set: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_reminders: boolean;
+          p_digest: boolean;
+        };
+        Returns: boolean;
+      };
+      launch_week_start: { Args: Record<string, never>; Returns: string };
       member_room_guard: {
         Args: {
           p_member: string;

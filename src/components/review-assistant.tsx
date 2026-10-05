@@ -8,6 +8,7 @@ import {
   unspecified,
 } from "@/alpha/checklists";
 import type { CheckedSource } from "@/alpha/model";
+import { launchFields } from "@/launch/forms";
 import { AlphaAction } from "./alpha-actions";
 import { SourceObservations } from "./source-observations";
 
@@ -95,13 +96,18 @@ export function ReviewAssistant({
     (c) => c.version_id === version,
   );
   const checklist = reviewChecklist(a.category, a.contribution_type);
-  const gaps = categoryFields[a.category].filter(
-    (field) => !a.details[field.key] || unspecified(a.details[field.key] ?? ""),
-  );
+  const terms = data.launchTerms?.find((t) => t.version_id === version);
+  const gaps = terms
+    ? launchFields[a.category].filter((field) => (terms.prediction || !field.fromPrediction) &&
+      (!terms.context[field.key] || unspecified(terms.context[field.key] ?? "")))
+    : categoryFields[a.category].filter((field) => !a.details[field.key] || unspecified(a.details[field.key] ?? ""));
   const assigned = data.assignments.find(
     (r) => r.version_id === version && !r.completed_at,
   );
   const decisions = data.decisions.filter((d) => d.version_id === version);
+  const lastChecked = runs.find((r) => r.completed_at)?.completed_at ?? old?.completed_at;
+  const unknownSources = sources.filter((s) => s.status !== "retrieved").length;
+  const contradictions = old?.status === "complete" ? old.card?.claims.filter((c) => c.status === "contradicted").length ?? 0 : 0;
   const canRefresh =
     f.author_id === data.memberId || assigned?.reviewer_id === data.memberId;
   return (
@@ -118,6 +124,15 @@ export function ReviewAssistant({
         Evidence checks help you and an independent reviewer assess this alpha.
         Retrieving a source does not establish that the claim is supported.
       </p>
+      {terms && <div className="intelligence-overview" aria-label="Current evidence overview">
+        <p><strong>Available checks:</strong> {sources.filter((s) => s.status === "retrieved").length} sources retrieved; the claim still needs independent assessment.</p>
+        <p><strong>Gaps:</strong> {gaps.length} category answers Unknown or missing; {unknownSources} sources unavailable. {contradictions ? `${contradictions} model-noted contradictions require reviewer confirmation.` : "No contradiction is independently established by retrieval alone."}</p>
+        <p><strong>Next action:</strong> {f.status === "needs_correction" && f.author_id === data.memberId
+          ? <Link href={`/findings/new?revise=${version}`}>Submit a correction</Link>
+          : f.status === "pending" ? (assigned ? "Independent evaluation is pending." : "Awaiting an authorized independent reviewer.")
+          : a.horizon ? "Check the original outcome criterion at its declared horizon." : "Review the dated evidence and feedback."}</p>
+        <p><strong>Last source check:</strong> {lastChecked ? alphaTime(lastChecked) : "Not checked yet"}. {terms.prediction && !terms.prediction_validated ? "Prediction is unvalidated and cannot earn outcome XP." : ""}</p>
+      </div>}
       {!questions && (
         <Link href={`/intelligence?alpha=${f.id}`} className="inline-link">
           Explore in Grind Intelligence
@@ -200,7 +215,7 @@ export function ReviewAssistant({
           <ul>
             {gaps.map((g) => (
               <li key={g.key}>
-                {g.label}: {a.details[g.key] || "not supplied in this version"}.
+                {g.label}: {(terms ? terms.context[g.key] : a.details[g.key]) || "not supplied in this version"}.
               </li>
             ))}
           </ul>

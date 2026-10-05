@@ -72,9 +72,9 @@ export function OutcomeForm({ version }: { version: string }) {
               result.error?.message ??
                 "Could not save. Your input is retained.",
             );
-          setNotice(
-            "Outcome recorded. This does not approve work or award XP.",
-          );
+          setNotice(result.status === "Met" || result.status === "Failed" || result.status === "Cancelled"
+            ? `Outcome ${result.status}. ${result.outcomeXp ?? 0} XP recorded under the saved prediction terms.`
+            : "Observation saved. Prediction XP remains pending or unverified.");
           router.refresh();
         } catch (error) {
           setNotice(
@@ -94,6 +94,7 @@ export function OutcomeForm({ version }: { version: string }) {
             <option value="pending">Still pending</option>
             <option value="known">Evidence allows a conclusion</option>
             <option value="mixed">Mixed evidence</option>
+            <option value="cancelled">No entry trigger (complete price history required)</option>
           </select>
         </label>
         <label className="field">

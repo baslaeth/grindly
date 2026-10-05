@@ -68,13 +68,9 @@ export function deterministicChecks(
         `${field.label}: ${value}. This is not established evidence.`,
       );
   }
-  if (
-    context.alpha.contract &&
-    (!/^0x[\da-f]{40}$/i.test(context.alpha.contract) ||
-      !["46630", "Robinhood Chain testnet"].includes(context.alpha.chain))
-  )
+  if (context.alpha.contract && unspecified(context.alpha.contract))
     checks.push(
-      "Identifier is a reference only. This chain or identifier is outside automatic coverage; verification is Unknown.",
+      "Asset identifier is Unknown. Asset-level verification cannot be inferred; inspect the provider-specific coverage below.",
     );
   checks.push(
     `Review checklist ${reviewChecklist(context.alpha.category, context.alpha.contribution_type).version}. Retrieved does not mean supported.`,

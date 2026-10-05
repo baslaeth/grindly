@@ -1,16 +1,20 @@
 import { z } from "zod";
 import { categories } from "@/research/spaces";
 import { categoryFields, contextIssues, checklistVersion } from "./checklists";
+import { launchFields } from "@/launch/forms";
+import { launchPolicy } from "@/launch/policy";
 
 export const alphaCategories = categories;
 export type AlphaCategory = (typeof categories)[number];
 export const contributionTypes = {
-  find: "New find",
-  analysis: "Analysis or guide",
-  prediction: "Prediction or call",
+  find: "Find",
+  guide: "Guide",
+  analysis: "Analysis",
+  prediction: "Prediction",
   warning: "Warning",
+  update: "Update",
   correction: "Correction",
-  followup: "Follow-up",
+  followup: "Follow-up (legacy)",
 } as const;
 export const categoryPrompts: Record<AlphaCategory, string[]> = {
   "Whitelist Hunters": [
@@ -62,6 +66,25 @@ export const categoryPrompts: Record<AlphaCategory, string[]> = {
   ],
 };
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
+export const launchTermsSchema = z.object({
+  policyVersion: z.literal(launchPolicy.version),
+  opportunity: text(2, 120),
+  usefulAction: text(5, 1000),
+  costOrRisk: text(2, 1000),
+  context: z.record(z.string().max(100), z.string().trim().min(1).max(1000)),
+  prediction: z.object({
+    commitment: z.enum(["normal", "high"]),
+    predictionClass: z.enum(["standard", "enhanced"]),
+    baseline: z.string().trim().max(80),
+    target: z.string().trim().max(80),
+    invalidation: z.string().trim().max(500),
+    sourceType: z.enum(["public_research", "private_lead", "claimed_insider", "unknown"]),
+    startsAt: z.iso.datetime({ offset: true }).nullable(),
+    direction: z.enum(["long", "short"]).nullable(),
+    entry: z.string().trim().max(80),
+    stop: z.string().trim().max(80),
+  }).strict().nullable(),
+}).strict();
 export const alphaEvidence = z.discriminatedUnion("kind", [
   z
     .object({
@@ -121,6 +144,7 @@ export const alphaSubmission = z
     details: z
       .record(z.string().max(100), z.string().max(1000))
       .refine((v) => Object.keys(v).length <= 8),
+    launch: launchTermsSchema.optional(),
     checklist: z.literal(checklistVersion).default(checklistVersion),
     firstNoticed: z.iso
       .datetime({ offset: true })
@@ -135,7 +159,7 @@ export const alphaSubmission = z
   })
   .strict()
   .superRefine((v, c) => {
-    if (v.type === "prediction" && (!v.horizon || v.checkCondition.length < 10))
+    if (v.type === "prediction" && !v.launch && (!v.horizon || v.checkCondition.length < 10))
       c.addIssue({
         code: "custom",
         message:
@@ -170,6 +194,17 @@ export const alphaSubmission = z
         message: issue.message,
         path: ["details", issue.key],
       });
+    if (v.launch) {
+      const keys = launchFields[v.category].map((f) => f.key);
+      for (const key of keys)
+        if (!v.launch.context[key]?.trim()) c.addIssue({ code: "custom", message: `${key}: answer or choose Unknown.`, path: ["launch", "context", key] });
+      if (Object.keys(v.launch.context).some((key) => !keys.includes(key)))
+        c.addIssue({ code: "custom", message: "Unexpected category field.", path: ["launch", "context"] });
+      if (v.type === "prediction" && !v.launch.prediction)
+        c.addIssue({ code: "custom", message: "Prediction terms are required, even when incomplete.", path: ["launch", "prediction"] });
+      if (v.type === "update" && !v.finding && !v.relatedVersion)
+        c.addIssue({ code: "custom", message: "An update must link earlier work.", path: ["relatedVersion"] });
+    }
     if (
       (v.contract ||
         ["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
@@ -195,7 +230,7 @@ export const outcomeAssessment = z
     action: z.literal("outcomeAssess"),
     version: z.uuid(),
     request: z.uuid(),
-    status: z.enum(["known", "mixed", "inconclusive", "pending"]),
+    status: z.enum(["known", "mixed", "inconclusive", "pending", "cancelled"]),
     relation: z.enum(["met", "not_met", "mixed", "unknown"]),
     facts: text(10, 3000),
     explanation: text(20, 3000),
@@ -230,7 +265,7 @@ export const outcomeAssessment = z
       !(v.status === "known" && ["met", "not_met"].includes(v.relation)) &&
       !(v.status === "mixed" && v.relation === "mixed") &&
       !(
-        ["pending", "inconclusive"].includes(v.status) &&
+        ["pending", "inconclusive", "cancelled"].includes(v.status) &&
         v.relation === "unknown"
       )
     )
@@ -342,6 +377,21 @@ export type AlphaOutcome = {
 export type AlphaSnapshot = {
   serverTime: string;
   evaluationAvailable?: boolean;
+  launchAvailable?: boolean;
+  launchTerms?: { version_id: string; member_id: string; policy_version: string; opportunity: string; useful_action: string; cost_or_risk: string; context: Record<string, string>; prediction: z.infer<typeof launchTermsSchema>["prediction"]; prediction_validated: boolean; created_at: string }[];
+  launchXp?: { id: string; finding_id: string; version_id: string; member_id: string; kind: string; xp: number; ordinary: boolean; basis_id: string; created_at: string }[];
+  launchSettlements?: { version_id: string; assessment_id: string; status: "Met" | "Failed" | "Inconclusive" | "Cancelled"; reason: string; awarded_xp: number; settled_at: string }[];
+  launchAllowance?: { dailyRemaining: number; weeklyRemaining: number };
+  launchProgress?: { netPersonalXp: number; applied: number; reserved: number; available: number; unreconciledHistory: boolean };
+  launchReviewerScopes?: { member_id: string; category: AlphaCategory; rank: string; scope: string; granted_by: string; created_at: string }[];
+  launchReviewable?: string[];
+  follows?: { id: string; opportunity_id: string | null; opportunityName: string | null; finding_id: string | null; participated: boolean; note: string; next_action: string; deadline: string | null; updated_at: string; done_at: string | null }[];
+  notifications?: { id: string; follow_id: string; kind: string; title: string; detail: string; status: string; created_at: string; batch_at: string | null; sourceUrl: string | null; sourceDate: string | null }[];
+  watchCoverage?: { opportunity: string; lastSuccessAt: string | null; status: string; nextDue: string }[];
+  watchPreferences?: { reminders: boolean; nonurgent_digest: boolean };
+  monitorQueue?: { id: string; opportunity_id: string; opportunityName: string; source_url: string; source_date: string | null; detected_at: string }[];
+  operatorOpportunities?: { id: string; name: string; isDemo: boolean }[];
+  operatorMonitorSources?: { id: string; opportunity_id: string; url: string; enabled: boolean; last_status: string; last_success_at: string | null; next_due: string }[];
   reviewAssessments?: {
     decision_id: string;
     checklist: string;

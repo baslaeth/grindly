@@ -88,7 +88,7 @@ it("keeps missing historical buckets explicit and never turns spot/history retri
   const facts = JSON.parse(s.facts);
   expect(facts.receivedBuckets).toBe(1);
   expect(facts.missingBuckets).toBe(23);
-  expect(facts.limitations).toContain("No automated success determination");
+  expect(facts.limitations).toContain("Longer periods and gaps remain Unknown");
   expect(fetch.mock.calls[0]![0].searchParams.get("granularity")).toBe("3600");
 });
 it("does not fetch unsupported assets; malformed, unavailable or duplicate history remains Unknown", async () => {

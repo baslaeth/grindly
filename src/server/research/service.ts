@@ -138,6 +138,15 @@ export async function readResearch(
 
 export async function mutateResearch(input: ResearchInput) {
   const active = await requireActiveMembership(true);
+  if (input.action === "submit") {
+    const db = createDataClient();
+    const room = await db.from("research_questions").select("category").eq("id", input.room ?? "").maybeSingle();
+    if (room.error) throw room.error;
+    const launch = await db.from("launch_policy_versions").select("version").eq("version", "2026-10-05.1").maybeSingle();
+    if (launch.error && launch.error.code !== "PGRST205") throw launch.error;
+    if (launch.data || room.data?.category !== "General")
+      throw new ServiceError("USE_ALPHA_SUBMISSION", "Use Submit Alpha for category contributions.", 409);
+  }
   if (
     input.action === "peerRequest" &&
     (await tokenTier(active.binding.token_id, active.ownership)) !== "Silver"
@@ -150,6 +159,9 @@ export async function mutateResearch(input: ResearchInput) {
   const { action, ...data } = input;
   if (action === "promote" && input.action === "promote") {
     const db = createDataClient();
+    const launch = await db.from("launch_policy_versions").select("version").eq("version", "2026-10-05.1").maybeSingle();
+    if (launch.error && launch.error.code !== "PGRST205") throw launch.error;
+    if (launch.data) throw new ServiceError("UPGRADE_INACTIVE", "NFT upgrade execution is inactive until burn terms and the transaction are configured.", 409);
     const role = await db
       .from("member_roles")
       .select("member_id")

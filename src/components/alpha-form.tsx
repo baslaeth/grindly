@@ -15,31 +15,39 @@ import {
   primaryFocus,
   checklistVersion,
 } from "@/alpha/checklists";
+import { launchFields, legacyDetails } from "@/launch/forms";
+import { launchPolicy } from "@/launch/policy";
 
 function CategoryField({
   field,
   value = "",
+  prefix = "detail",
 }: {
-  field: (typeof categoryFields)[AlphaCategory][number];
+  field: (typeof categoryFields)[AlphaCategory][number] | (typeof launchFields)[AlphaCategory][number];
   value?: string;
+  prefix?: string;
 }) {
   const [mode, setMode] = useState(
-    /^(unknown|not applicable)$/i.test(value) ? value.toLowerCase() : "details",
+    /^(unknown|not applicable)$/i.test(value) ? value.toLowerCase() : !value && "core" in field && !field.core ? "unknown" : "details",
   );
   return (
     <div className="category-field">
       <label className="field">
         <span>{field.label} *</span>
-        {mode === "details" ? (
-          <input
+        {mode === "details" ? ("options" in field && field.options ?
+          <select key={mode} name={`${prefix}-${field.key}`} required defaultValue={value}>
+            <option value="" disabled>Choose</option>
+            {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
+          </select>
+        : <input
             key={mode}
-            name={`detail-${field.key}`}
+            name={`${prefix}-${field.key}`}
             type={
               field.kind === "date"
                 ? "datetime-local"
                 : field.kind === "url"
                   ? "url"
-                  : "text"
+                  : field.kind === "number" ? "number" : "text"
             }
             required
             maxLength={1000}
@@ -54,7 +62,7 @@ function CategoryField({
         ) : (
           <input
             key={mode}
-            name={`detail-${field.key}`}
+            name={`${prefix}-${field.key}`}
             value={mode === "unknown" ? "Unknown" : "Not applicable"}
             readOnly
           />
@@ -101,6 +109,7 @@ function Field({
           name={name}
           defaultValue={value}
           required={required}
+          minLength={name === "usefulAction" ? 10 : name === "costOrRisk" ? 5 : undefined}
           maxLength={max}
           rows={rows}
         />
@@ -128,6 +137,8 @@ export function AlphaForm({
   const version = data.versions.find((v) => v.id === versionId);
   const finding = data.findings.find((f) => f.id === version?.finding_id);
   const av = data.alphas?.find((a) => a.version_id === versionId);
+  const launchActive = data.launchAvailable === true;
+  const launchTerm = data.launchTerms?.find((t) => t.version_id === versionId);
   const profile = data.profiles.find((p) => p.member_id === data.memberId);
   const currentMessage = data.messages.find(
     (m) => m.id === (sourceMessage ?? version?.source_message),
@@ -145,9 +156,12 @@ export function AlphaForm({
     "";
   const [category, setCategory] = useState<AlphaCategory | "">(initial);
   const contextFields = category ? categoryFields[category] : [];
+  const launchContextFields = category ? launchFields[category] : [];
   const [kind, setKind] = useState<keyof typeof contributionTypes>(
     version ? "correction" : "find",
   );
+  const [includePrediction, setIncludePrediction] = useState(!!launchTerm?.prediction);
+  const showPrediction = kind === "prediction" || includePrediction;
   const [files, setFiles] = useState<
     { id: string; file: File; progress: number; uploaded: boolean }[]
   >([]);
@@ -238,6 +252,31 @@ export function AlphaForm({
         });
       const date = (key: string) =>
         get(key) ? new Date(get(key) + "Z").toISOString() : null;
+      const predictionContext: Record<string, string> = showPrediction ? {
+        direction: get("direction") || "Unknown", entry: get("entry") || "Unknown",
+        stop: get("stop") || "Unknown", target: get("target") || "Unknown",
+        invalidation: get("invalidation") || "Unknown", expiry: date("horizon") || "Unknown",
+        sourceType: get("sourceType") || "Unknown",
+      } : {};
+      const launchContext = Object.fromEntries(
+        launchContextFields.map((f) => [
+          f.key,
+          f.fromPrediction ? predictionContext[f.key] || "Unknown" :
+          f.kind === "date" && !/^(unknown|not applicable)$/i.test(get(`launch-${f.key}`)) && get(`launch-${f.key}`)
+            ? new Date(get(`launch-${f.key}`) + "Z").toISOString()
+            : get(`launch-${f.key}`) || "Unknown",
+        ]),
+      );
+      const details = launchActive && category
+        ? legacyDetails(category, launchContext)
+        : Object.fromEntries(
+            contextFields.map((f) => [
+              f.key,
+              f.kind === "date" && !/^(unknown|not applicable)$/i.test(get(`detail-${f.key}`)) && get(`detail-${f.key}`)
+                ? new Date(get(`detail-${f.key}`) + "Z").toISOString()
+                : get(`detail-${f.key}`),
+            ]),
+          );
       const payload = {
         action: "submit",
         finding: finding?.id ?? null,
@@ -245,23 +284,34 @@ export function AlphaForm({
         category,
         type: kind,
         visibility: finding?.visibility ?? get("visibility"),
-        claim: get("claim"),
+        claim: launchActive ? get("usefulAction") : get("claim"),
         purpose: get("purpose"),
         addition: get("addition"),
-        limitations: get("limitations"),
+        limitations: launchActive ? get("costOrRisk") : get("limitations"),
         subject: get("subject"),
-        chain: get("chain"),
-        contract: get("contract"),
-        details: Object.fromEntries(
-          contextFields.map((f) => [
-            f.key,
-            f.kind === "date" &&
-            !/^(unknown|not applicable)$/i.test(get(`detail-${f.key}`)) &&
-            get(`detail-${f.key}`)
-              ? new Date(get(`detail-${f.key}`) + "Z").toISOString()
-              : get(`detail-${f.key}`),
-          ]),
-        ),
+        chain: launchActive ? (launchContext.chain ?? launchContext.network ?? "") : get("chain"),
+        contract: launchActive ? (["Degens", "NFT Specialists"].includes(category) ?
+          (launchContext.identifier ?? (launchContext.official && !launchContext.official.startsWith("https://") ? launchContext.official : "Unknown")) : "") : get("contract"),
+        details,
+        ...(launchActive ? { launch: {
+          policyVersion: launchPolicy.version,
+          opportunity: get("subject"),
+          usefulAction: get("usefulAction"),
+          costOrRisk: get("costOrRisk"),
+          context: launchContext,
+          prediction: showPrediction ? {
+            commitment: get("commitment"),
+            predictionClass: get("predictionClass"),
+            baseline: get("baseline") || "Unknown",
+            target: get("target") || "Unknown",
+            invalidation: get("invalidation") || "Unknown",
+            sourceType: get("sourceType"),
+            startsAt: date("startsAt"),
+            direction: get("direction") || null,
+            entry: get("entry"),
+            stop: get("stop"),
+          } : null,
+        } } : {}),
         checklist: checklistVersion,
         evidence,
         firstNoticed: date("firstNoticed"),
@@ -307,11 +357,10 @@ export function AlphaForm({
   }
   return (
     <form onSubmit={submit} className="research-form" aria-busy={busy}>
-      {data.evaluationAvailable === false && (
+      {(!data.evaluationAvailable || !launchActive) && (
         <p className="notice" role="status">
-          Saving new alpha is temporarily unavailable while the review service
-          is updated. Existing records remain available. You can inspect the
-          form, but it cannot submit yet.
+          Launch submissions are unavailable until the approved policy database
+          update is active. Existing records remain available.
         </p>
       )}
       <fieldset disabled={busy}>
@@ -345,7 +394,7 @@ export function AlphaForm({
               setKind(e.target.value as keyof typeof contributionTypes)
             }
           >
-            {Object.entries(contributionTypes).map(([key, label]) => (
+            {Object.entries(contributionTypes).filter(([key]) => key !== "followup").map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
               </option>
@@ -362,14 +411,24 @@ export function AlphaForm({
         {!!category && (
           <section className="form-step" aria-label="Category context">
             <h3>{category}</h3>
-            {contextFields.map((field) => (
+            {launchActive ? <>
+              {launchContextFields.filter((f) => f.core && !f.fromPrediction).map((field) => (
+                <CategoryField key={`${category}:${field.key}`} field={field} prefix="launch" value={launchTerm?.context[field.key]} />
+              ))}
+              {launchContextFields.some((f) => !f.core && !f.fromPrediction) && <details>
+                <summary>Additional category details</summary>
+                {launchContextFields.filter((f) => !f.core && !f.fromPrediction).map((field) => (
+                  <CategoryField key={`${category}:${field.key}`} field={field} prefix="launch" value={launchTerm?.context[field.key]} />
+                ))}
+              </details>}
+            </> : contextFields.map((field) => (
               <CategoryField
                 key={`${category}:${field.key}`}
                 field={field}
                 value={av?.details[field.key]}
               />
             ))}
-            {["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
+            {!launchActive && ["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
               category,
             ) && (
               <>
@@ -398,25 +457,39 @@ export function AlphaForm({
                 </p>
               </>
             )}
-            <Field
-              label="Horizon or milestone (UTC)"
-              name="horizon"
-              type="datetime-local"
-              value={av?.horizon?.slice(0, 16)}
-              required={kind === "prediction"}
-            />
-            <Field
-              label="What would count against the claim or establish the outcome?"
-              name="checkCondition"
-              value={av?.check_condition}
-              required={kind === "prediction"}
-            />
-            <p className="muted">
-              A prediction needs a future horizon and clear criteria. Finds,
-              guides and warnings do not need a price target.
-            </p>
+            {kind !== "prediction" && launchActive && <label className="check-field"><input type="checkbox" checked={includePrediction} onChange={(e) => setIncludePrediction(e.target.checked)} />Include a measurable later prediction</label>}
+            {showPrediction && <div className="form-step">
+              <h3>Prediction terms</h3>
+              <div className="form-actions">
+                <label className="field">Commitment
+                  <select name="commitment" defaultValue={launchTerm?.prediction?.commitment ?? "normal"}><option value="normal">Normal</option><option value="high">High (requires unused XP reserve)</option></select>
+                </label>
+                <label className="field">Class
+                  <select name="predictionClass" defaultValue={launchTerm?.prediction?.predictionClass ?? "standard"}><option value="standard">Standard</option><option value="enhanced">Approved long-term (30+ days)</option></select>
+                </label>
+                <label className="field">Source type
+                  <select name="sourceType" defaultValue={launchTerm?.prediction?.sourceType ?? "unknown"}><option value="unknown">Unknown</option><option value="public_research">Public research</option><option value="private_lead">Private lead</option><option value="claimed_insider">Claimed insider</option></select>
+                </label>
+              </div>
+              <Field label="Original baseline (Unknown allowed)" name="baseline" value={launchTerm?.prediction?.baseline} />
+              <Field label="Measurable target (Unknown allowed)" name="target" value={launchTerm?.prediction?.target} />
+              <Field label="Failure or invalidation condition (Unknown allowed)" name="invalidation" value={launchTerm?.prediction?.invalidation} />
+              {(["Traders", "Degens"].includes(category)) && <>
+                <label className="field">Direction<select name="direction" defaultValue={launchTerm?.prediction?.direction ?? ""}><option value="">Unknown</option><option value="long">Long</option><option value="short">Short</option></select></label>
+                <Field label="Registered entry or trigger" name="entry" value={launchTerm?.prediction?.entry} />
+                <Field label="Registered stop" name="stop" value={launchTerm?.prediction?.stop} />
+              </>}
+              <Field label="Deadline or observation horizon (UTC)" name="horizon" type="datetime-local" value={av?.horizon?.slice(0, 16)} />
+              <Field label="How will the outcome be checked?" name="checkCondition" value={av?.check_condition} />
+              <Field label="Scored window begins (enhanced only, UTC)" name="startsAt" type="datetime-local" value={launchTerm?.prediction?.startsAt?.slice(0, 16)} />
+              <p className="muted">Incomplete terms can be saved and shared, but are unvalidated and cannot earn outcome XP. High commitment reserves unused XP only for a validated call. Ordered price settlement currently supports BTC, ETH or SOL spot on Coinbase Exchange, with the same asset in Subject and Asset, an exact UTC-hour expiry within seven days, and complete historical observations. Other venues, derivatives, contracts and longer paths remain unvalidated.</p>
+            </div>}
           </section>
         )}
+        {launchActive && <div className="form-step">
+          <Field label="Useful action or claim" name="usefulAction" value={launchTerm?.useful_action ?? version?.claim} required />
+          <Field label="Cost or main risk" name="costOrRisk" value={launchTerm?.cost_or_risk ?? version?.limitations} required />
+        </div>}
         {message && (
           <aside className="notice">
             Source: {person(data, message.author_id)}. Posted{" "}
@@ -429,12 +502,12 @@ export function AlphaForm({
           </aside>
         )}
         <div className="form-step">
-          <Field
+          {!launchActive && <Field
             label="What did you find or conclude?"
             name="claim"
             value={version?.claim}
             required
-          />
+          />}
           <Field
             label="Why does it matter to members?"
             name="purpose"
@@ -539,12 +612,12 @@ export function AlphaForm({
             required
             max={2000}
           />
-          <Field
+          {!launchActive && <Field
             label="What is uncertain or risky?"
             name="limitations"
             value={version?.limitations}
             required
-          />
+          />}
         </div>
         <details>
           <summary>Additional provenance</summary>
@@ -633,7 +706,7 @@ export function AlphaForm({
         <button
           className="button"
           type="submit"
-          disabled={data.evaluationAvailable === false}
+          disabled={!launchActive || data.evaluationAvailable === false}
         >
           <FilePlus2 size={16} />
           {busy

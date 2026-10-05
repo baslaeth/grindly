@@ -43,7 +43,7 @@ export function MemberActivity({
                 {a.kind === "outcome"
                   ? "Later outcome recorded"
                   : a.kind === "xp"
-                    ? `${a.xp} XP awarded`
+                    ? a.xp !== null && a.xp < 0 ? `${Math.abs(a.xp)} XP loss recorded` : `${a.xp} XP awarded`
                     : a.decision === "accept"
                       ? "Alpha accepted"
                       : a.decision === "reject"

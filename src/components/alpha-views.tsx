@@ -5,6 +5,8 @@ import { type ResearchData, person } from "@/research/model";
 import { AlphaFeedback } from "./alpha-actions";
 import { ReviewAssistant, alphaTime } from "./review-assistant";
 import { AlphaOutcomes } from "./alpha-outcomes";
+import { AlphaFollow } from "./alpha-follow";
+import { ReverseWorkAward } from "./reverse-work-award";
 export { CategoryHistory } from "./category-history";
 
 export function AlphaDetails({
@@ -18,12 +20,23 @@ export function AlphaDetails({
   if (!a) return null;
   const v = data.versions.find((v) => v.id === version);
   const f = data.findings.find((f) => f.id === v?.finding_id);
+  const terms = data.launchTerms?.find((t) => t.version_id === version);
+  const watch = data.follows?.find((item) => item.finding_id === f?.id);
+  const workXp = data.launchXp?.filter((event) => event.finding_id === f?.id && ["work", "reversal"].includes(event.kind)).reduce((sum, event) => sum + event.xp, 0) ?? 0;
   return (
     <div className="alpha-detail">
       <p>
         <strong>{a.category}</strong> / {contributionTypes[a.contribution_type]}
       </p>
       <p>{a.purpose}</p>
+      {terms && <>
+        <p><strong>{terms.opportunity}</strong> / {terms.useful_action}</p>
+        <p>Main cost or risk: {terms.cost_or_risk}</p>
+        <p>Reviewed work XP: {workXp}. {terms.prediction ? terms.prediction_validated ? "Prediction terms registered; outcome separate." : "Prediction unvalidated; no outcome XP until requirements are met." : "No prediction attached."}</p>
+        {f && <AlphaFollow finding={f.id} deadline={a.horizon} followed={!!watch} participated={watch?.participated ?? false} />}
+        {data.launchReviewable?.includes(version) && data.launchXp?.filter((event) => event.version_id === version && event.kind === "work" && event.xp > 0 && !data.launchXp?.some((reversal) => reversal.kind === "reversal" && reversal.basis_id === event.id)).map((event) =>
+          <ReverseWorkAward key={event.id} award={event.id} />)}
+      </>}
       <h3>Evidence references</h3>
       <ul className="source-list">
         {a.evidence.map((e, i) => (

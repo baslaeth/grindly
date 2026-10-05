@@ -10,7 +10,7 @@ export const assessmentFields = [
 ] as const;
 export type Category = (typeof categories)[number];
 export type ContributionType =
-  "find" | "analysis" | "prediction" | "warning" | "correction" | "followup";
+  "find" | "guide" | "analysis" | "prediction" | "warning" | "update" | "correction" | "followup";
 type ContextField = {
   key: string;
   label: string;
@@ -238,12 +238,14 @@ const typeQuestions: Record<ContributionType, string[]> = {
   analysis: [
     "Can another member follow the method? Do not judge a guide by subsequent price.",
   ],
+  guide: ["Are the steps actually tested, dated and usable at the stated cost?"],
   prediction: [
     "Were subject, horizon and falsification criteria saved before the outcome? Initial acceptance is not forecast success.",
   ],
   warning: [
     "Is the warning proportionate to dated evidence, with uncertainty rather than an unsupported accusation?",
   ],
+  update: ["What materially changed from the linked earlier work, and when was it confirmed?"],
   correction: [
     "What changed from the original version, and are its source history and contrary evidence preserved?",
   ],

@@ -35,12 +35,25 @@ export function CategoryHistory({
           groups={rows.map((r) => ({
             category: r.category,
             summary: (
-              <p>
+              <><p>
                 {r.total} submitted; {r.pending}/{r.total} pending; {r.reviewed}
                 /{r.total} reviewed; {r.accepted}/{r.total} currently accepted;{" "}
                 {r.corrected}/{r.total} corrected; {r.outcomeKnown}/{r.total}{" "}
                 outcome known.
-              </p>
+              </p>{(() => {
+                const findingIds = new Set(r.records.map((f) => f.id));
+                const versionIds = new Set(data.versions.filter((v) => findingIds.has(v.finding_id)).map((v) => v.id));
+                const predictions = data.launchTerms?.filter((t) => versionIds.has(t.version_id) && t.prediction) ?? [];
+                if (!predictions.length) return null;
+                const latest = (id: string) => data.outcomeAssessments?.filter((o) => o.version_id === id)
+                  .sort((a, b) => b.recorded_at.localeCompare(a.recorded_at))[0];
+                const settlement = (id: string) => data.launchSettlements?.find((s) => s.version_id === id);
+                const status = (value: string) => predictions.filter((t) => settlement(t.version_id)?.status === value).length;
+                const inconclusive = predictions.filter((t) => !settlement(t.version_id) && latest(t.version_id)?.status === "inconclusive").length;
+                const observedUnscored = predictions.filter((t) => !settlement(t.version_id) && latest(t.version_id)?.status === "known").length;
+                const pending = predictions.length - status("Met") - status("Failed") - status("Cancelled") - status("Inconclusive") - inconclusive - observedUnscored;
+                return <p>Prediction versions: {predictions.length}. Met {status("Met")}/{predictions.length}; Failed {status("Failed")}/{predictions.length}; Inconclusive {inconclusive + status("Inconclusive")}/{predictions.length}; Cancelled {status("Cancelled")}/{predictions.length}; Observed but unscored {observedUnscored}/{predictions.length}; Pending {pending}/{predictions.length}.</p>;
+              })()}</>
             ),
             records: r.records.map((f) => {
               const versions = data.versions
@@ -104,6 +117,12 @@ export function CategoryHistory({
                                   {alphaTime(d.created_at)}. {d.reason}
                                 </p>
                               ))}
+                            {data.launchXp?.filter((x) => x.version_id === v.id).map((x) =>
+                              <p key={x.id}>Recorded {x.kind} XP: {x.xp}, {alphaTime(x.created_at)}.</p>)}
+                            {data.launchSettlements?.filter((s) => s.version_id === v.id).map((s) =>
+                              <p key={s.assessment_id}><Link href={`/findings/${f.id}#outcome-${v.id}`}>Prediction {s.status}</Link>, {alphaTime(s.settled_at)}. {s.reason}</p>)}
+                            {data.disputes.filter((d) => d.version_id === v.id).map((d) =>
+                              <p key={d.id}>Appeal: {d.reason}. {d.resolved_at ? "Resolved" : "Awaiting independent review"}.</p>)}
                             {data.outcomeAssessments
                               ?.filter((o) => o.version_id === v.id)
                               .map((o) => (

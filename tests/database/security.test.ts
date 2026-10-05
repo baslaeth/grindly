@@ -3,6 +3,23 @@ import { createTestDatabase } from "./database";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const tables = [
+  "launch_reviewer_scopes",
+  "launch_follows",
+  "launch_watch_preferences",
+  "launch_monitor_sources",
+  "launch_monitor_runs",
+  "launch_monitor_events",
+  "launch_notifications",
+  "launch_policy_versions",
+  "launch_submission_terms",
+  "launch_xp_events",
+  "launch_work_levels",
+  "launch_work_decisions",
+  "launch_high_reservations",
+  "launch_enhanced_approvals",
+  "launch_outcome_settlements",
+  "launch_reversal_records",
+  "launch_upgrade_allocations",
   "member_category_focus",
   "alpha_review_versions",
   "alpha_review_assessments",
