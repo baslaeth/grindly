@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { createTestDatabase } from "./database";
+import { categoryFields, checklistVersion } from "../../src/alpha/checklists";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const ids = [randomUUID(), randomUUID(), randomUUID()];
@@ -36,6 +37,22 @@ it("appoints only a compatible reviewer in this rank and revokes the explicit sc
   await rpc("launch_set_reviewer", [ids[0], bindings[0], ids[1], "Traders", "Independent market evidence", false]);
   expect((await db.query("select * from public.launch_reviewer_scopes where member_id=$1", [ids[1]])).rows).toHaveLength(0);
   expect((await db.query("select event_type from public.audit_events where subject_id=$1 and event_type like 'launch.reviewer_%'", [ids[1]])).rows).toHaveLength(2);
+});
+it("does not let a different rank follow or inspect a private category alpha", async () => {
+  const record = await rpc<{ id: string }>("alpha_submit_v2", [ids[1], bindings[1], randomUUID(), JSON.stringify({
+    finding: null, previous: null, category: "Traders", type: "analysis", visibility: "members",
+    claim: "Isolated Bronze market research with a private rank boundary", purpose: "Members can inspect the available evidence",
+    addition: "I independently checked the dated public source", limitations: "The later outcome is not known",
+    subject: "ETH", chain: "", contract: "", checklist: checklistVersion,
+    details: Object.fromEntries(categoryFields.Traders.map((field) => [field.key, "Unknown"])),
+    evidence: [{ kind: "link", value: "https://ethereum.org/en/", label: "Primary source" }],
+    firstNoticed: null, horizon: null, checkCondition: "", sourceMessage: null, sourceRevision: null,
+    relatedVersion: null, correction: null,
+  })]);
+  expect(await rpc<{ id: string }>("launch_follow_mutate", [ids[0], bindings[0], "alpha", record.id, "follow", "", "", null])).toHaveProperty("id");
+  await denied(() => rpc("launch_follow_mutate", [ids[2], bindings[2], "alpha", record.id, "follow", "", "", null]));
+  const silver = await rpc<{ follows: unknown[] }>("alpha_snapshot", [ids[2], bindings[2], "silver-traders"]);
+  expect(silver.follows).toHaveLength(0);
 });
 it("follows a sample opportunity, runs a due check, queues one changed page and notifies only after confirmation", async () => {
   const opportunity = (await db.query<{ id: string }>("select id from public.opportunities where name='Sample: public briefing'")).rows[0]!.id;

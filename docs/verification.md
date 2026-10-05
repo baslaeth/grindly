@@ -11,9 +11,10 @@
 - Focused isolated DB: nine category save pipelines/Unknown, daily/idempotent
   limit, legacy weekly award inclusion, independent work XP, High reserve and
   signed loss, transfer isolation, enhancement cap, reversal, appeal history,
-  source monitoring/digest/reminder/acknowledgment, and old-table preservation.
+  source monitoring/digest/reminder/acknowledgment, exact-rank alpha Follow
+  denial, and old-table preservation.
   These are local transactional tests, **not** live shared-database journeys.
-- Final `pnpm check` passed lint, types, 230 unit, 291 database, 11 contract
+- Final `pnpm check` passed lint, types, 230 unit, 292 database, 11 contract
   tests, generated-type drift and build. Chrome foundation-mode Playwright
   passed 52/52 desktop/mobile tests. These are not a signed-in launch-member
   walkthrough.
