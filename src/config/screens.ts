@@ -6,7 +6,7 @@ export const screens = [
   { href: "/review", title: "Review Desk", icon: "review" },
   {
     href: "/findings/latest",
-    title: "History",
+    title: "Alpha",
     icon: "contribution",
   },
   { href: "/membership", title: "My profile", icon: "membership" },

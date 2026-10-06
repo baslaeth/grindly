@@ -12,6 +12,7 @@ import { launchFields } from "@/launch/forms";
 import { launchEvidenceIssues } from "@/launch/evidence-summary";
 import { AlphaAction } from "./alpha-actions";
 import { SourceObservations } from "./source-observations";
+import { campaignDates, guideOverview } from "@/alpha/guide-claims";
 
 export const alphaTime = (s: string) =>
   new Date(s).toISOString().replace("T", " ").slice(0, 19) + " UTC";
@@ -128,6 +129,7 @@ export function ReviewAssistant({
       : 0;
   const canRefresh =
     f.author_id === data.memberId || assigned?.reviewer_id === data.memberId;
+  const overview = guide ? guideOverview(old?.card) : null;
   return (
     <section
       className="section review-assistant"
@@ -149,16 +151,18 @@ export function ReviewAssistant({
         >
           <p>
             <strong>What checks out:</strong>{" "}
-            {sources.filter((s) => s.status === "retrieved").length} sources
-            retrieved; the claim still needs independent assessment.
+            {overview?.supported.length
+              ? "The following claims have preliminary source support."
+              : "No assessed facts are ready to show yet. Source retrieval alone is not support."}
           </p>
-          {!!sources.length && (
-            <p>
-              {sources
-                .filter((s) => s.status === "retrieved")
-                .map((s) => s.label)
-                .join("; ")}
-            </p>
+          {!!overview?.supported.length && (
+            <ul>
+              {overview.supported.slice(0, 4).map((c, i) => (
+                <li key={i}>
+                  <strong>Supported (preliminary):</strong> {c.claim}
+                </li>
+              ))}
+            </ul>
           )}
           <p>
             <strong>What needs attention:</strong> {gaps.length} category
@@ -187,6 +191,12 @@ export function ReviewAssistant({
           )}
           <p>
             <strong>What to do next:</strong>{" "}
+            {overview
+              ? overview.next
+              : "Check the official evidence and any missing context."}
+          </p>
+          <p>
+            <strong>Review next step:</strong>{" "}
             {f.status === "needs_correction" &&
             f.author_id === data.memberId ? (
               <Link href={`/findings/new?revise=${version}`}>
@@ -246,7 +256,8 @@ export function ReviewAssistant({
             </>
           )}
           {old?.status === "complete" && old.card && (
-            <>
+            <details>
+              <summary>Experimental model reasoning and suggestions</summary>
               <p>
                 <strong>Experimental model interpretation:</strong>{" "}
                 {old.card.summary}
@@ -258,7 +269,30 @@ export function ReviewAssistant({
               <p>
                 <strong>Suggested check:</strong> {old.card.nextCheck}
               </p>
-            </>
+            </details>
+          )}
+          {guide && (
+            <details>
+              <summary>Campaign dates and their provenance</summary>
+              {sources.map((s) => (
+                <div key={s.id}>
+                  <strong>{s.label}</strong>
+                  <dl>
+                    {campaignDates(s).map((fact) => (
+                      <div key={fact.kind}>
+                        <dt>{fact.kind}</dt>
+                        <dd>
+                          {fact.value ?? "Unknown"}. {fact.limitation}
+                          {fact.passage && (
+                            <blockquote>{fact.passage}</blockquote>
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ))}
+            </details>
           )}
         </div>
       )}
@@ -408,13 +442,17 @@ export function ReviewAssistant({
           : "AI analysis is not connected yet."}
       </p>
       {data.localAIEnabled &&
-        old?.status !== "complete" &&
+        old?.status !== "running" &&
         (f.author_id === data.memberId ||
           assigned?.reviewer_id === data.memberId) && (
           <AlphaAction
             version={version}
             action="localReview"
-            label="Run local preliminary analysis"
+            label={
+              old?.status === "complete"
+                ? "Run fresh local analysis"
+                : "Run local preliminary analysis"
+            }
           />
         )}
       {old?.provider === "ollama-local" && (
@@ -439,6 +477,18 @@ export function ReviewAssistant({
                     {c.claim}
                   </summary>
                   <p>{c.reason}</p>
+                  {c.field && (
+                    <p className="muted">
+                      Field: {c.field}. Campaign: {c.campaign}. Assessed{" "}
+                      {c.assessedAt ? alphaTime(c.assessedAt) : "Unknown"}.
+                    </p>
+                  )}
+                  {c.original && (
+                    <details>
+                      <summary>Original field text</summary>
+                      <p>{c.original}</p>
+                    </details>
+                  )}
                   {c.evidenceLinks.map((link, j) => {
                     const s = old.sources.find((s) => s.id === link.source);
                     return (
@@ -475,6 +525,45 @@ export function ReviewAssistant({
         output, when explicitly requested, is preliminary and cannot approve
         work or award XP. No quality score is implied.
       </p>
+      <details>
+        <summary>Earlier saved analyses and source snapshots</summary>
+        {data.preliminary
+          ?.filter((r) => r.version_id === version && r.id !== old?.id)
+          .map((r) => (
+            <details key={r.id}>
+              <summary>
+                {alphaTime(r.created_at)} / {r.model ?? "Model unavailable"} /{" "}
+                {r.status}
+              </summary>
+              <p>
+                Historical preliminary output, not the current assessment.
+                Earlier mistakes remain recorded.
+              </p>
+              {r.card?.claims.map((c, i) => (
+                <p key={i}>
+                  {c.status}: {c.claim} / {c.reason}
+                </p>
+              ))}
+              <ul>
+                {r.sources.map((s) => (
+                  <CheckedEvidence key={s.id} source={s} />
+                ))}
+              </ul>
+            </details>
+          ))}
+        {runs.slice(1).map((r) => (
+          <details key={r.id}>
+            <summary>
+              Source check {alphaTime(r.created_at)} / {r.status}
+            </summary>
+            <ul>
+              {r.sources.map((s) => (
+                <CheckedEvidence key={s.id} source={s} />
+              ))}
+            </ul>
+          </details>
+        ))}
+      </details>
       <h4>Independent review</h4>
       {decisions.length ? (
         decisions.map((d) => (

@@ -159,29 +159,35 @@ it("local reasoning uses loopback only, treats injection as data, and validates 
   expect(body.tools).toBeUndefined();
   expect(body.messages[0].content).toContain("UNTRUSTED DATA");
   expect(body.messages[0].content).not.toContain("UNTRUSTED isolated input");
-  fetch.mockResolvedValueOnce(
-    new Response(
-      JSON.stringify({
-        done: true,
-        message: {
-          content: JSON.stringify({
-            ...card,
-            claims: [
-              { ...card.claims[0], status: "supported", sources: ["invented"] },
-            ],
-          }),
-        },
-      }),
+  fetch.mockImplementation(() =>
+    Promise.resolve(
+      new Response(
+        JSON.stringify({
+          done: true,
+          message: {
+            content: JSON.stringify({
+              ...card,
+              claims: [
+                {
+                  ...card.claims[0],
+                  status: "supported",
+                  sources: ["invented"],
+                },
+              ],
+            }),
+          },
+        }),
+      ),
     ),
   );
   await expect(modelReview(context, [], { model: "qwen3:4b" })).rejects.toThrow(
     "invalid_output",
   );
-  fetch.mockRejectedValueOnce(new Error("private upstream message"));
+  fetch.mockRejectedValue(new Error("private upstream message"));
   await expect(modelReview(context, [], { model: "qwen3:4b" })).rejects.toThrow(
     "provider_failed",
   );
-  expect(fetch).toHaveBeenCalledTimes(3);
+  expect(fetch).toHaveBeenCalledTimes(5);
 });
 afterEach(() => {
   clearDocumentCache();

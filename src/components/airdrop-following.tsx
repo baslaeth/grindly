@@ -55,8 +55,8 @@ export function AirdropFollowing({
             <Bell size={18} /> Airdrop alerts
           </h3>
           <p>
-            Official-page checks only. Historical programs are not currently
-            open. Local checks need this computer and scheduler running.
+            Registered official pages only; changes need operator confirmation.
+            Local checks need this computer and scheduler running.
           </p>
           {data.airdropFollowing?.map((f) => (
             <article className="watch-row" key={f.followId}>
@@ -126,16 +126,16 @@ export function AirdropFollowing({
                 </span>
               )}
               <h4>
-                {airdropAlertLabels[
-                  n.event.kind as keyof typeof airdropAlertLabels
-                ] ?? "Official update"}
+                {data.airdropFollowing?.find(
+                  (f) => f.campaign === n.event.campaign_id,
+                )?.name ?? n.event.campaign_id}
+                {": "}
+                {n.event.kind === "claim_open" && !n.event.observed_available_at
+                  ? "Scheduled opening announcement"
+                  : (airdropAlertLabels[
+                      n.event.kind as keyof typeof airdropAlertLabels
+                    ] ?? "Official update")}
               </h4>
-              <p>
-                <strong>What happened:</strong>{" "}
-                {n.event.passage.length > 240
-                  ? `${n.event.passage.slice(0, 240)}...`
-                  : n.event.passage}
-              </p>
               <p className="muted">
                 Official announcement, confirmed by an operator. Not a personal
                 eligibility or live claim-availability check.

@@ -66,7 +66,26 @@ export function airdropEventCandidates(
               : /airdrop|token.*announc|announc.*token/i.test(p)
                 ? "announcement"
                 : "requirements";
-      const rawDate = p.match(/\b20\d\d-\d\d-\d\dT\d\d:\d\d(?::\d\d)?Z\b/)?.[0];
+      const role =
+        type === "claim_open"
+          ? /claim.{0,40}(?:open|start|available)/i
+          : type === "deadline"
+            ? /deadline|claim.{0,40}(?:until|ends|close|expire)/i
+            : /snapshot/i;
+      const datedClause = p
+        .split(/(?<=[.!?])\s+/)
+        .filter(
+          (sentence) =>
+            role.test(sentence) &&
+            !/publication|published|discontinued/i.test(sentence),
+        );
+      const dates =
+        datedClause.length === 1
+          ? (datedClause[0]!.match(
+              /\b20\d\d-\d\d-\d\dT\d\d:\d\d(?::\d\d)?Z\b/g,
+            ) ?? [])
+          : [];
+      const rawDate = dates.length === 1 ? dates[0] : null;
       const scheduledAt =
         rawDate && Number.isFinite(Date.parse(rawDate))
           ? new Date(rawDate).toISOString()

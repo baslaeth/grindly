@@ -10,6 +10,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+Latest reliability checkpoint: `docs/airdrop-reliability.md` and
+`docs/airdrop-reliability-evidence/README.md`, continuing reviewed `7d571bd`.
+026-032 were inspected, not replayed; additive 033 is SHARED-APPLIED with
+old-table preservation, forced RLS and denied browser RPC assertions. Do not
+edit or replay 023-033. Axis Points is the current issuer-documented program;
+points do not establish token rewards or personal eligibility. Real scheduler
+retrieval and the separate labeled historical replay are recorded. Whole-guide
+qwen3:4b final regression: 42/48 expected labels, six unnecessary Unknown answers;
+earlier untouched 22/24 included one false support and remains in the evidence.
+Do not describe regression as untouched accuracy. Isolated browser guide/review/
+50 XP/Follow/Profile evidence is separate from genuine activity. No paid calls,
+production deployment, genuine reviewer appointment, claims or upgrades.
+
 Latest focused checkpoint: `docs/airdrop-experience.md` and
 `docs/airdrop-evidence/README.md` (2026-10-06), continuing reviewed `2d1a671`.
 030-032 are SHARED-APPLIED with old-table preservation, forced RLS and denied

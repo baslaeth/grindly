@@ -353,12 +353,17 @@ export type AlphaVersion = {
 };
 export const reviewCardSchema = z
   .object({
+    assessmentVersion: z.string().optional(),
     summary: z.string().max(1500),
     claims: z
       .array(
         z
           .object({
             claim: z.string().max(1000),
+            field: z.string().optional(),
+            original: z.string().max(2000).optional(),
+            campaign: z.string().optional(),
+            assessedAt: z.string().nullable().optional(),
             status: z.enum(["supported", "contradicted", "unverified"]),
             reason: z.string().max(1200),
             sources: z.array(z.string().max(80)).max(8),
@@ -378,7 +383,7 @@ export const reviewCardSchema = z
           .strict(),
       )
       .min(1)
-      .max(12),
+      .max(64),
     missingEvidence: z.array(z.string().max(500)).max(12),
     riskQuestions: z.array(z.string().max(500)).max(12),
     priorWork: z

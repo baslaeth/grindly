@@ -210,7 +210,14 @@ export function AlphaForm({
     setBusy(true);
     setError("");
     const fields = new FormData(e.currentTarget);
-    const get = (k: string) => String(fields.get(k) ?? "").trim();
+    const get = (k: string) =>
+      String(
+        fields.get(
+          k === "usefulAction" && category === "Airdrop Hunters"
+            ? "addition"
+            : k,
+        ) ?? "",
+      ).trim();
     try {
       for (const file of files.filter((f) => !f.uploaded))
         await new Promise<void>((resolve, reject) => {
@@ -321,6 +328,7 @@ export function AlphaForm({
         launchContext.project = get("subject");
         launchContext.status = "Unknown";
         launchContext.costs = get("costOrRisk");
+        launchContext.testedSteps = get("airdrop-testEvidence") || "Not tested";
       }
       const details =
         launchActive && category
@@ -534,7 +542,7 @@ export function AlphaForm({
                       max={500}
                     />
                     <Field
-                      label="What is officially confirmed?"
+                      label="Published facts (not personal eligibility)"
                       name="airdrop-confirmed"
                       required
                       value={airdropGuide?.confirmed}
@@ -565,9 +573,9 @@ export function AlphaForm({
                         value={airdropGuide?.exclusions ?? "Unknown"}
                       />
                       <Field
-                        label="Evidence of your tested steps"
+                        label="Personally tested steps and evidence (or Not tested)"
                         name="airdrop-testEvidence"
-                        value={airdropGuide?.testEvidence ?? "Unknown"}
+                        value={airdropGuide?.testEvidence ?? "Not tested"}
                       />
                     </details>
                   </>
@@ -579,7 +587,7 @@ export function AlphaForm({
                       !f.fromPrediction &&
                       !(
                         category === "Airdrop Hunters" &&
-                        ["project", "status"].includes(f.key)
+                        ["project", "status", "testedSteps"].includes(f.key)
                       ),
                   )
                   .map((field) => (
@@ -785,12 +793,14 @@ export function AlphaForm({
         )}
         {launchActive && (
           <div className="form-step">
-            <Field
-              label="Useful action or claim"
-              name="usefulAction"
-              value={launchTerm?.useful_action ?? version?.claim}
-              required
-            />
+            {category !== "Airdrop Hunters" && (
+              <Field
+                label="Useful action or claim"
+                name="usefulAction"
+                value={launchTerm?.useful_action ?? version?.claim}
+                required
+              />
+            )}
             <Field
               label={
                 category === "Airdrop Hunters"

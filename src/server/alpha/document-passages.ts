@@ -7,9 +7,9 @@ const material =
 export function documentPassages(raw: string, focus = "") {
   const $ = load(raw);
   const title = $("title").text().trim().slice(0, 120);
-  const published =
-    $("meta[property='article:published_time']").attr("content") ??
-    $("time[datetime]").first().attr("datetime");
+  const published = $("meta[property='article:published_time']").attr(
+    "content",
+  );
   $(
     "script,style,nav,header,footer,form,button,noscript,svg,dialog,[role=dialog]",
   ).remove();
@@ -47,7 +47,9 @@ export function documentPassages(raw: string, focus = "") {
     index,
     score:
       (material.test(text) ? 5 : 0) +
-      (/discontinu|expire|no longer|closed|only|exclu|not guarantee/i.test(text)
+      (/discontinu|expire|no longer|closed|only|exclu|not guarantee|guarantees no|caps each|per.task.*cap/i.test(
+        text,
+      )
         ? 8
         : 0) +
       terms.filter((t) => text.toLowerCase().includes(t)).length,

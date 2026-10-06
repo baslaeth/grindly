@@ -1,5 +1,49 @@
 # Actual verification
 
+## Whole-guide reliability and current campaign - 2026-10-06
+
+- Baseline `7d571bdaa504f440118c03c0c3dd90fe111d2711`, same feature branch;
+  annotations and unrelated untracked branding preserved.
+- Inspected 026-032 catalog; applied only 033 to authorized shared development
+  project `errbtterppmvtlfltgzp`. Prepared transaction passed all old-table
+  digests, forced RLS and denied browser RPC assertions. No prior SQL replay.
+- Discovered Axis via a public tracker and checked official Points, Getting
+  Started and FAQ pages. Issuer documents ongoing epochs; no personally tested
+  task, wallet eligibility, token allocation or current token claim is asserted.
+- Actual signed-in browser: Home -> Bronze Airdrop Hunters -> Guide -> realistic
+  fields -> receipt -> source refresh -> four persisted local analyses. Separate
+  mixed-guarantee and wrong-date/unavailable-source saves remain intact. Earlier
+  cards and source snapshots retained. The final main result preserves documented
+  steps while withholding unsupported dates and personal-eligibility conclusions.
+- Existing isolated Risk identity accepted the Operations guide for one 50 XP
+  actionable-work award. Author and reviewer differ. Profile/Activity show 75
+  total sample XP (25 older + 50 new), 1,425 remaining to Silver. Genuine work
+  has no newly appointed reviewer. No genuine award or future outcome invented.
+- Axis Follow/preferences persisted. Real scheduled retrieval at 16:55:46 UTC
+  saved no confirmed change and next check October 7 16:55:46 UTC. Separate
+  historical official Starknet opening replay was operator-confirmed, delivered,
+  acknowledged and Done. It explicitly says historical, scheduled, and do not
+  claim; observed availability remains Unknown. Confirmed-date reminder tests
+  cover delivery without a page change, deduplication, preferences and rank access.
+- Fresh real qwen3:4b whole-guide cases: three programs, six development and six
+  initially untouched contexts, four expected claims each. Frozen results 23/24
+  and 22/24 included one held-out false support. Final regression after fixes:
+  20/24 + 22/24, no false support/contradiction, six unnecessary Unknown answers,
+  0/12 failed guides, 48/48 expected claims returned, 8.663-28.952 seconds per
+  four-claim guide. This reused evaluation is NOT a second untouched benchmark.
+  Exact quotation validation is not semantic accuracy; failures remain preserved.
+- Final `pnpm check`: lint, types, 246 unit, 309 database, 11 contract tests,
+  database-type drift and production build passed. Final foundation browser run:
+  52 passed (17.4 seconds), desktop and mobile. Foundation browser tests are
+  separate from the signed-in shared walkthrough and simulated NFT membership.
+  No deferred live transfer test was reopened.
+- Desktop/mobile screenshots, actual persisted browser cards, scheduler report,
+  case expectations and full metrics are in
+  [airdrop-reliability-evidence](airdrop-reliability-evidence/README.md).
+  Captures show isolated sample accounts, not founder research. No paid model,
+  cloud fallback, hosted scheduler or production deployment. Local review is
+  `http://localhost:3000/`; server/scheduler require this computer to stay running.
+
 ## Airdrop guide, actual local reasoning and follow-up - 2026-10-06
 
 - Verified branch `codex/category-alpha-review`, baseline/remote `2d1a671`.

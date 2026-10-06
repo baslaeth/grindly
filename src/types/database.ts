@@ -3487,6 +3487,7 @@ export type Database = {
         };
         Returns: number;
       };
+      airdrop_due_reminders: { Args: Record<string, never>; Returns: number };
       airdrop_ingest: {
         Args: {
           p_campaign: string;

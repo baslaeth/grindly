@@ -261,7 +261,10 @@ export async function executeLocalReview(context: ReviewContext) {
   const configuration = localModelConfiguration(context.isDemo);
   let sources: CheckedSource[] = [];
   try {
-    sources = await collectSources(context.alpha);
+    sources = await collectSources(
+      context.alpha,
+      JSON.stringify(context.airdropGuide ?? {}),
+    );
     const result = await modelReview(context, sources, configuration);
     const saved = await createDataClient().rpc("alpha_finish_review", {
       p_id: context.run,
@@ -294,7 +297,10 @@ export async function executePreliminary(context: ReviewContext) {
   let sources: CheckedSource[] = [];
   let checks: string[] = deterministicChecks(context, []).checks;
   try {
-    sources = await collectSources(context.alpha);
+    sources = await collectSources(
+      context.alpha,
+      JSON.stringify(context.airdropGuide ?? {}),
+    );
     const result = deterministicChecks(context, sources);
     checks = result.checks;
     // Source refresh never invokes a paid model, even if a key later appears.

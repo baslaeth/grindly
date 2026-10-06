@@ -32,6 +32,7 @@ export const primaryHosts = new Set([
   "docs.optimism.io",
   "optimism.io",
   "www.starknet.io",
+  "docs.axisrobotics.ai",
 ]);
 export function primaryUrl(value: string) {
   try {
@@ -429,7 +430,7 @@ export async function chainSource(alpha: AlphaVersion): Promise<CheckedSource> {
     );
   }
 }
-export async function collectSources(alpha: AlphaVersion) {
+export async function collectSources(alpha: AlphaVersion, guideFocus = "") {
   const result: CheckedSource[] = [];
   const links = alpha.evidence.filter((e) => e.kind === "link");
   const pair =
@@ -447,7 +448,7 @@ export async function collectSources(alpha: AlphaVersion) {
       primaryDocument(
         e.value,
         `source-${i + 1}`,
-        `${alpha.category} ${alpha.subject} ${JSON.stringify(alpha.details)}`,
+        `${alpha.category} ${alpha.subject} ${guideFocus} ${JSON.stringify(alpha.details)}`,
       ),
     );
   if (links.length > 3)

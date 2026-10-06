@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createHash } from "node:crypto";
 import { writeFile, readFile } from "node:fs/promises";
 process.loadEnvFile(".env.local");
+const reliability = process.argv.includes("--reliability");
 if (
   new URL(process.env.SUPABASE_URL!).hostname !==
   "errbtterppmvtlfltgzp.supabase.co"
@@ -45,7 +46,11 @@ const result = await db
     {
       campaign_id: campaign.data.id,
       fingerprint: createHash("sha256")
-        .update("controlled-historical-replay-v1:" + passage)
+        .update(
+          (reliability
+            ? "controlled-reliability-replay-v1:"
+            : "controlled-historical-replay-v1:") + passage,
+        )
         .digest("hex"),
       kind: "claim_open",
       passage,
@@ -63,7 +68,9 @@ const result = await db
   .select("id");
 if (result.error) throw Error("Could not prepare isolated replay");
 await writeFile(
-  "docs/airdrop-evidence/monitoring-replay.json",
+  reliability
+    ? "docs/airdrop-reliability-evidence/monitoring-replay.json"
+    : "docs/airdrop-evidence/monitoring-replay.json",
   JSON.stringify(
     {
       classification:

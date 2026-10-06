@@ -34,7 +34,9 @@ export function GrindIntelligence({
           )}
           {available.map((f) => (
             <option key={f.id} value={f.id}>
-              {data.versions.find((v) => v.id === f.current_version)?.claim ??
+              {data.alphas?.find((a) => a.version_id === f.current_version)
+                ?.subject ??
+                data.versions.find((v) => v.id === f.current_version)?.claim ??
                 "Saved alpha"}
             </option>
           ))}
@@ -51,12 +53,11 @@ export function GrindIntelligence({
         </p>
       ) : (
         <>
-          <section className="section" aria-label="Selected alpha">
+          <section
+            className="section intelligence-selected"
+            aria-label="Selected alpha"
+          >
             <h2>{alpha.subject}</h2>
-            <details>
-              <summary>Original action or claim</summary>
-              <p>{version.claim}</p>
-            </details>
             <p>
               {alpha.category} / {person(data, finding.author_id)} / version{" "}
               {version.version}
@@ -75,6 +76,10 @@ export function GrindIntelligence({
             >
               Open alpha and Review Assistant
             </Link>
+            <details>
+              <summary>Original action or claim</summary>
+              <p>{version.claim}</p>
+            </details>
           </section>
           <ReviewAssistant data={data} version={version.id} questions />
           <details className="section intelligence-question">

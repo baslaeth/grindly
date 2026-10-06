@@ -102,5 +102,10 @@ export async function runDueMonitoring() {
     reminders: reminders.data ?? 0,
     digest: digest.data ?? 0,
     campaigns: campaignResults,
+    campaignReminders: await (async () => {
+      const result = await db.rpc("airdrop_due_reminders");
+      if (result.error) throw result.error;
+      return result.data;
+    })(),
   };
 }

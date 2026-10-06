@@ -35,7 +35,7 @@ export async function ResearchScreen({
   const title = {
     workbench: "Hub",
     new: "Submit alpha",
-    record: "History",
+    record: saved ? "Alpha saved" : "Alpha",
     review: "Review Desk",
     membership: "My profile",
     intelligence: "Grind Intelligence",
@@ -69,27 +69,25 @@ export async function ResearchScreen({
   return (
     <Screen title={title}>
       {view === "intelligence" && (
-        <section className="section">
-          <p>
-            Follow the evidence behind an alpha: checked sources, unanswered
-            questions, earlier contributions and later observations.
-          </p>
+        <section className="intelligence-intro">
+          {!data && (
+            <p>
+              Follow the evidence behind an alpha: checked sources, unanswered
+              questions, earlier contributions and later observations.
+            </p>
+          )}
           <p>
             <strong>
               {data?.localAIEnabled
-                ? "Optional local AI analysis is configured."
+                ? "Local AI: preliminary, not independent verification."
                 : "AI analysis is not connected yet."}
             </strong>{" "}
-            Source checks are separate from model reasoning. Retrieving a source
-            does not prove an alpha is correct.
+            Retrieved sources do not by themselves prove a claim.
           </p>
         </section>
       )}
       {data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
-        <p className="notice">
-          Isolated sample account. Work, evaluations and XP here are test
-          activity.
-        </p>
+        <p className="notice">Sample account: isolated contributions and XP.</p>
       )}
       {!data ? (
         unavailable ? (

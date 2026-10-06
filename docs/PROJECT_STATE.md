@@ -1,5 +1,36 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Airdrop reliability completion (2026-10-06)
+
+Current handoff: [airdrop-reliability.md](airdrop-reliability.md); sanitized
+browser captures and full local-model results:
+[airdrop-reliability-evidence/README.md](airdrop-reliability-evidence/README.md).
+Continues `codex/category-alpha-review` from reviewed `7d571bd`.
+026-032 were inspected, not replayed. Only additive 033 was shared-applied with
+all pre-existing table digests unchanged, forced RLS and denied browser RPCs.
+
+Axis Points on Base is documented by its issuer as an ongoing points program,
+not a guaranteed token airdrop. A realistic sourced browser guide, mixed guarantee
+and wrong-date/source-failure variants were saved. Separate isolated reviewer
+acceptance awarded exactly 50 sample XP; Profile/Activity match. Four actual
+local model analyses preserve earlier cards and snapshots. Claim-derived summaries,
+date-role separation, provenance guards and compact layouts are implemented.
+
+Fresh whole-guide frozen evaluation was 23/24 development and 22/24 untouched,
+including one false support. Following fixes, final regression is 20/24 and
+22/24, with six unnecessary Unknown answers and no false support/contradiction
+in those 48 expected labels. This is not independent accuracy or a new untouched
+benchmark. Local qwen3:4b remains experimental and misses some compound/date facts.
+
+The running local scheduler checked Axis successfully at 16:55:46 UTC; no new
+confirmed change. Next source check is October 7 at 16:55:46 UTC. A separate
+historical Starknet replay was confirmed, delivered, acknowledged and completed.
+Deadline reminders use confirmed saved dates without requiring a page change
+(transactional tests); no real deadline delivery or new live claim event is claimed.
+Only registered sources are monitored, uncertain events require an operator, and
+the computer must stay running. Genuine reviewers remain unappointed. Claims and
+upgrade execution remain inactive. Approved XP policy is unchanged.
+
 ## Airdrop guide checkpoint (2026-10-06)
 
 Current handoff: [airdrop-experience.md](airdrop-experience.md); evidence and

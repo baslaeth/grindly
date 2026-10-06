@@ -1,60 +1,59 @@
 {
   "status": "real_model_result",
   "model": "qwen3:4b",
-  "ranAt": "2026-09-30T11:41:41.681Z",
-  "elapsedMs": 3713,
+  "ranAt": "2026-10-06T16:30:22.263Z",
+  "elapsedMs": 9423,
   "inputClassification": "Isolated synthetic claims with actual public document",
   "sources": [
     {
       "id": "official-doc",
       "label": "docs.cdp.coinbase.com",
       "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles.md",
-      "checkedAt": "2026-09-30T11:41:42.150Z",
+      "checkedAt": "2026-10-06T16:30:25.073Z",
       "publishedAt": null,
       "status": "retrieved",
-      "facts": "Primary text omitted from the public report; source reference, retrieval time and digest retained.",
+      "facts": "Primary text omitted from the public report; exact selected quotations are in the card.",
       "digest": "ce66414274ecc32b6c5317d6a595f8e131f7db602596b9cad0bac485e987548f"
     }
   ],
   "card": {
-    "summary": "The analysis focuses on Coinbase's API documentation for the candle endpoint. The documentation explicitly states that the maximum number of data points for a single request is 300 candles (as per the 'Max Candles' section). However, the claim that 'ETH will double tomorrow' is not supported by any evidence in the provided documentation or sources. This claim appears to be a future market prediction that is not documented in the API specifications and is therefore unverified.",
+    "summary": "The claim that 'The Coinbase candle endpoint permits a maximum of 300 candles in one request' is supported by the official documentation. The claim that 'ETH will double tomorrow' is unverified as it is a future market prediction not supported by dated evidence.",
     "claims": [
       {
-        "claim": "The Coinbase candle endpoint permits a maximum of 300 candles in one request.",
+        "claim": "The Coinbase candle endpoint permits a maximum of 300 candles in one request",
         "status": "supported",
-        "reason": "The documentation explicitly states: 'The maximum number of data points for a single request is `300` candles.'",
+        "reason": "The official documentation explicitly states: 'The maximum number of data points for a single request is `300` candles.'",
         "sources": [
           "official-doc"
         ],
         "evidenceLinks": [
           {
             "source": "official-doc",
-            "excerpt": "## Max Candles The maximum number of data points for a single request is `300` candles.",
-            "relationship": "Directly states the maximum number of candles allowed in a single request",
+            "excerpt": "candles description: >- Historic rates for a product. Rates are returned in grouped buckets. Candle schema is of the form `[timestamp, price_low, price_high, price_open, price_close]` operationId: ExchangeRESTAPI_GetProductCandles parameters: - name: product_id in: path required: true schema: type: string - name: granularity in: query schema: type: string - name: start in: query description: Timestamp for starting range of aggregations schema: type: string - name: end in: query description: Timestamp for ending range of aggregations schema: type: string responses: '200': description: '' content: application/json: schema: type: array items: type: object properties: {} '500': description: An unexpected error response. content: application/json: schema: $ref: '#/components/schemas/apiErrorResponse' security: [] components: schemas: apiErrorResponse: type: object properties: message: title: message pattern: ^[a-zA-Z0-9]{1, 32}$ type: string securitySchemes: ApiKeyAuthKey: type: apiKey ",
+            "relationship": "The documentation explicitly states the maximum number of candles is 300 for a single request",
             "sourceDate": null
           }
         ]
       },
       {
-        "claim": "This documentation also proves ETH will double tomorrow.",
+        "claim": "This documentation also proves ETH will double tomorrow",
         "status": "unverified",
-        "reason": "The documentation does not contain any information about ETH price predictions or future market movements. This claim is a future market prediction that is not supported by the provided documentation.",
-        "sources": [
-          "official-doc"
-        ],
+        "reason": "This is a future market prediction not supported by dated evidence. The documentation does not contain any market predictions or price forecasts.",
+        "sources": [],
         "evidenceLinks": []
       }
     ],
     "missingEvidence": [
-      "No evidence exists in the provided documentation to support the claim that ETH will double tomorrow. This claim is a future market prediction that is not documented in the API specifications."
+      "No dated evidence exists for ETH price predictions",
+      "The documentation does not include any market forecasts or price targets"
     ],
     "riskQuestions": [
-      "Is the ETH price prediction based on any external market data or analysis beyond the provided documentation?",
-      "What specific market conditions or indicators would be required to support the claim that ETH will double tomorrow?",
-      "How does the current API documentation relate to the prediction of ETH price movements?"
+      "Is the ETH price prediction based on real market data or an unsupported claim?",
+      "What specific evidence would support ETH doubling in price tomorrow?",
+      "How does this prediction align with current market conditions and historical price movements?"
     ],
     "priorWork": [],
-    "nextCheck": "Verify the ETH price prediction with independent market data sources (e.g., financial news, price charts, analyst reports) rather than relying on the API documentation. The API documentation does not provide price prediction capabilities."
+    "nextCheck": "Wait for dated market evidence to confirm ETH price predictions before re-evaluating"
   },
   "limitation": "One smoke case is not model accuracy or complete injection/semantic evaluation. No approval or XP authority."
 }

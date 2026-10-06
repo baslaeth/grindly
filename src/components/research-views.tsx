@@ -524,9 +524,13 @@ export function FindingRecord({
       <section className="section">
         {receipt && (
           <div className="notice" role="status">
-            <h2>Alpha saved</h2>
+            <h2>
+              {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
+                "Alpha saved"}
+            </h2>
+            <Status value={finding.status} />
             <p>
-              Save receipt: version {receipt.version},{" "}
+              Original save receipt: version {receipt.version},{" "}
               {date(receipt.submitted_at)}.
             </p>
             <p>

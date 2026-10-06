@@ -160,7 +160,13 @@ export function Watchlist({ data }: { data: ResearchData }) {
           <article className="watch-row" key={follow.id}>
             <h3>
               {finding ? (
-                <Link href={`/findings/${finding.id}`}>{claim ?? "Alpha"}</Link>
+                <Link href={`/findings/${finding.id}`}>
+                  {data.alphas?.find(
+                    (a) => a.version_id === finding.current_version,
+                  )?.subject ??
+                    claim ??
+                    "Alpha"}
+                </Link>
               ) : (
                 <Link
                   href={`/${data.profiles.find((p) => p.member_id === data.memberId)?.is_demo ? "?sample=1" : ""}#opportunity-${follow.opportunity_id}`}

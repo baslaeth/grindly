@@ -1896,8 +1896,38 @@ dd,
 }
 .intelligence-picker {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 12px;
   max-width: 100%;
+}
+.intelligence-picker > label {
+  grid-column: 1 / -1;
+}
+.intelligence-intro {
+  margin-bottom: 12px;
+}
+.intelligence-intro p {
+  margin: 0 0 8px;
+}
+.intelligence-selected {
+  padding: 16px 0;
+  margin-top: 16px;
+}
+.intelligence-selected h2 {
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+.intelligence-selected p {
+  margin: 6px 0;
+}
+.intelligence-selected + .section {
+  padding-top: 16px;
+}
+@media (max-width: 560px) {
+  .intelligence-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .intelligence-picker select {
   width: 100%;

@@ -391,6 +391,40 @@ it("targets campaign alerts once per permitted follower and preserves acknowledg
       )
     ).rows,
   ).toEqual([{ status: "done", acknowledged: true, done: true }]);
+  await rpc("airdrop_preferences", [
+    ids[1],
+    bindings[1],
+    follows[1],
+    ["deadline"],
+    false,
+  ]);
+  await db.query(
+    "insert into public.airdrop_events(campaign_id,fingerprint,kind,passage,source_url,scheduled_at,required_action,is_demo,status,confirmed_by,confirmed_at) values('starknet-provisions-2024','deadline-fixture','deadline','Controlled future deadline, not a real campaign opening',$1,now()+interval '2 hours','Sample: check the recorded deadline',true,'confirmed',$2,now())",
+    [official, ids[0]],
+  );
+  expect(await rpc("airdrop_due_reminders", [])).toBe(1);
+  expect(await rpc("airdrop_due_reminders", [])).toBe(0);
+  const reminders = (
+    await db.query<{ id: string }>(
+      "select n.id from public.airdrop_notifications n join public.airdrop_events e on e.id=n.event_id where e.fingerprint like 'reminder:%'",
+    )
+  ).rows;
+  expect(reminders).toHaveLength(1);
+  await rpc("airdrop_notification_action", [
+    ids[1],
+    bindings[1],
+    reminders[0]!.id,
+    "done",
+  ]);
+  expect(
+    (
+      await rpc<{ airdropNotifications: unknown[] }>("alpha_snapshot", [
+        ids[2],
+        bindings[2],
+        "silver-airdrop-hunters",
+      ])
+    ).airdropNotifications,
+  ).toEqual([]);
 });
 it("appoints only a compatible reviewer in this rank and revokes the explicit scope", async () => {
   await db.exec(
