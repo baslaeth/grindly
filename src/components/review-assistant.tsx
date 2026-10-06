@@ -397,10 +397,9 @@ export function ReviewAssistant({
       <h4>AI analysis</h4>
       {a.category === "Airdrop Hunters" && data.localAIEnabled && (
         <p className="notice">
-          Experimental local analysis. Internal tests found false contradictions
-          and confusion between historical announcements and current
-          availability. Inspect the source passages; a model label is not
-          verification.
+          Experimental local analysis can misread dates, overstate support and
+          confuse historical announcements with current availability. Inspect
+          the source passages; a model label is not verification.
         </p>
       )}
       <p>

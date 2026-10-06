@@ -2,8 +2,8 @@
 
 Branch `codex/category-alpha-review`, baseline `2d1a671`, 2026-10-06.
 Scope: practical Airdrop Hunters guides, evidence-grounded local preliminary
-review, shared official-campaign monitoring and in-app follow-up. Other nine
-category functionality, exact-rank access and approved XP mechanics remain intact.
+review, shared official-campaign monitoring and in-app follow-up. All nine
+categories, exact-rank access and approved XP mechanics remain intact.
 
 ## Task list
 
@@ -19,7 +19,7 @@ category functionality, exact-rank access and approved XP mechanics remain intac
 - [x] Refine guide/Profile/receipt/intelligence/following visuals and Home entry.
 - [x] Actual isolated author/reviewer browser journey, source failure and scheduled checks; labeled replay notifications.
 - [x] Desktop/mobile captures, checks and sanitized evidence.
-- [ ] Commit/push and remote CI verification.
+- [x] Commit/push and remote CI verification.
 
 ## Boundaries
 
@@ -136,3 +136,10 @@ workers. One 12-worker run had two timeouts; no checks were weakened to pass.
 Actual shared browser journeys are described above, separately from foundation
 tests. `scripts/verify-airdrop-checkpoint.ts` makes a read-only isolated-record
 verification and emits only sanitized counts/statuses in the evidence folder.
+
+Implementation commit `0fa679b5063c6f57f808965996851e9e8286daf9` was pushed and
+matched `git ls-remote`. [Required CI passed](https://github.com/baslaeth/grindly/actions/runs/37471597936).
+The following handoff commit records that result and removes test-report wording
+from the normal model warning; the experimental limitation remains visible.
+No merge, force-push or production deployment. Unrelated untracked brand assets
+remain untouched and uncommitted. Local Home was opened after the final changes.
