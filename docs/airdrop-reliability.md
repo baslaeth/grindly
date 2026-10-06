@@ -14,7 +14,12 @@ Baseline: `7d571bdaa504f440118c03c0c3dd90fe111d2711`, branch
 - [x] Freeze fresh development/held-out whole-guide expectations; run local model.
 - [x] Verify isolated author/reviewer journey, source failure, permissions and notifications.
 - [x] Desktop/mobile screenshots and repository checks.
-- [ ] Sanitized commit/push and remote CI confirmation.
+- [x] Sanitized commit/push and remote CI confirmation.
+
+Implementation: `7c7b6186f3c2e32942d84cad9297dcf694e36322`, remote branch verified.
+[GitHub CI passed](https://github.com/baslaeth/grindly/actions/runs/37505248802),
+including Linux build and browser tests. Screenshot URLs returned HTTP 200.
+The subsequent documentation-only closeout records this result; no merge or deploy.
 
 No paid model or cloud fallback, genuine appointments, XP changes, production
 deployment, claims or upgrade execution. Preserve earlier analyses and snapshots.
