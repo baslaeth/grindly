@@ -98,9 +98,13 @@ export function ReviewAssistant({
   );
   const checklist = reviewChecklist(a.category, a.contribution_type);
   const terms = data.launchTerms?.find((t) => t.version_id === version);
+  const guide = data.airdropGuides?.find(
+    (g) => g.version_id === version,
+  )?.details;
   const gaps = terms
     ? launchFields[a.category].filter(
         (field) =>
+          !(guide && field.key === "status") &&
           (terms.prediction || !field.fromPrediction) &&
           (!terms.context[field.key] ||
             unspecified(terms.context[field.key] ?? "")),
@@ -144,7 +148,7 @@ export function ReviewAssistant({
           aria-label="Current evidence overview"
         >
           <p>
-            <strong>Available checks:</strong>{" "}
+            <strong>What checks out:</strong>{" "}
             {sources.filter((s) => s.status === "retrieved").length} sources
             retrieved; the claim still needs independent assessment.
           </p>
@@ -157,14 +161,32 @@ export function ReviewAssistant({
             </p>
           )}
           <p>
-            <strong>Gaps:</strong> {gaps.length} category answers Unknown or
-            missing; {unknownSources} sources unavailable.{" "}
+            <strong>What needs attention:</strong> {gaps.length} category
+            answers Unknown or missing; {unknownSources} sources unavailable.{" "}
             {contradictions
               ? `${contradictions} model-noted contradictions require reviewer confirmation.`
               : "No contradiction is independently established by retrieval alone."}
           </p>
+          {old?.status === "complete" && old.card && (
+            <ul>
+              {old.card.claims
+                .filter((c) => c.status !== "supported")
+                .slice(0, 3)
+                .map((c, i) => (
+                  <li key={i}>
+                    <strong>
+                      {c.status === "unverified"
+                        ? "Unknown"
+                        : "Possible conflict"}{" "}
+                      (preliminary):
+                    </strong>{" "}
+                    {c.claim}
+                  </li>
+                ))}
+            </ul>
+          )}
           <p>
-            <strong>Next action:</strong>{" "}
+            <strong>What to do next:</strong>{" "}
             {f.status === "needs_correction" &&
             f.author_id === data.memberId ? (
               <Link href={`/findings/new?revise=${version}`}>
@@ -195,6 +217,48 @@ export function ReviewAssistant({
                 <li key={issue}>{issue}</li>
               ))}
             </ul>
+          )}
+          {guide && (
+            <>
+              <p>
+                <strong>Author-declared stage:</strong> {guide.stage}. This is
+                not an independently established campaign state.
+              </p>
+              {guide.stage === "Closed or historical" && (
+                <p className="notice">
+                  Historical guide. Past eligibility and opening announcements
+                  do not establish a claim open today.
+                </p>
+              )}
+              <details>
+                <summary>Original airdrop guide context</summary>
+                <dl>
+                  {Object.entries(guide)
+                    .filter(([key]) => key !== "version")
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        <dt>{key}</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                </dl>
+              </details>
+            </>
+          )}
+          {old?.status === "complete" && old.card && (
+            <>
+              <p>
+                <strong>Experimental model interpretation:</strong>{" "}
+                {old.card.summary}
+              </p>
+              <p className="muted">
+                The local model can misread dates or overstate support. Check
+                the quoted evidence before relying on its interpretation.
+              </p>
+              <p>
+                <strong>Suggested check:</strong> {old.card.nextCheck}
+              </p>
+            </>
           )}
         </div>
       )}
@@ -331,6 +395,14 @@ export function ReviewAssistant({
         )}
       </Question>
       <h4>AI analysis</h4>
+      {a.category === "Airdrop Hunters" && data.localAIEnabled && (
+        <p className="notice">
+          Experimental local analysis. Internal tests found false contradictions
+          and confusion between historical announcements and current
+          availability. Inspect the source passages; a model label is not
+          verification.
+        </p>
+      )}
       <p>
         {data.localAIEnabled
           ? "Optional local AI analysis is configured. Results require independent assessment."
@@ -358,8 +430,9 @@ export function ReviewAssistant({
             .
           </p>
           {old.status === "complete" && old.card && (
-            <>
-              <p>{old.card.summary}</p>
+            <details>
+              <summary>Claim-by-claim model evidence</summary>
+              {!terms && <p>{old.card.summary}</p>}
               {old.card.claims.map((c, i) => (
                 <details key={i}>
                   <summary>
@@ -394,7 +467,7 @@ export function ReviewAssistant({
                 ))}
               </ul>
               <p>Suggested next check (not scheduled): {old.card.nextCheck}</p>
-            </>
+            </details>
           )}
         </div>
       )}

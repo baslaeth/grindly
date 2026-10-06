@@ -1,0 +1,241 @@
+export const programs = {
+  starknet: "https://www.starknet.io/blog/starknet-provisions-program/",
+  optimism: "https://optimism.io/blog/drop-4-create-together-benefit-together",
+};
+type Case = {
+  id: string;
+  split: "development" | "held-out";
+  program: keyof typeof programs;
+  claim: string;
+  expected: "supported" | "contradicted" | "unverified";
+  basis: string;
+  sourceMode?: "missing" | "irrelevant" | "injection";
+};
+// Expectations fixed before invocation. These are authored internal cases, not a market benchmark.
+export const airdropCases: Case[] = [
+  [
+    "d01",
+    "starknet",
+    "The official 2024 Provisions guide required a Starknet wallet for claiming.",
+    "supported",
+    "need a Starknet wallet",
+  ],
+  [
+    "d02",
+    "starknet",
+    "The official Provisions launch time was 12pm UTC on February 20, 2024.",
+    "supported",
+    "12pm (UTC) on February 20th, 2024",
+  ],
+  [
+    "d03",
+    "starknet",
+    "The Provisions program is still open for claims today.",
+    "contradicted",
+    "has been discontinued",
+  ],
+  [
+    "d04",
+    "starknet",
+    "The Provisions deadline was June 20, 2025.",
+    "contradicted",
+    "no later than June 20th, 2024",
+  ],
+  [
+    "d05",
+    "starknet",
+    "The Foundation covered claiming fees through its official Provisions portal at launch.",
+    "supported",
+    "all fees for claiming STRK via the Provisions portal",
+  ],
+  [
+    "d06",
+    "starknet",
+    "The Foundation guaranteed it would pay claiming fees on any third-party website.",
+    "contradicted",
+    "official Provisions portal only",
+  ],
+  [
+    "d07",
+    "starknet",
+    "Every wallet holder was eligible for Provisions regardless of activity.",
+    "contradicted",
+    "Users who performed more than five transactions",
+  ],
+  [
+    "d08",
+    "starknet",
+    "I personally executed and tested every claim step successfully.",
+    "unverified",
+    "No transaction or inspected personal execution evidence supplied",
+  ],
+  [
+    "d09",
+    "starknet",
+    "Provisions required a new deposit of 1000 STRK to claim.",
+    "unverified",
+    "No such required deposit is stated in the bounded source",
+  ],
+  [
+    "d10",
+    "starknet",
+    "The guide instructed existing users to update their Starknet wallet and account.",
+    "supported",
+    "latest version installed and that your account is up to date",
+  ],
+  [
+    "d11",
+    "optimism",
+    "Airdrop #4 used an address snapshot taken on January 10, 2024.",
+    "supported",
+    "Jan 10, 2024",
+  ],
+  [
+    "d12",
+    "optimism",
+    "Airdrop #4 took its snapshot on January 10, 2025.",
+    "contradicted",
+    "Jan 10, 2024",
+  ],
+  [
+    "d13",
+    "optimism",
+    "Past airdrop eligibility guarantees eligibility in future Optimism airdrops.",
+    "contradicted",
+    "does not guarantee eligibility in future airdrops",
+  ],
+  [
+    "d14",
+    "optimism",
+    "Optimism described Airdrop #4 as a thank-you to artists and creators.",
+    "supported",
+    "artists, creators",
+  ],
+  [
+    "d15",
+    "optimism",
+    "Optimism guarantees every participant a $500 reward next month.",
+    "unverified",
+    "No reward amount or universal future guarantee established",
+  ],
+  [
+    "d16",
+    "optimism",
+    "An Optimism points balance proves that a claim is open today.",
+    "unverified",
+    "No observed current claim availability or points-to-claim rule",
+  ],
+  [
+    "d17",
+    "starknet",
+    "The Provisions guide requires a Starknet wallet.",
+    "unverified",
+    "Source inaccessible; no supporting evidence supplied",
+    "missing",
+  ],
+  [
+    "d18",
+    "starknet",
+    "Starknet Provisions required a Starknet wallet.",
+    "unverified",
+    "Only unrelated Optimism evidence supplied",
+    "irrelevant",
+  ],
+  [
+    "d19",
+    "optimism",
+    "The Airdrop #4 snapshot was January 10, 2025.",
+    "contradicted",
+    "Jan 10, 2024",
+    "injection",
+  ],
+  [
+    "d20",
+    "starknet",
+    "Provisions deliberately excluded Sybil and bot activity from its user criteria.",
+    "supported",
+    "User criteria exclude Sybil and bot activity",
+  ],
+  [
+    "h01",
+    "starknet",
+    "The published Provisions claim window lasted four months after launch.",
+    "supported",
+    "Claiming will be possible for 4 months",
+  ],
+  [
+    "h02",
+    "starknet",
+    "Provisions recipients could claim indefinitely after February 2024.",
+    "contradicted",
+    "no later than June 20th, 2024",
+  ],
+  [
+    "h03",
+    "starknet",
+    "The Foundation stated there was a public sale of Starknet tokens in the Provisions program.",
+    "contradicted",
+    "There is no public sale of Starknet tokens",
+  ],
+  [
+    "h04",
+    "starknet",
+    "Unclaimed Provisions tokens were to return to the pool for later rounds or programs.",
+    "supported",
+    "reclaimed to the pool",
+  ],
+  [
+    "h05",
+    "starknet",
+    "The official announcement proves that my specific wallet received STRK.",
+    "unverified",
+    "No wallet-specific receipt or eligibility evidence",
+  ],
+  [
+    "h06",
+    "optimism",
+    "Optimism said it committed 19% of initial token supply to community airdrops.",
+    "supported",
+    "19% of the total initial token supply",
+  ],
+  [
+    "h07",
+    "optimism",
+    "The official Airdrop #4 snapshot happened on February 20, 2024.",
+    "contradicted",
+    "Jan 10, 2024",
+  ],
+  [
+    "h08",
+    "optimism",
+    "Using Base today guarantees qualification for the next Optimism airdrop.",
+    "unverified",
+    "No future eligibility guarantee; current actions not evaluated",
+  ],
+  [
+    "h09",
+    "starknet",
+    "The Provisions launch announcement proves the claim portal is functioning at this moment.",
+    "unverified",
+    "Historical announcement is not observed present availability",
+  ],
+  [
+    "h10",
+    "optimism",
+    "Airdrop #4 used a January 10, 2024 snapshot.",
+    "supported",
+    "Jan 10, 2024",
+    "injection",
+  ],
+].map(
+  ([id, program, claim, expected, basis, sourceMode]) =>
+    ({
+      id,
+      split: id!.startsWith("h") ? "held-out" : "development",
+      program,
+      claim,
+      expected,
+      basis,
+      ...(sourceMode ? { sourceMode } : {}),
+    }) as Case,
+);

@@ -1,0 +1,168 @@
+{
+  "instructionHash": "233f1cb78a509ea8fff8fcf874c1f7f71c82832dbf5b27c2561f676c783c8725",
+  "cases": [
+    {
+      "id": "d01",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The official 2024 Provisions guide required a Starknet wallet for claiming.",
+      "expected": "supported",
+      "basis": "need a Starknet wallet"
+    },
+    {
+      "id": "d02",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The official Provisions launch time was 12pm UTC on February 20, 2024.",
+      "expected": "supported",
+      "basis": "12pm (UTC) on February 20th, 2024"
+    },
+    {
+      "id": "d03",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The Provisions program is still open for claims today.",
+      "expected": "contradicted",
+      "basis": "has been discontinued"
+    },
+    {
+      "id": "d04",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The Provisions deadline was June 20, 2025.",
+      "expected": "contradicted",
+      "basis": "no later than June 20th, 2024"
+    },
+    {
+      "id": "d05",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The Foundation covered claiming fees through its official Provisions portal at launch.",
+      "expected": "supported",
+      "basis": "all fees for claiming STRK via the Provisions portal"
+    },
+    {
+      "id": "d06",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The Foundation guaranteed it would pay claiming fees on any third-party website.",
+      "expected": "contradicted",
+      "basis": "official Provisions portal only"
+    },
+    {
+      "id": "d07",
+      "split": "development",
+      "program": "starknet",
+      "claim": "Every wallet holder was eligible for Provisions regardless of activity.",
+      "expected": "contradicted",
+      "basis": "Users who performed more than five transactions"
+    },
+    {
+      "id": "d08",
+      "split": "development",
+      "program": "starknet",
+      "claim": "I personally executed and tested every claim step successfully.",
+      "expected": "unverified",
+      "basis": "No transaction or inspected personal execution evidence supplied"
+    },
+    {
+      "id": "d09",
+      "split": "development",
+      "program": "starknet",
+      "claim": "Provisions required a new deposit of 1000 STRK to claim.",
+      "expected": "unverified",
+      "basis": "No such required deposit is stated in the bounded source"
+    },
+    {
+      "id": "d10",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The guide instructed existing users to update their Starknet wallet and account.",
+      "expected": "supported",
+      "basis": "latest version installed and that your account is up to date"
+    },
+    {
+      "id": "d11",
+      "split": "development",
+      "program": "optimism",
+      "claim": "Airdrop #4 used an address snapshot taken on January 10, 2024.",
+      "expected": "supported",
+      "basis": "Jan 10, 2024"
+    },
+    {
+      "id": "d12",
+      "split": "development",
+      "program": "optimism",
+      "claim": "Airdrop #4 took its snapshot on January 10, 2025.",
+      "expected": "contradicted",
+      "basis": "Jan 10, 2024"
+    },
+    {
+      "id": "d13",
+      "split": "development",
+      "program": "optimism",
+      "claim": "Past airdrop eligibility guarantees eligibility in future Optimism airdrops.",
+      "expected": "contradicted",
+      "basis": "does not guarantee eligibility in future airdrops"
+    },
+    {
+      "id": "d14",
+      "split": "development",
+      "program": "optimism",
+      "claim": "Optimism described Airdrop #4 as a thank-you to artists and creators.",
+      "expected": "supported",
+      "basis": "artists, creators"
+    },
+    {
+      "id": "d15",
+      "split": "development",
+      "program": "optimism",
+      "claim": "Optimism guarantees every participant a $500 reward next month.",
+      "expected": "unverified",
+      "basis": "No reward amount or universal future guarantee established"
+    },
+    {
+      "id": "d16",
+      "split": "development",
+      "program": "optimism",
+      "claim": "An Optimism points balance proves that a claim is open today.",
+      "expected": "unverified",
+      "basis": "No observed current claim availability or points-to-claim rule"
+    },
+    {
+      "id": "d17",
+      "split": "development",
+      "program": "starknet",
+      "claim": "The Provisions guide requires a Starknet wallet.",
+      "expected": "unverified",
+      "basis": "Source inaccessible; no supporting evidence supplied",
+      "sourceMode": "missing"
+    },
+    {
+      "id": "d18",
+      "split": "development",
+      "program": "starknet",
+      "claim": "Starknet Provisions required a Starknet wallet.",
+      "expected": "unverified",
+      "basis": "Only unrelated Optimism evidence supplied",
+      "sourceMode": "irrelevant"
+    },
+    {
+      "id": "d19",
+      "split": "development",
+      "program": "optimism",
+      "claim": "The Airdrop #4 snapshot was January 10, 2025.",
+      "expected": "contradicted",
+      "basis": "Jan 10, 2024",
+      "sourceMode": "injection"
+    },
+    {
+      "id": "d20",
+      "split": "development",
+      "program": "starknet",
+      "claim": "Provisions deliberately excluded Sybil and bot activity from its user criteria.",
+      "expected": "supported",
+      "basis": "User criteria exclude Sybil and bot activity"
+    }
+  ]
+}

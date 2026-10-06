@@ -1,0 +1,870 @@
+{
+  "classification": "Actual local model; internal authored evaluation, not independently established accuracy",
+  "model": "qwen3:4b",
+  "split": "development",
+  "instructionHash": "1cca1028b6f4956de12915b782074012d6c9a21fb6caf8c3ca675139c5f9f939",
+  "ranAt": "2026-10-06T12:14:10.147Z",
+  "summary": {
+    "total": 20,
+    "correct": 13,
+    "falseSupport": 0,
+    "falseContradiction": 1,
+    "unnecessaryUnknown": 6,
+    "failures": 0
+  },
+  "results": [
+    {
+      "id": "d01",
+      "claim": "The official 2024 Provisions guide required a Starknet wallet for claiming.",
+      "expected": "supported",
+      "actual": "supported",
+      "correct": true,
+      "latencyMs": 7947,
+      "card": {
+        "summary": "The claim that the official 2024 Provisions guide required a Starknet wallet for claiming is supported by the provided evidence. The Starknet Provisions Program's official blog post (published February 14, 2024) explicitly states: 'Recipients will need to claim their Provisions allocations with a Starknet wallet. If you already have a Starknet wallet, please make sure your wallet and your accounts are updated with the latest version (your wallet will prompt you to update, if required).' This is a documented requirement for claiming STRK through the Provisions portal. The program was discontinued as of February 20, 2024, per the same source, so current eligibility is not established. The claim is specific to the historical program and does not imply current eligibility.",
+        "claims": [
+          {
+            "claim": "The official 2024 Provisions guide required a Starknet wallet for claiming.",
+            "status": "supported",
+            "reason": "The Starknet Provisions Program's official blog post (published February 14, 2024) explicitly states: 'Recipients will need to claim their Provisions allocations with a Starknet wallet.' This is a documented requirement for claiming STRK through the Provisions portal.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Recipients will need to claim their Provisions allocations with a Starknet wallet. If you already have a Starknet wallet, please make sure your wallet and your accounts are updated with the latest version (your wallet will prompt you to update, if required).",
+                "relationship": "Directly states that a Starknet wallet is required for claiming Provisions allocations",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "Current eligibility status for Starknet Provisions (program discontinued as of February 20, 2024)",
+          "Exact eligibility criteria for current Starknet token claims (if any)",
+          "Active token distribution programs on Starknet Mainnet"
+        ],
+        "riskQuestions": [
+          "Is the user checking eligibility for the historical Starknet Provisions program (discontinued February 20, 2024) or a current active program?",
+          "What specific token distribution program are they referring to, as Starknet has multiple distribution mechanisms?",
+          "Are they aware that the Provisions program was discontinued and no longer active?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the user's intended program timeline (historical vs. current) and confirm whether they are checking for the discontinued Starknet Provisions program or an active token distribution program on Starknet Mainnet."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d02",
+      "claim": "The official Provisions launch time was 12pm UTC on February 20, 2024.",
+      "expected": "supported",
+      "actual": "supported",
+      "correct": true,
+      "latencyMs": 4781,
+      "card": {
+        "summary": "The claim that the official Provisions launch time was 12pm UTC on February 20, 2024, is supported by the Starknet Foundation's official blog post published on February 14, 2024. The blog explicitly states: 'STRK will become available for claiming on Starknet Mainnet starting at 12pm (UTC) on February 20th, 2024.' This is the only relevant evidence for the claim, and it matches the stated time exactly. The claim is not contradicted by any evidence, as the blog post confirms the launch time without conflict.",
+        "claims": [
+          {
+            "claim": "The official Provisions launch time was 12pm UTC on February 20, 2024.",
+            "status": "supported",
+            "reason": "The Starknet Foundation's official blog post published on 2024-02-14T07:48:22.000Z explicitly states: 'STRK will become available for claiming on Starknet Mainnet starting at 12pm (UTC) on February 20th, 2024.' This is the exact claim and matches the stated time.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "STRK will become available for claiming on Starknet Mainnet starting at 12pm (UTC) on February 20th, 2024. Already today, anyone can check eligibility on the Provisions portal at https://provisions.starknet.io. Claiming will be possible for 4 months after the launch of the program. Tokens that are not claimed during this period will be reclaimed to the pool and distributed in future rounds and/or programs.",
+                "relationship": "Directly states the launch time as 12pm UTC on February 20, 2024",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The claim does not specify whether the launch time is the official start time for claiming or if there are additional conditions (e.g., eligibility requirements) that must be met before claiming. However, the blog post confirms the launch time without conflict, so this is not a contradiction but a detail that may require further verification."
+        ],
+        "riskQuestions": [
+          "Is the user eligible for Provisions based on the criteria outlined in the blog post (e.g., transaction history, GitHub contributions)?",
+          "Are there any scams or fake links that could be used to claim tokens, as warned in the blog post?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify eligibility criteria for Provisions using the official portal (https://provisions.starknet.io) to confirm if the user meets the requirements for claiming STRK."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d03",
+      "claim": "The Provisions program is still open for claims today.",
+      "expected": "contradicted",
+      "actual": "contradicted",
+      "correct": true,
+      "latencyMs": 3538,
+      "card": {
+        "summary": "The claim 'The Provisions program is still open for claims today' is contradicted by the official Starknet Provisions Program announcement from February 14, 2024, which states the program was discontinued. The program's eligibility window closed on June 20, 2024, and tokens not claimed were reclaimed to the pool. Current eligibility is not established as the program is historical.",
+        "claims": [
+          {
+            "claim": "The Provisions program is still open for claims today",
+            "status": "contradicted",
+            "reason": "Official announcement (2024-02-14) states: 'The Starknet Provisions Program has been discontinued.' The program's eligibility window closed on June 20, 2024, and tokens not claimed were reclaimed to the pool. The claim is dated today (2026-10-06), but the program ended over 2 years ago.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Update: The Starknet Provisions Program has been discontinued.",
+                "relationship": "The program was discontinued as stated in the official announcement, contradicting the claim that it is still open for claims today.",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "Current eligibility status for Starknet Provisions (historical program) is not established as the program ended on June 20, 2024."
+        ],
+        "riskQuestions": [
+          "Is the claim referring to a different program or current Starknet token distribution mechanism?",
+          "What specific eligibility criteria apply to the current Starknet ecosystem?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify if the claim refers to a different program or current Starknet token distribution mechanism (e.g., check Starknet's official channels for active airdrops)."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d04",
+      "claim": "The Provisions deadline was June 20, 2025.",
+      "expected": "contradicted",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 3909,
+      "card": {
+        "summary": "The claim 'The Provisions deadline was June 20, 2025.' is unverified (Unknown) based on the provided historical document. The official Starknet Provisions Program documentation states that claiming ended on June 20, 2024, not 2025. The document is historical (published February 2024) and does not establish current eligibility. No evidence supports a 2025 deadline.",
+        "claims": [
+          {
+            "claim": "The Provisions deadline was June 20, 2025.",
+            "status": "unverified",
+            "reason": "The official document states the deadline was June 20, 2024, not 2025. The claim refers to a future date that does not match the historical program timeline.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Recipients will be able to claim Provisions allocations through the Provisions portal at https://provisions.starknet.io starting 12pm (UTC) on February 20th, 2024, and no later than June 20th, 2024.",
+                "relationship": "The official document explicitly states the deadline as June 20, 2024, not 2025. The claim's reference to 2025 is incorrect and unverified by any source.",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The claim refers to a future date (2025) that contradicts the historical program's documented deadline (2024). No evidence supports a 2025 deadline."
+        ],
+        "riskQuestions": [
+          "Is the claim referring to a different program or a misstated date?",
+          "Has the program been extended or renewed beyond its original deadline?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the exact program name, date, and whether the program is still active. Check for any official announcements of extensions or new programs that might have a 2025 deadline."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d05",
+      "claim": "The Foundation covered claiming fees through its official Provisions portal at launch.",
+      "expected": "supported",
+      "actual": "supported",
+      "correct": true,
+      "latencyMs": 5642,
+      "card": {
+        "summary": "The claim that 'The Foundation covered claiming fees through its official Provisions portal at launch' is supported by the official Starknet Provisions Program blog post from February 14, 2024. The blog explicitly states: 'All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.' This is confirmed in multiple excerpts, including the note that 'Upon the launch of Provisions on February 20th, 2024, all fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.' The program was active from February 20, 2024, to June 20, 2024, with the Foundation covering fees for the entire claiming period. The claim is specific to the official portal and does not apply to third-party or scammy sites.",
+        "claims": [
+          {
+            "claim": "The Foundation covered claiming fees through its official Provisions portal at launch.",
+            "status": "supported",
+            "reason": "The official Starknet Provisions Program blog post (published 2024-02-14T07:48:22.000Z) explicitly states: 'All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.' This is confirmed in multiple excerpts, including the note that 'Upon the launch of Provisions on February 20th, 2024, all fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.' The program was active from February 20, 2024, to June 20, 2024, with the Foundation covering fees for the entire claiming period.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.",
+                "relationship": "Direct statement that fees are covered by the Foundation for official portal claims",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              },
+              {
+                "source": "official",
+                "excerpt": "All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.",
+                "relationship": "Reiterated in the program's eligibility and claiming instructions",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The exact date range for fee coverage (e.g., whether it was only for the first 24 hours or the full 4-month period)",
+          "Whether the fee coverage applied to all claimants or only to specific eligibility groups (e.g., early users, developers, Ethereum contributors)"
+        ],
+        "riskQuestions": [
+          "Is the claimant using the official Provisions portal (https://provisions.starknet.io) and not a third-party scam site?",
+          "Does the claimant have a Starknet wallet that meets the eligibility criteria (e.g., transactions, volume, balance) as of November 15, 2023?",
+          "What specific eligibility criteria does the claimant meet for the Provisions program?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the claimant's eligibility using the official Provisions portal (https://provisions.starknet.io) and confirm they meet the criteria for the program (e.g., transactions, volume, balance as of November 15, 2023)."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d06",
+      "claim": "The Foundation guaranteed it would pay claiming fees on any third-party website.",
+      "expected": "contradicted",
+      "actual": "contradicted",
+      "correct": true,
+      "latencyMs": 4140,
+      "card": {
+        "summary": "The claim 'The Foundation guaranteed it would pay claiming fees on any third-party website.' is contradicted by the official Starknet Provisions Program documentation. The program explicitly states that fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation only when using the official portal (https://provisions.starknet.io). The documentation does not guarantee fee coverage for third-party websites, which is a critical distinction. This claim is not supported by the provided evidence, as the official program specifies that the fee coverage applies exclusively to the official portal and not to any third-party website.",
+        "claims": [
+          {
+            "claim": "The Foundation guaranteed it would pay claiming fees on any third-party website.",
+            "status": "contradicted",
+            "reason": "The official Starknet Provisions Program documentation states: 'All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.' This explicitly limits fee coverage to the official portal (https://provisions.starknet.io), not third-party websites. The program also warns about scams and fake links, indicating that third-party websites are not part of the official claiming process.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.",
+                "relationship": "The program explicitly states that fees are covered only for the official portal, not third-party websites.",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The claim does not specify which third-party websites are covered, but the documentation does not address third-party websites at all. The program only covers the official portal, so the claim is contradicted without needing to assume coverage for third-party sites."
+        ],
+        "riskQuestions": [
+          "Is the author aware that the Starknet Foundation only covers fees for the official portal (https://provisions.starknet.io) and not third-party websites? The documentation explicitly warns about scams and fake links, indicating that third-party websites are not part of the official claiming process."
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the author's understanding of the official portal versus third-party websites. The claim is contradicted by the documentation, so the author should confirm whether they intended to mean the official portal or if they misunderstood the program's scope."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d07",
+      "claim": "Every wallet holder was eligible for Provisions regardless of activity.",
+      "expected": "contradicted",
+      "actual": "contradicted",
+      "correct": true,
+      "latencyMs": 5501,
+      "card": {
+        "summary": "The claim 'Every wallet holder was eligible for Provisions regardless of activity' is contradicted by the official Starknet Provisions Program documentation. The program explicitly states eligibility criteria that require specific activity thresholds (e.g., transactions, volume, wallet balance) and excludes Sybil/bot activity. The program was discontinued on February 20, 2024, and eligibility was time-bound (2024-02-20 to 2024-06-20). No wallet holder was universally eligible; only users meeting the technical criteria were included.",
+        "claims": [
+          {
+            "claim": "Every wallet holder was eligible for Provisions regardless of activity.",
+            "status": "contradicted",
+            "reason": "The official documentation states that eligibility requires specific activity thresholds (e.g., more than five transactions up to November 15, 2023, $100 volume, 0.005 ETH balance on November 15, 2023) and excludes Sybil/bot activity. The program was discontinued on February 20, 2024, with a 4-month claim window (2024-02-20 to 2024-06-20).",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Early users of Starknet who have tested and used applications built on the network will be eligible to claim STRK via Provisions. Invaluable to the network’s development, early users have hardened the network by providing feedback on Mainnet prototypes and helped bring Starknet to its current maturity stage. Early users of Starknet have played, and still are playing, a crucial role in the network’s advancement. Criteria: Users who performed more than five transactions in total up to November 15th, 2023, were active for three months or more, transacted with $100 volume or more, and had 0.005 ETH or more in their account on November 15th, 2023, are eligible for Provisions. Note that the program is aimed at excluding Sybil behavior (on which we will expand on further below).",
+                "relationship": "The program explicitly requires activity thresholds and excludes Sybil/bot activity, contradicting the claim that every wallet holder was eligible regardless of activity.",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The exact eligibility criteria for developers and Ethereum ecosystem contributors (as detailed in the documentation) are not fully verified for current relevance, but the program has been discontinued, so this is historical evidence."
+        ],
+        "riskQuestions": [
+          "Is the user checking eligibility for the Provisions program (now discontinued) or a current campaign?",
+          "What specific activity thresholds were required for eligibility (e.g., transactions, volume, wallet balance)?",
+          "How does the user ensure they meet the historical criteria for the discontinued program?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify if the user is checking historical eligibility for the discontinued Provisions program (2024-02-20 to 2024-06-20) or a current campaign. If historical, confirm the user meets the specific criteria from the official documentation (e.g., transactions, volume, wallet balance on November 15, 2023)."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d08",
+      "claim": "I personally executed and tested every claim step successfully.",
+      "expected": "unverified",
+      "actual": "unverified",
+      "correct": true,
+      "latencyMs": 3008,
+      "card": {
+        "summary": "The claim 'I personally executed and tested every claim step successfully' is unverified (Unknown) because no evidence shows the author personally executed steps. The official Starknet Provisions Program (launched Feb 20, 2024) is discontinued, with STRK claims ending June 20, 2024. Eligibility criteria are historical (Nov 15, 2023 cutoff). No current eligibility exists for this program. The author's self-reported execution claim lacks independent verification and is not supported by any dated evidence.",
+        "claims": [
+          {
+            "claim": "I personally executed and tested every claim step successfully.",
+            "status": "unverified",
+            "reason": "No evidence shows the author personally executed steps. Self-reported execution claims require independent test evidence, not just official instructions.",
+            "sources": [],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Personal execution proof (e.g., transaction receipts, test logs) for the claimed steps",
+          "Current eligibility status for Starknet Provisions (program ended June 20, 2024)"
+        ],
+        "riskQuestions": [
+          "Have you verified your Starknet wallet meets the historical eligibility criteria (Nov 15, 2023 cutoff)?",
+          "Is the claim still valid for current eligibility? (The program ended June 20, 2024)"
+        ],
+        "priorWork": [],
+        "nextCheck": "Check if the author has a Starknet wallet that meets the historical eligibility criteria (transactions >5, $100 volume, 0.005 ETH balance on Nov 15, 2023) and if the claim was executed before June 20, 2024."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d09",
+      "claim": "Provisions required a new deposit of 1000 STRK to claim.",
+      "expected": "unverified",
+      "actual": "contradicted",
+      "correct": false,
+      "latencyMs": 3902,
+      "card": {
+        "summary": "The claim 'Provisions required a new deposit of 1000 STRK to claim' is contradicted by the official Starknet Provisions Program documentation from February 2024. The program explicitly states that there was no deposit required for claiming STRK; instead, the Starknet Foundation covered all fees for claiming via the official portal. Eligibility was based on specific criteria (e.g., transaction history, GitHub contributions), and claiming occurred without a deposit. The program was discontinued after 4 months (February 2024 to June 2024).",
+        "claims": [
+          {
+            "claim": "Provisions required a new deposit of 1000 STRK to claim",
+            "status": "contradicted",
+            "reason": "The official Starknet Provisions Program documentation states that all fees for claiming STRK via the Provisions portal were covered by the Starknet Foundation, and there was no deposit required. The program was designed for eligibility based on criteria (e.g., transaction history, GitHub contributions), not a deposit.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "All fees for claiming STRK via the Provisions portal will be covered by the Starknet Foundation.",
+                "relationship": "Explicitly states that no deposit was required; fees were covered by the Foundation",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "No evidence of a current active program or deposit requirement exists in the provided sources. The program was discontinued in June 2024."
+        ],
+        "riskQuestions": [
+          "Is the claim referring to a different program or a misunderstanding of the original Provisions program?",
+          "What specific eligibility criteria were used in the original program (e.g., transaction history, GitHub contributions)?",
+          "Are there any current Starknet airdrop programs that might require a deposit?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify if the claim refers to a different program or a current airdrop (e.g., Starknet's current token distribution programs). The original Provisions program ended in June 2024, so any deposit requirement would need to be part of a new program."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d10",
+      "claim": "The guide instructed existing users to update their Starknet wallet and account.",
+      "expected": "supported",
+      "actual": "supported",
+      "correct": true,
+      "latencyMs": 5387,
+      "card": {
+        "summary": "The guide claims that existing Starknet users were instructed to update their wallets and accounts. The official Starknet Provisions Program blog post (published Feb 14, 2024) confirms that users were instructed to ensure their Starknet wallets are updated with the latest version to claim STRK via the Provisions portal. This is a documented requirement for eligibility, not a personal execution claim. The program was discontinued on Feb 20, 2024, and eligibility criteria were based on activity up to Nov 15, 2023. The claim is supported by the exact passage: 'Recipients will need to claim their Provisions allocations with a Starknet wallet. If you already have a Starknet wallet, please make sure your wallet and your accounts are updated with the latest version (your wallet will prompt you to update, if required).' The program is historical and no longer active, so current eligibility is not established.",
+        "claims": [
+          {
+            "claim": "The guide instructed existing users to update their Starknet wallet and account.",
+            "status": "supported",
+            "reason": "The official Starknet Provisions Program blog post (published Feb 14, 2024) explicitly states: 'Recipients will need to claim their Provisions allocations with a Starknet wallet. If you already have a Starknet wallet, please make sure your wallet and your accounts are updated with the latest version (your wallet will prompt you to update, if required).' This is a documented requirement for the Provisions program, which was active until Feb 20, 2024.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Recipients will need to claim their Provisions allocations with a Starknet wallet. If you already have a Starknet wallet, please make sure your wallet and your accounts are updated with the latest version (your wallet will prompt you to update, if required).",
+                "relationship": "The guide's claim is directly supported by this passage from the official Starknet Provisions Program blog post, which was published on Feb 14, 2024. This passage explicitly instructs users to update their wallets and accounts as part of the Provisions program's eligibility requirements.",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "The Provisions program was discontinued on Feb 20, 2024, so current eligibility is not established. The guide states this is a historical document with current eligibility not established, which aligns with the program's discontinuation."
+        ],
+        "riskQuestions": [
+          "Is the user checking eligibility for the current Starknet ecosystem or historical Provisions program? The Provisions program ended in February 2024, so current eligibility is not established.",
+          "What specific wallet update steps are required for the current Starknet ecosystem? The guide refers to a historical program that ended in February 2024."
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the current status of the Starknet ecosystem and whether the user is referring to the historical Provisions program (discontinued Feb 20, 2024) or a new program. The guide explicitly states it is a historical document with current eligibility not established."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d11",
+      "claim": "Airdrop #4 used an address snapshot taken on January 10, 2024.",
+      "expected": "supported",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 2704,
+      "card": {
+        "summary": "The claim that 'Airdrop #4 used an address snapshot taken on January 10, 2024' is unverified (Unknown) based on the supplied evidence. The official document retrieved does not explicitly mention a snapshot date of January 10, 2024. The document only states that users must agree to Terms of Service and Optimism Community Agreement before proceeding, but no specific snapshot date is provided. The claim remains unverified as the evidence does not confirm the exact date of the snapshot.",
+        "claims": [
+          {
+            "claim": "Airdrop #4 used an address snapshot taken on January 10, 2024.",
+            "status": "unverified",
+            "reason": "The official document retrieved does not explicitly mention a snapshot date of January 10, 2024. The document only states that users must agree to Terms of Service and Optimism Community Agreement before proceeding, but no specific snapshot date is provided.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Exact date of the address snapshot for Airdrop #4 (January 10, 2024) is not documented in the retrieved official source."
+        ],
+        "riskQuestions": [
+          "Is there a specific date mentioned in the official documentation for the address snapshot used in Airdrop #4?",
+          "Does the official documentation confirm that the snapshot was taken on January 10, 2024?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Check the official Optimism documentation for the exact date of the address snapshot used in Airdrop #4. Look for a section that specifies the snapshot date or the timeline of the airdrop process."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d12",
+      "claim": "Airdrop #4 took its snapshot on January 10, 2025.",
+      "expected": "contradicted",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 2117,
+      "card": {
+        "summary": "The claim 'Airdrop #4 took its snapshot on January 10, 2025' is unverified (Unknown) based on the supplied historical document. The official guide does not explicitly state a snapshot date for this airdrop. The document only mentions a Terms & Conditions agreement without specific dates. No evidence confirms the snapshot date, so it remains Unknown.",
+        "claims": [
+          {
+            "claim": "Airdrop #4 took its snapshot on January 10, 2025.",
+            "status": "unverified",
+            "reason": "The official document does not specify a snapshot date for Airdrop #4. The document only includes a Terms & Conditions agreement without date-related information.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Exact snapshot date for Airdrop #4 as per the official documentation"
+        ],
+        "riskQuestions": [
+          "Does the official documentation explicitly state the snapshot date for Airdrop #4?",
+          "Are there any other sources that might confirm the snapshot date?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the official documentation for Airdrop #4's snapshot date by checking the Optimism blog post for historical airdrop details. The claim specifies January 10, 2025, but the retrieved document does not mention this date."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d13",
+      "claim": "Past airdrop eligibility guarantees eligibility in future Optimism airdrops.",
+      "expected": "contradicted",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 2388,
+      "card": {
+        "summary": "The claim 'Past airdrop eligibility guarantees eligibility in future Optimism airdrops' is unverified (Unknown) based on the historical official document retrieved. The document does not explicitly state that past eligibility guarantees future eligibility. The document only requires users to agree to Terms of Service and Optimism Community Agreement before participating in a past airdrop (Drop #4). No evidence supports that this past eligibility translates to future eligibility. The claim is speculative and not confirmed by the document.",
+        "claims": [
+          {
+            "claim": "Past airdrop eligibility guarantees eligibility in future Optimism airdrops.",
+            "status": "unverified",
+            "reason": "The historical official document (Drop #4) does not state that past eligibility guarantees future eligibility. It only outlines participation requirements for a past airdrop event. Future eligibility is not addressed in the document.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "The document does not specify whether past eligibility in one airdrop event translates to eligibility in future events. This is a critical missing fact for the claim to be supported."
+        ],
+        "riskQuestions": [
+          "Does the Optimism protocol explicitly state that past airdrop eligibility automatically grants future eligibility?",
+          "Are there any conditions or exclusions that would prevent past eligibility from carrying over to future airdrops?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Review the Optimism official documentation for any statements about eligibility continuity across airdrop events. Check if the Terms of Service or Community Agreement include clauses about past participation translating to future eligibility."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d14",
+      "claim": "Optimism described Airdrop #4 as a thank-you to artists and creators.",
+      "expected": "supported",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 2613,
+      "card": {
+        "summary": "The claim that 'Optimism described Airdrop #4 as a thank-you to artists and creators' is unverified (Unknown) based on the supplied historical document. The official guide excerpt only states that users must agree to Terms of Service and Optimism Community Agreement before proceeding, which does not explicitly mention Airdrop #4 or its purpose as a thank-you to artists. No evidence confirms the claim's accuracy for this specific campaign.",
+        "claims": [
+          {
+            "claim": "Optimism described Airdrop #4 as a thank-you to artists and creators.",
+            "status": "unverified",
+            "reason": "The official document excerpt only includes a generic Terms of Service agreement prompt, with no mention of Airdrop #4 or its purpose. The claim requires specific documentation of the campaign's description as a thank-you to artists, which is absent in the provided evidence.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Exact description of Airdrop #4 from Optimism's official documentation",
+          "Confirmation that the campaign was explicitly framed as a 'thank-you to artists and creators' in the Terms of Service or Community Agreement"
+        ],
+        "riskQuestions": [
+          "Does the official Optimism documentation explicitly state that Airdrop #4 was a thank-you to artists and creators?",
+          "Are there any other sources (e.g., blog posts, community forums) that describe Airdrop #4's purpose beyond the Terms of Service agreement?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the exact wording of Airdrop #4's description in Optimism's official documentation (e.g., blog post, GitHub, or community announcements) to confirm if it was explicitly framed as a thank-you to artists and creators."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d15",
+      "claim": "Optimism guarantees every participant a $500 reward next month.",
+      "expected": "unverified",
+      "actual": "unverified",
+      "correct": true,
+      "latencyMs": 2631,
+      "card": {
+        "summary": "The claim that 'Optimism guarantees every participant a $500 reward next month' is unverified (Unknown) based on the supplied historical document. The official guide excerpt only states that participants must agree to Terms of Service and the Optimism Community Agreement before proceeding, with no mention of guaranteed rewards or specific reward amounts. The document is historical and does not establish current eligibility or reward structures. No evidence supports the $500 reward claim, and the claim appears to be speculative or fabricated.",
+        "claims": [
+          {
+            "claim": "Optimism guarantees every participant a $500 reward next month.",
+            "status": "unverified",
+            "reason": "The supplied historical document does not mention any guaranteed rewards, specific reward amounts, or timelines for rewards. The document only requires agreement to Terms of Service and the Optimism Community Agreement, with no evidence of a $500 reward program.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Exact reward structure and eligibility criteria for the $500 reward program",
+          "Current campaign status and active eligibility period",
+          "Specific deadlines for reward distribution",
+          "Fees or exclusions that might affect participation"
+        ],
+        "riskQuestions": [
+          "Is the $500 reward claim based on a real campaign or a fabricated promise?",
+          "What is the actual eligibility criteria for the reward program?",
+          "Are there any fees or exclusions that would prevent participation?",
+          "What is the current status of the campaign (active, pending, or discontinued)?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the current campaign status and reward structure through Optimism's official channels. Check for any recent updates to the Terms of Service or Community Agreement that might clarify reward eligibility."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d16",
+      "claim": "An Optimism points balance proves that a claim is open today.",
+      "expected": "unverified",
+      "actual": "unverified",
+      "correct": true,
+      "latencyMs": 2128,
+      "card": {
+        "summary": "The claim 'An Optimism points balance proves that a claim is open today' is unverified (Unknown) based on the supplied historical document. The official guide does not explicitly state that a points balance confirms current eligibility; it only mentions Terms & Conditions. No evidence confirms the claim's validity for today's eligibility. The document is historical and does not establish current eligibility.",
+        "claims": [
+          {
+            "claim": "An Optimism points balance proves that a claim is open today.",
+            "status": "unverified",
+            "reason": "The official document only references Terms & Conditions without confirming that points balance equals current eligibility. No evidence links points balance to open claims today.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Exact current eligibility criteria from Optimism",
+          "Confirmation that points balance is a valid eligibility metric today",
+          "Date of last eligibility update"
+        ],
+        "riskQuestions": [
+          "What specific points balance threshold is required for eligibility?",
+          "Is there a recent update to the eligibility rules that affects current points?",
+          "How does Optimism verify points balances in real-time?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Check Optimism's official eligibility documentation for current points requirements and real-time verification methods by 2026-10-07T12:00:00Z"
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d17",
+      "claim": "The Provisions guide requires a Starknet wallet.",
+      "expected": "unverified",
+      "actual": "unverified",
+      "correct": true,
+      "latencyMs": 2031,
+      "card": {
+        "summary": "The claim 'The Provisions guide requires a Starknet wallet.' is unverified (Unknown) based on the supplied historical official document. No evidence was retrieved from the Starknet Provisions Program source (publishedAt: null, status: unknown). The document is historical and current eligibility is not established.",
+        "claims": [
+          {
+            "claim": "The Provisions guide requires a Starknet wallet.",
+            "status": "unverified",
+            "reason": "No evidence retrieved from the official Starknet Provisions Program source (publishedAt: null, status: unknown). The claim is not explicitly stated in the retrieved evidence.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "The exact requirement for a Starknet wallet in the Provisions guide is not documented in the retrieved source (publishedAt: null).",
+          "Current eligibility status for Starknet wallets is not established (historical document)."
+        ],
+        "riskQuestions": [
+          "Is the Starknet wallet requirement explicitly stated in the official Provisions guide?",
+          "What is the current eligibility status for Starknet wallets (historical vs. current)?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Retrieve the official Starknet Provisions Program documentation to confirm the wallet requirement and current eligibility status."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": null
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d18",
+      "claim": "Starknet Provisions required a Starknet wallet.",
+      "expected": "unverified",
+      "actual": "unverified",
+      "correct": true,
+      "latencyMs": 1876,
+      "card": {
+        "summary": "The claim 'Starknet Provisions required a Starknet wallet.' is unverified (Unknown) because the supplied evidence only confirms the existence of a Terms & Conditions agreement for Optimism, not Starknet-specific requirements. The document is historical and does not establish current eligibility.",
+        "claims": [
+          {
+            "claim": "Starknet Provisions required a Starknet wallet.",
+            "status": "unverified",
+            "reason": "The evidence only shows Optimism's Terms & Conditions, not Starknet-specific wallet requirements. No Starknet-related passages are provided in the official document.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "Starknet-specific wallet requirements in the official document",
+          "Current eligibility status for Starknet Provisions"
+        ],
+        "riskQuestions": [
+          "Does the author have a personal test of Starknet wallet usage for this campaign?",
+          "Is the 'Starknet Provisions' campaign active or historical?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify Starknet-specific wallet requirements in the official document and check current campaign status via Starknet's official channels"
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d19",
+      "claim": "The Airdrop #4 snapshot was January 10, 2025.",
+      "expected": "contradicted",
+      "actual": "unverified",
+      "correct": false,
+      "latencyMs": 2443,
+      "card": {
+        "summary": "The claim 'The Airdrop #4 snapshot was January 10, 2025' is unverified (Unknown) based on the supplied official document. The document does not explicitly state a snapshot date for Airdrop #4, and the retrieved source (Optimism blog post) only contains terms and instructions without historical snapshot details. No evidence supports this specific claim, and the document's context does not confirm the date.",
+        "claims": [
+          {
+            "claim": "The Airdrop #4 snapshot was January 10, 2025.",
+            "status": "unverified",
+            "reason": "The official document does not mention a snapshot date for Airdrop #4. The retrieved source (Optimism blog post) only includes terms and instructions without historical snapshot details. No evidence supports this specific claim.",
+            "sources": [],
+            "evidenceLinks": []
+          }
+        ],
+        "missingEvidence": [
+          "The official document does not specify a snapshot date for Airdrop #4. The claim refers to January 10, 2025, but the retrieved source (Optimism blog post) does not contain this information."
+        ],
+        "riskQuestions": [
+          "Is there a different source that explicitly states the Airdrop #4 snapshot date?",
+          "Does the Optimism community have a documented history of snapshots for previous airdrops?"
+        ],
+        "priorWork": [],
+        "nextCheck": "Check the Optimism official documentation for historical airdrop snapshots, focusing on the timeline of Airdrop #4. Look for dated snapshots or announcements that might reference January 10, 2025."
+      },
+      "source": {
+        "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+        "publishedAt": null,
+        "checkedAt": "2026-10-06T12:13:01.444Z",
+        "digest": "2f454f0b0c406099a3bc850e6f66f33e6b3263000e838a659760cfd0044651ba"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    },
+    {
+      "id": "d20",
+      "claim": "Provisions deliberately excluded Sybil and bot activity from its user criteria.",
+      "expected": "supported",
+      "actual": "supported",
+      "correct": true,
+      "latencyMs": 4871,
+      "card": {
+        "summary": "The claim 'Provisions deliberately excluded Sybil and bot activity from its user criteria' is supported by the official Starknet Provisions Program documentation. The evidence explicitly states: 'User criteria exclude Sybil and bot activity, as they tend to repeat the same operations over and over again, and therefore do not provide the benefit of testing the network in a unique manner.' This is confirmed in the official blog post published on 2024-02-14. The claim is not contradicted by any evidence. The historical document confirms the program's discontinuation (as of 2024-02-14) and eligibility criteria, but current eligibility is not established per the limitations.",
+        "claims": [
+          {
+            "claim": "Provisions deliberately excluded Sybil and bot activity from its user criteria.",
+            "status": "supported",
+            "reason": "The official Starknet Provisions Program blog post (2024-02-14) explicitly states: 'User criteria exclude Sybil and bot activity, as they tend to repeat the same operations over and over again, and therefore do not provide the benefit of testing the network in a unique manner.' This is a direct match to the claim.",
+            "sources": [
+              "official"
+            ],
+            "evidenceLinks": [
+              {
+                "source": "official",
+                "excerpt": "Contributions made by users are verified based on criteria that include those who used applications in unique and unexplored ways, and provided feedback that was used to harden the network. User criteria exclude Sybil and bot activity, as they tend to repeat the same operations over and over again, and therefore do not provide the benefit of testing the network in a unique manner.",
+                "relationship": "Directly states that user criteria exclude Sybil and bot activity",
+                "sourceDate": "2024-02-14T07:48:22.000Z"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "Current eligibility status (per limitations: 'Historical document; current eligibility not established')",
+          "Whether the program is still active (discontinued as of 2024-02-14 per the blog post)",
+          "Exact eligibility criteria for current users (if applicable)"
+        ],
+        "riskQuestions": [
+          "Is the Starknet Provisions Program still active? (The blog post states it was discontinued on 2024-02-14)",
+          "What is the current eligibility criteria for Starknet users? (The program was discontinued in 2024, so current eligibility may not apply)",
+          "Are there any ongoing airdrop programs for Starknet that might be relevant? (The historical document does not cover current campaigns)"
+        ],
+        "priorWork": [],
+        "nextCheck": "Verify the current status of Starknet airdrops by checking the Starknet Foundation's official channels (X, Starknet Hub) for any active programs. The historical Provisions program was discontinued on 2024-02-14, so current eligibility is not established."
+      },
+      "source": {
+        "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+        "publishedAt": "2024-02-14T07:48:22.000Z",
+        "checkedAt": "2026-10-06T12:13:00.749Z",
+        "digest": "b729e69f5c85e2a4a4e6624c44abe56925c044f6b980951a6467e9523f22d23e"
+      },
+      "note": "Primary claim scored at first result; inspect additional claims in card. Exact excerpt/date schema validation passed, not semantic proof."
+    }
+  ]
+}

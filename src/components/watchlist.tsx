@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Bell } from "lucide-react";
 import type { ResearchData } from "@/research/model";
+import { AirdropFollowing } from "./airdrop-following";
 
 const when = (value: string) =>
   new Date(value).toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -127,13 +128,17 @@ export function Watchlist({ data }: { data: ResearchData }) {
     );
   };
   return (
-    <section className="section" aria-label="Your watchlist">
+    <section className="section" aria-label="Your watchlist" id="following">
       <div className="section-heading">
         <h2>Following</h2>
         <Bell size={18} aria-hidden="true" />
       </div>
       {!data.follows?.length && <p>No opportunities or alpha followed yet.</p>}
+      <AirdropFollowing data={data} />
       {data.follows?.map((follow) => {
+        const campaign = data.airdropFollowing?.find(
+          (c) => c.followId === follow.id,
+        );
         const finding = data.findings.find((f) => f.id === follow.finding_id);
         const claim = data.versions.find(
           (v) => v.id === finding?.current_version,
@@ -178,13 +183,20 @@ export function Watchlist({ data }: { data: ResearchData }) {
             <p>Latest material change: {latest?.detail ?? "None confirmed."}</p>
             <p>
               Source coverage:{" "}
-              {confirmedLatest
-                ? "Latest detected change confirmed"
-                : coverage
-                  ? (coverageLabel[coverage.status] ?? "Unknown")
-                  : "Not configured"}
+              {campaign
+                ? "Official campaign monitoring (alert settings above)"
+                : confirmedLatest
+                  ? "Latest detected change confirmed"
+                  : coverage
+                    ? (coverageLabel[coverage.status] ?? "Unknown")
+                    : "Not configured"}
               . Last successful check:{" "}
-              {coverage?.lastSuccessAt ? when(coverage.lastSuccessAt) : "None"}.
+              {campaign?.lastSuccessAt
+                ? when(campaign.lastSuccessAt)
+                : coverage?.lastSuccessAt
+                  ? when(coverage.lastSuccessAt)
+                  : "None"}
+              .
             </p>
           </article>
         );

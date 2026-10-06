@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-06T13:31:57.668Z",
+  "classification": "Read-only verification of isolated browser-created records; not genuine member activity",
+  "findings": [
+    {
+      "id": "71732d68-bd5b-4b5b-b1d4-52f1cb1c8996",
+      "current_version": "b3c74fc5-c353-4285-9112-d8797141cc03",
+      "status": "accepted"
+    },
+    {
+      "id": "5ca03988-fea2-443f-9c63-1e538315fa64",
+      "current_version": "569f58c6-16da-40bb-89e9-1371ad496ccc",
+      "status": "needs_correction"
+    },
+    {
+      "id": "52ca4d81-5e3f-4e35-bf77-2c2f3fef055f",
+      "current_version": "e2550d81-14d2-4517-995f-60d00614af23",
+      "status": "pending"
+    }
+  ],
+  "awards": [
+    {
+      "version_id": "b3c74fc5-c353-4285-9112-d8797141cc03",
+      "kind": "work",
+      "xp": 50
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "starknet-provisions-2024",
+      "url": "https://www.starknet.io/blog/starknet-provisions-program/",
+      "last_status": "no_confirmed_change",
+      "last_success_at": "2026-10-06T12:24:25.058374+00:00",
+      "next_due": "2026-10-07T12:24:25.058374+00:00"
+    },
+    {
+      "id": "optimism-drop4-2024",
+      "url": "https://optimism.io/blog/drop-4-create-together-benefit-together",
+      "last_status": "no_confirmed_change",
+      "last_success_at": "2026-10-06T12:24:26.135204+00:00",
+      "next_due": "2026-10-07T12:24:26.135204+00:00"
+    }
+  ],
+  "replay": {
+    "status": "confirmed",
+    "is_demo": true,
+    "announced_at": "2024-02-14T07:48:22+00:00",
+    "scheduled_at": "2024-02-20T12:00:00+00:00",
+    "observed_available_at": null,
+    "confirmed_at": "2026-10-06T12:54:16.847541+00:00"
+  },
+  "notifications": [
+    {
+      "status": "done",
+      "acknowledged_at": "2026-10-06T12:57:11.62752+00:00",
+      "done_at": "2026-10-06T12:58:12.709293+00:00"
+    }
+  ],
+  "genuineRecipients": 0,
+  "scheduler": {
+    "lastRunAt": "2026-10-06T13:25:22.510Z",
+    "lastExitCode": 0,
+    "intervalMinutes": 15
+  }
+}

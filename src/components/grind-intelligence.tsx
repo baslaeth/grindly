@@ -52,7 +52,11 @@ export function GrindIntelligence({
       ) : (
         <>
           <section className="section" aria-label="Selected alpha">
-            <h2>{version.claim}</h2>
+            <h2>{alpha.subject}</h2>
+            <details>
+              <summary>Original action or claim</summary>
+              <p>{version.claim}</p>
+            </details>
             <p>
               {alpha.category} / {person(data, finding.author_id)} / version{" "}
               {version.version}

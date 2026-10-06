@@ -3,6 +3,7 @@ import { categories } from "@/research/spaces";
 import { categoryFields, contextIssues, checklistVersion } from "./checklists";
 import { launchFields } from "@/launch/forms";
 import { launchPolicy } from "@/launch/policy";
+import { airdropGuideSchema, type AirdropGuide } from "./airdrop";
 
 export const alphaCategories = categories;
 export type AlphaCategory = (typeof categories)[number];
@@ -155,6 +156,7 @@ export const alphaSubmission = z
       .record(z.string().max(100), z.string().max(1000))
       .refine((v) => Object.keys(v).length <= 8),
     launch: launchTermsSchema.optional(),
+    airdrop: airdropGuideSchema.optional(),
     checklist: z.literal(checklistVersion).default(checklistVersion),
     firstNoticed: z.iso
       .datetime({ offset: true })
@@ -169,6 +171,12 @@ export const alphaSubmission = z
   })
   .strict()
   .superRefine((v, c) => {
+    if (v.airdrop && v.category !== "Airdrop Hunters")
+      c.addIssue({
+        code: "custom",
+        path: ["airdrop"],
+        message: "Airdrop context belongs to Airdrop Hunters",
+      });
     if (
       v.type === "prediction" &&
       !v.launch &&
@@ -424,7 +432,42 @@ export type AlphaOutcome = {
   checked_at: string;
   actor_id: string;
 };
+export type AirdropEventRecord = {
+  id: string;
+  campaign_id: string;
+  kind: string;
+  passage: string;
+  source_url: string;
+  source_date: string | null;
+  announced_at: string | null;
+  scheduled_at: string | null;
+  observed_available_at: string | null;
+  detected_at: string;
+  required_action: string;
+  is_demo: boolean;
+  status: string;
+};
 export type AlphaSnapshot = {
+  airdropFollowing?: {
+    followId: string;
+    campaign: string;
+    name: string;
+    url: string;
+    status: string;
+    lastSuccessAt: string | null;
+    nextDue: string;
+    types: string[];
+    paused: boolean;
+  }[];
+  airdropNotifications?: {
+    id: string;
+    follow_id: string;
+    status: string;
+    created_at: string;
+    event: AirdropEventRecord;
+  }[];
+  airdropQueue?: AirdropEventRecord[];
+  airdropGuides?: { version_id: string; details: AirdropGuide }[];
   serverTime: string;
   evaluationAvailable?: boolean;
   launchAvailable?: boolean;

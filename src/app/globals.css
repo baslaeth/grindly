@@ -1918,3 +1918,48 @@ dd,
   outline: 2px solid currentColor;
   outline-offset: 4px;
 }
+.xp-award-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.xp-award-grid article {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 18px;
+}
+.xp-award-grid strong {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.progress-summary progress {
+  width: 100%;
+  height: 12px;
+  accent-color: #20796b;
+}
+.progress-summary {
+  margin: 20px 0;
+}
+.watch-row blockquote {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .xp-award-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.rank-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+}
+.rank-path li {
+  padding: 8px 0;
+  border-bottom: 3px solid var(--line);
+  flex: 1 1 100px;
+  font-weight: 600;
+}

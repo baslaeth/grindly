@@ -3,6 +3,12 @@ import { createTestDatabase } from "./database";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const tables = [
+  "airdrop_guides",
+  "airdrop_campaigns",
+  "airdrop_monitor_runs",
+  "airdrop_events",
+  "airdrop_alert_preferences",
+  "airdrop_notifications",
   "launch_reviewer_scopes",
   "launch_follows",
   "launch_watch_preferences",

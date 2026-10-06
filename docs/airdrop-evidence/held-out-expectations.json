@@ -1,0 +1,86 @@
+{
+  "instructionHash": "233f1cb78a509ea8fff8fcf874c1f7f71c82832dbf5b27c2561f676c783c8725",
+  "cases": [
+    {
+      "id": "h01",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "The published Provisions claim window lasted four months after launch.",
+      "expected": "supported",
+      "basis": "Claiming will be possible for 4 months"
+    },
+    {
+      "id": "h02",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "Provisions recipients could claim indefinitely after February 2024.",
+      "expected": "contradicted",
+      "basis": "no later than June 20th, 2024"
+    },
+    {
+      "id": "h03",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "The Foundation stated there was a public sale of Starknet tokens in the Provisions program.",
+      "expected": "contradicted",
+      "basis": "There is no public sale of Starknet tokens"
+    },
+    {
+      "id": "h04",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "Unclaimed Provisions tokens were to return to the pool for later rounds or programs.",
+      "expected": "supported",
+      "basis": "reclaimed to the pool"
+    },
+    {
+      "id": "h05",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "The official announcement proves that my specific wallet received STRK.",
+      "expected": "unverified",
+      "basis": "No wallet-specific receipt or eligibility evidence"
+    },
+    {
+      "id": "h06",
+      "split": "held-out",
+      "program": "optimism",
+      "claim": "Optimism said it committed 19% of initial token supply to community airdrops.",
+      "expected": "supported",
+      "basis": "19% of the total initial token supply"
+    },
+    {
+      "id": "h07",
+      "split": "held-out",
+      "program": "optimism",
+      "claim": "The official Airdrop #4 snapshot happened on February 20, 2024.",
+      "expected": "contradicted",
+      "basis": "Jan 10, 2024"
+    },
+    {
+      "id": "h08",
+      "split": "held-out",
+      "program": "optimism",
+      "claim": "Using Base today guarantees qualification for the next Optimism airdrop.",
+      "expected": "unverified",
+      "basis": "No future eligibility guarantee; current actions not evaluated"
+    },
+    {
+      "id": "h09",
+      "split": "held-out",
+      "program": "starknet",
+      "claim": "The Provisions launch announcement proves the claim portal is functioning at this moment.",
+      "expected": "unverified",
+      "basis": "Historical announcement is not observed present availability"
+    },
+    {
+      "id": "h10",
+      "split": "held-out",
+      "program": "optimism",
+      "claim": "Airdrop #4 used a January 10, 2024 snapshot.",
+      "expected": "supported",
+      "basis": "Jan 10, 2024",
+      "sourceMode": "injection"
+    }
+  ]
+}

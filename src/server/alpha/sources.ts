@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { load } from "cheerio";
+import { documentPassages } from "./document-passages";
 import { z } from "zod";
 import { createPublicClient, http } from "viem";
 import { robinhoodTestnet } from "viem/chains";
@@ -30,6 +30,8 @@ export const primaryHosts = new Set([
   "blog.ethereum.org",
   "www.optimism.io",
   "docs.optimism.io",
+  "optimism.io",
+  "www.starknet.io",
 ]);
 export function primaryUrl(value: string) {
   try {
@@ -97,12 +99,14 @@ export function clearDocumentCache() {
 export async function primaryDocument(
   value: string,
   id: string,
+  focus = "",
 ): Promise<CheckedSource> {
   const url = primaryUrl(value);
   if (!url) return loadPrimaryDocument(value, id);
-  const saved = documentCache.get(url.href);
+  const key = `${url.href}:${focus.slice(0, 500)}`;
+  const saved = documentCache.get(key);
   if (saved && saved.until > Date.now()) return { ...saved.source, id };
-  const pending = documentPending.get(url.href);
+  const pending = documentPending.get(key);
   if (pending) return { ...(await pending), id };
   if (documentPending.size >= 6)
     return unknown(
@@ -111,23 +115,24 @@ export async function primaryDocument(
       url.href,
       "Unknown: source capacity is temporarily unavailable. Retry later.",
     );
-  const job = loadPrimaryDocument(value, id);
-  documentPending.set(url.href, job);
+  const job = loadPrimaryDocument(value, id, focus);
+  documentPending.set(key, job);
   try {
     const source = await job;
     if (source.status === "retrieved") {
       if (documentCache.size >= 32)
         documentCache.delete(documentCache.keys().next().value!);
-      documentCache.set(url.href, { source, until: Date.now() + 120000 });
+      documentCache.set(key, { source, until: Date.now() + 120000 });
     }
     return source;
   } finally {
-    documentPending.delete(url.href);
+    documentPending.delete(key);
   }
 }
 async function loadPrimaryDocument(
   value: string,
   id: string,
+  focus = "",
 ): Promise<CheckedSource> {
   const url = primaryUrl(value);
   if (!url)
@@ -153,35 +158,28 @@ async function loadPrimaryDocument(
     )
       throw new Error("Unavailable source");
     const raw = await boundedBody(r, 1000000);
-    const $ = load(raw);
-    const published = $("meta[property='article:published_time']").attr(
-      "content",
-    );
-    $("script,style,nav,header,footer,form,button,noscript,svg").remove();
-    const root = $("main").length ? $("main") : $("body");
-    const excerpt = root.text().replace(/\s+/g, " ").trim().slice(0, 6500);
+    const { title, published, excerpt, passages, totalPassages, headings } =
+      documentPassages(raw, focus);
     if (!excerpt) throw new Error("No text");
     const validDate =
       published &&
       Number.isFinite(Date.parse(published)) &&
       Date.parse(published) <= Date.now();
     const facts = JSON.stringify({
-      title: $("title").text().slice(0, 120),
-      headings: root
-        .find("h1,h2,h3")
-        .map((_, el) => $(el).text().trim().slice(0, 160))
-        .get()
-        .slice(0, 16),
+      title,
+      headings,
+      passages,
+      totalPassages,
       excerpt,
       publicationDateProvenance: validDate
         ? "Publisher-supplied article:published_time; not independently verified."
         : "Unknown: absent, invalid or future publisher date.",
       limitations:
-        "Primary source statements only, not independent confirmation of product adoption, team identity, traction or a future outcome. Text may be partial or stale. Claims still require assessment.",
+        "Primary source statements only, not independent confirmation of execution, eligibility or future rewards. At most 24 relevant passages / 14000 characters selected across a bounded 1 MB document, not exhaustive. Text may be stale. Claims still require assessment.",
     });
     return {
       id,
-      label: $("title").text().slice(0, 120) || url.hostname,
+      label: title || url.hostname,
       url: url.href,
       checkedAt: new Date().toISOString(),
       publishedAt: validDate ? new Date(published).toISOString() : null,
@@ -445,7 +443,13 @@ export async function collectSources(alpha: AlphaVersion) {
         !pair ||
         e.value !== `https://api.exchange.coinbase.com/products/${pair}/ticker`,
     )
-    .map((e, i) => primaryDocument(e.value, `source-${i + 1}`));
+    .map((e, i) =>
+      primaryDocument(
+        e.value,
+        `source-${i + 1}`,
+        `${alpha.category} ${alpha.subject} ${JSON.stringify(alpha.details)}`,
+      ),
+    );
   if (links.length > 3)
     result.push(
       unknown(

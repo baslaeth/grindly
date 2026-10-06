@@ -2,6 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { ResearchData } from "@/research/model";
+import { AirdropFollowing } from "./airdrop-following";
 
 export function MonitorQueue({ data }: { data: ResearchData }) {
   const router = useRouter();
@@ -36,6 +37,7 @@ export function MonitorQueue({ data }: { data: ResearchData }) {
   return (
     <section className="section" aria-label="Opportunity monitoring">
       <h2>Opportunity monitoring</h2>
+      <AirdropFollowing data={data} operator />
       <p>
         Only approved public documents can be checked. A changed page creates a
         verification task, not a confirmed event or member alert.

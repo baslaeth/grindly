@@ -70,20 +70,20 @@ export default function XpGuide() {
       </p>
       <section className="section">
         <h2>Work earns credit now</h2>
-        <ul>
-          <li>
+        <div className="xp-award-grid">
+          <article>
             <strong>{p.work.actionable} XP:</strong> verified actionable find,
             warning, correction or material update.
-          </li>
-          <li>
+          </article>
+          <article>
             <strong>{p.work.tested} XP:</strong> tested guide or focused
             original research.
-          </li>
-          <li>
+          </article>
+          <article>
             <strong>{p.work.substantial} XP:</strong> substantial original
             analysis or complete tested workflow.
-          </li>
-        </ul>
+          </article>
+        </div>
         <p>
           One work award per contribution. An improvement from 150 to 300 earns
           only the additional 150. Fixing your own error earns no correction
@@ -95,102 +95,111 @@ export default function XpGuide() {
           copying or fabricated evidence can lead to a recorded reversal.
         </p>
       </section>
-      <section className="section">
-        <h2>Predictions settle later</h2>
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Prediction</th>
-                <th>Normal success / failure</th>
-                <th>High success / failure</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(["standard", "enhanced"] as const).map((key) => (
-                <tr key={key}>
-                  <th>
-                    {key === "standard" ? "Standard" : "Approved long-term"}
-                  </th>
-                  <td>
-                    +{p.prediction[key].normal.met} /{" "}
-                    {p.prediction[key].normal.failed} XP
-                  </td>
-                  <td>
-                    +{p.prediction[key].high.met} /{" "}
-                    {p.prediction[key].high.failed} XP
-                  </td>
+      <details className="section">
+        <summary>Prediction rewards, reservations and earning limits</summary>
+        <section>
+          <h2>Predictions settle later</h2>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Prediction</th>
+                  <th>Normal success / failure</th>
+                  <th>High success / failure</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p>
-          High reserves {p.prediction.standard.high.reserve} unused XP for a
-          standard call or {p.prediction.enhanced.high.reserve} for an approved
-          long-term call. It is released once on settlement or authorized
-          cancellation. Losses remain signed and can reduce available progress
-          below zero.
-        </p>
-        <p>
-          Approved long-term calls require a baseline, meaningful measurable
-          target, failure criteria, at least 30 days and independent approval
-          before scoring starts. Longer waiting alone does not qualify. Original
-          terms and policy are frozen; amendments are dated.
-        </p>
-        <p>
-          Public research, private lead, claimed insider and Unknown describe
-          sources, not commitment. An insider label proves no access and earns
-          no bonus.
-        </p>
-        <details>
-          <summary>Eligibility and current price coverage</summary>
+              </thead>
+              <tbody>
+                {(["standard", "enhanced"] as const).map((key) => (
+                  <tr key={key}>
+                    <th>
+                      {key === "standard" ? "Standard" : "Approved long-term"}
+                    </th>
+                    <td>
+                      +{p.prediction[key].normal.met} /{" "}
+                      {p.prediction[key].normal.failed} XP
+                    </td>
+                    <td>
+                      +{p.prediction[key].high.met} /{" "}
+                      {p.prediction[key].high.failed} XP
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <p>
-            Incomplete predictions can be saved as unvalidated, with no promised
-            outcome XP. Ordered price scoring currently supports matching BTC,
-            ETH or SOL Coinbase Exchange spot paths, an exact UTC-hour expiry
-            within seven days, and complete history. Net potential reward must
-            be at least twice declared downside. Leverage never increases XP.
-            Other venues, derivatives and Degen memecoins are unvalidated.
+            High reserves {p.prediction.standard.high.reserve} unused XP for a
+            standard call or {p.prediction.enhanced.high.reserve} for an
+            approved long-term call. It is released once on settlement or
+            authorized cancellation. Losses remain signed and can reduce
+            available progress below zero.
           </p>
           <p>
-            Scoring starts after entry. No trigger by expiry is Cancelled
-            without outcome XP. Target before invalidation is Met; invalidation
-            first or a demonstrably missed target at expiry is Failed. Ambiguous
-            order or missing history is Inconclusive, not a guessed success or
-            failure.
+            Approved long-term calls require a baseline, meaningful measurable
+            target, failure criteria, at least 30 days and independent approval
+            before scoring starts. Longer waiting alone does not qualify.
+            Original terms and policy are frozen; amendments are dated.
           </p>
-        </details>
-      </section>
-      <section className="section">
-        <h2>Limits, simply</h2>
-        <ul>
-          <li>
-            {p.newAlphasPerUtcDay} new formal alphas per member per UTC day.
-            Chat, corrections and material updates remain available.
-          </li>
-          <li>
-            {p.ordinaryXpPerUtcWeek} ordinary positive XP per UTC week, Monday
-            through Sunday, including work awards and standard wins. Negative XP
-            always applies and does not reopen this allowance.
-          </li>
-          <li>
-            {p.enhancedActiveLimit} active approved long-term forecasts. Their
-            outcome bonuses sit outside the ordinary weekly cap.
-          </li>
-          <li>
-            At most {p.materialUpdateXpPerOpportunityWeek} XP for material
-            updates per opportunity per week.
-          </li>
-        </ul>
-        <p>
-          Above-cap work retains attribution and history, with no automatic
-          carryover. Changing category, wallet or NFT does not reset personal
-          limits.
-        </p>
-      </section>
+          <p>
+            Public research, private lead, claimed insider and Unknown describe
+            sources, not commitment. An insider label proves no access and earns
+            no bonus.
+          </p>
+          <details>
+            <summary>Eligibility and current price coverage</summary>
+            <p>
+              Incomplete predictions can be saved as unvalidated, with no
+              promised outcome XP. Ordered price scoring currently supports
+              matching BTC, ETH or SOL Coinbase Exchange spot paths, an exact
+              UTC-hour expiry within seven days, and complete history. Net
+              potential reward must be at least twice declared downside.
+              Leverage never increases XP. Other venues, derivatives and Degen
+              memecoins are unvalidated.
+            </p>
+            <p>
+              Scoring starts after entry. No trigger by expiry is Cancelled
+              without outcome XP. Target before invalidation is Met;
+              invalidation first or a demonstrably missed target at expiry is
+              Failed. Ambiguous order or missing history is Inconclusive, not a
+              guessed success or failure.
+            </p>
+          </details>
+        </section>
+        <section className="section">
+          <h2>Limits, simply</h2>
+          <ul>
+            <li>
+              {p.newAlphasPerUtcDay} new formal alphas per member per UTC day.
+              Chat, corrections and material updates remain available.
+            </li>
+            <li>
+              {p.ordinaryXpPerUtcWeek} ordinary positive XP per UTC week, Monday
+              through Sunday, including work awards and standard wins. Negative
+              XP always applies and does not reopen this allowance.
+            </li>
+            <li>
+              {p.enhancedActiveLimit} active approved long-term forecasts. Their
+              outcome bonuses sit outside the ordinary weekly cap.
+            </li>
+            <li>
+              At most {p.materialUpdateXpPerOpportunityWeek} XP for material
+              updates per opportunity per week.
+            </li>
+          </ul>
+          <p>
+            Above-cap work retains attribution and history, with no automatic
+            carryover. Changing category, wallet or NFT does not reset personal
+            limits.
+          </p>
+        </section>
+      </details>
       <section className="section">
         <h2>Rank progression</h2>
+        <ol className="rank-path" aria-label="Membership ranks">
+          {["Bronze", "Silver", "Gold", "Platinum", "Diamond"].map((rank) => (
+            <li key={rank}>{rank}</li>
+          ))}
+        </ol>
         <div className="table-scroll">
           <table>
             <thead>

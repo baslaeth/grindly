@@ -18,6 +18,7 @@ import {
 } from "@/alpha/checklists";
 import { launchFields, legacyDetails } from "@/launch/forms";
 import { launchPolicy } from "@/launch/policy";
+import { airdropGuideVersion, airdropStages } from "@/alpha/airdrop";
 
 function CategoryField({
   field,
@@ -165,6 +166,9 @@ export function AlphaForm({
   const av = data.alphas?.find((a) => a.version_id === versionId);
   const launchActive = data.launchAvailable === true;
   const launchTerm = data.launchTerms?.find((t) => t.version_id === versionId);
+  const airdropGuide = data.airdropGuides?.find(
+    (t) => t.version_id === versionId,
+  )?.details;
   const profile = data.profiles.find((p) => p.member_id === data.memberId);
   const currentMessage = data.messages.find(
     (m) => m.id === (sourceMessage ?? version?.source_message),
@@ -254,6 +258,16 @@ export function AlphaForm({
             ? { kind: "transaction", value, label: "Transaction reference" }
             : { kind: "link", value, label: new URL(value).hostname },
         );
+      if (
+        category === "Airdrop Hunters" &&
+        get("airdrop-official").startsWith("https://") &&
+        !evidence.some((e) => e.value === get("airdrop-official"))
+      )
+        evidence.unshift({
+          kind: "link",
+          value: get("airdrop-official"),
+          label: "Official campaign documentation",
+        });
       evidence.push(
         ...files.map((f) => ({
           kind: "attachment" as const,
@@ -303,6 +317,11 @@ export function AlphaForm({
               : get(`launch-${f.key}`) || "Unknown",
         ]),
       );
+      if (category === "Airdrop Hunters") {
+        launchContext.project = get("subject");
+        launchContext.status = "Unknown";
+        launchContext.costs = get("costOrRisk");
+      }
       const details =
         launchActive && category
           ? legacyDetails(category, launchContext)
@@ -324,7 +343,8 @@ export function AlphaForm({
         type: kind,
         visibility: finding?.visibility ?? get("visibility"),
         claim: launchActive ? get("usefulAction") : get("claim"),
-        purpose: get("purpose"),
+        purpose:
+          category === "Airdrop Hunters" ? get("usefulAction") : get("purpose"),
         addition: get("addition"),
         limitations: launchActive ? get("costOrRisk") : get("limitations"),
         subject: get("subject"),
@@ -341,6 +361,21 @@ export function AlphaForm({
             : ""
           : get("contract"),
         details,
+        ...(launchActive && category === "Airdrop Hunters"
+          ? {
+              airdrop: {
+                version: airdropGuideVersion,
+                stage: get("airdrop-stage"),
+                official: get("airdrop-official"),
+                confirmed: get("airdrop-confirmed"),
+                speculative: get("airdrop-speculative") || "Unknown",
+                steps: get("airdrop-steps"),
+                prerequisites: get("airdrop-prerequisites") || "Unknown",
+                testEvidence: get("airdrop-testEvidence") || "Unknown",
+                exclusions: get("airdrop-exclusions") || "Unknown",
+              },
+            }
+          : {}),
         ...(launchActive
           ? {
               launch: {
@@ -478,8 +513,75 @@ export function AlphaForm({
             <h3>{category}</h3>
             {launchActive ? (
               <>
+                {category === "Airdrop Hunters" && (
+                  <>
+                    <label className="field">
+                      Program stage
+                      <select
+                        name="airdrop-stage"
+                        defaultValue={airdropGuide?.stage ?? "Unknown"}
+                      >
+                        {airdropStages.map((stage) => (
+                          <option key={stage}>{stage}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <Field
+                      label="Official campaign or documentation link (Unknown allowed)"
+                      name="airdrop-official"
+                      required
+                      value={airdropGuide?.official}
+                      max={500}
+                    />
+                    <Field
+                      label="What is officially confirmed?"
+                      name="airdrop-confirmed"
+                      required
+                      value={airdropGuide?.confirmed}
+                    />
+                    <Field
+                      label="Short steps to follow"
+                      name="airdrop-steps"
+                      required
+                      value={airdropGuide?.steps}
+                    />
+                    <details>
+                      <summary>
+                        Prerequisites, speculation and exclusions
+                      </summary>
+                      <Field
+                        label="Prerequisites"
+                        name="airdrop-prerequisites"
+                        value={airdropGuide?.prerequisites ?? "Unknown"}
+                      />
+                      <Field
+                        label="What is speculation, not confirmed?"
+                        name="airdrop-speculative"
+                        value={airdropGuide?.speculative ?? "Unknown"}
+                      />
+                      <Field
+                        label="Who or what is excluded?"
+                        name="airdrop-exclusions"
+                        value={airdropGuide?.exclusions ?? "Unknown"}
+                      />
+                      <Field
+                        label="Evidence of your tested steps"
+                        name="airdrop-testEvidence"
+                        value={airdropGuide?.testEvidence ?? "Unknown"}
+                      />
+                    </details>
+                  </>
+                )}
                 {launchContextFields
-                  .filter((f) => f.core && !f.fromPrediction)
+                  .filter(
+                    (f) =>
+                      f.core &&
+                      !f.fromPrediction &&
+                      !(
+                        category === "Airdrop Hunters" &&
+                        ["project", "status"].includes(f.key)
+                      ),
+                  )
                   .map((field) => (
                     <CategoryField
                       key={`${category}:${field.key}`}
@@ -494,7 +596,14 @@ export function AlphaForm({
                   <details>
                     <summary>Additional category details</summary>
                     {launchContextFields
-                      .filter((f) => !f.core && !f.fromPrediction)
+                      .filter(
+                        (f) =>
+                          !f.core &&
+                          !f.fromPrediction &&
+                          !(
+                            category === "Airdrop Hunters" && f.key === "costs"
+                          ),
+                      )
                       .map((field) => (
                         <CategoryField
                           key={`${category}:${field.key}`}
@@ -683,7 +792,11 @@ export function AlphaForm({
               required
             />
             <Field
-              label="Cost or main risk"
+              label={
+                category === "Airdrop Hunters"
+                  ? "Known costs, lockups and main risk"
+                  : "Cost or main risk"
+              }
               name="costOrRisk"
               value={launchTerm?.cost_or_risk ?? version?.limitations}
               required
@@ -710,105 +823,114 @@ export function AlphaForm({
               required
             />
           )}
-          <Field
-            label="Why does it matter to members?"
-            name="purpose"
-            value={av?.purpose}
-            required
-          />
+          {category !== "Airdrop Hunters" && (
+            <Field
+              label="Why does it matter to members?"
+              name="purpose"
+              value={av?.purpose}
+              required
+            />
+          )}
         </div>
         <div className="form-step">
           <h3>Evidence</h3>
-          <Field
-            label="Links or transaction hashes (one per line)"
-            name="evidence"
-            value={
-              av?.evidence
-                .filter((e) => ["link", "transaction"].includes(e.kind))
-                .map((e) => e.value)
-                .join("\n") ??
-              (Array.isArray(version?.sources)
-                ? version.sources
-                    .map((s) =>
-                      s && typeof s === "object" && "url" in s ? s.url : "",
-                    )
-                    .filter(Boolean)
-                    .join("\n")
-                : "")
-            }
-            max={4000}
-          />
-          <label className="field">
-            Linked room message
-            <select
-              aria-label="Linked room message"
-              name="linkedMessage"
-              defaultValue=""
-            >
-              <option value="">None</option>
-              {data.messages
-                .filter((m) => !m.deleted)
-                .map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {person(data, m.author_id)}: {m.body.slice(0, 100)}
-                  </option>
-                ))}
-            </select>
-          </label>
-          <label className="button secondary">
-            <Paperclip size={16} />
-            Attach evidence
-            <input
-              aria-label="Attach evidence"
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              multiple
-              className="sr-only"
-              onChange={(e) => {
-                const chosen = Array.from(e.target.files ?? []);
-                if (
-                  chosen.some((f) => f.size > 2097152) ||
-                  files.length + chosen.length > 4
-                ) {
-                  setError("Use up to four images, at most 2 MB each.");
-                  return;
-                }
-                setFiles((old) => [
-                  ...old,
-                  ...chosen.map((file) => ({
-                    id: crypto.randomUUID(),
-                    file,
-                    progress: 0,
-                    uploaded: false,
-                  })),
-                ]);
-                e.target.value = "";
-              }}
+          <details open={category !== "Airdrop Hunters"}>
+            <summary>Additional links, screenshots or linked messages</summary>
+            <Field
+              label="Links or transaction hashes (one per line)"
+              name="evidence"
+              value={
+                av?.evidence
+                  .filter((e) => ["link", "transaction"].includes(e.kind))
+                  .map((e) => e.value)
+                  .join("\n") ??
+                (Array.isArray(version?.sources)
+                  ? version.sources
+                      .map((s) =>
+                        s && typeof s === "object" && "url" in s ? s.url : "",
+                      )
+                      .filter(Boolean)
+                      .join("\n")
+                  : "")
+              }
+              max={4000}
             />
-          </label>
-          {files.map((f) => (
-            <div key={f.id} className="form-actions">
-              <span>
-                {f.file.name} {busy ? `${f.progress}%` : ""}
-              </span>
-              <button
-                className="button secondary icon-button"
-                type="button"
-                title={`Remove ${f.file.name}`}
-                aria-label={`Remove ${f.file.name}`}
-                onClick={() =>
-                  setFiles((old) => old.filter((x) => x.id !== f.id))
-                }
+            <label className="field">
+              Linked room message
+              <select
+                aria-label="Linked room message"
+                name="linkedMessage"
+                defaultValue=""
               >
-                <X size={16} />
-              </button>
-            </div>
-          ))}
-          {!!av?.evidence.some((e) => e.kind === "attachment") && (
-            <p>Earlier attached evidence is retained in this correction.</p>
-          )}
+                <option value="">None</option>
+                {data.messages
+                  .filter((m) => !m.deleted)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {person(data, m.author_id)}: {m.body.slice(0, 100)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="button secondary">
+              <Paperclip size={16} />
+              Attach evidence
+              <input
+                aria-label="Attach evidence"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                multiple
+                className="sr-only"
+                onChange={(e) => {
+                  const chosen = Array.from(e.target.files ?? []);
+                  if (
+                    chosen.some((f) => f.size > 2097152) ||
+                    files.length + chosen.length > 4
+                  ) {
+                    setError("Use up to four images, at most 2 MB each.");
+                    return;
+                  }
+                  setFiles((old) => [
+                    ...old,
+                    ...chosen.map((file) => ({
+                      id: crypto.randomUUID(),
+                      file,
+                      progress: 0,
+                      uploaded: false,
+                    })),
+                  ]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            {files.map((f) => (
+              <div key={f.id} className="form-actions">
+                <span>
+                  {f.file.name} {busy ? `${f.progress}%` : ""}
+                </span>
+                <button
+                  className="button secondary icon-button"
+                  type="button"
+                  title={`Remove ${f.file.name}`}
+                  aria-label={`Remove ${f.file.name}`}
+                  onClick={() =>
+                    setFiles((old) => old.filter((x) => x.id !== f.id))
+                  }
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+            {!!av?.evidence.some((e) => e.kind === "attachment") && (
+              <p>Earlier attached evidence is retained in this correction.</p>
+            )}
+          </details>
           <Field
-            label="What did you personally discover, test, or add?"
+            label={
+              category === "Airdrop Hunters"
+                ? "Your useful discovery, warning or improvement"
+                : "What did you personally discover, test, or add?"
+            }
             name="addition"
             value={version?.addition}
             required

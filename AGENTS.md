@@ -10,6 +10,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+Latest focused checkpoint: `docs/airdrop-experience.md` and
+`docs/airdrop-evidence/README.md` (2026-10-06), continuing reviewed `2d1a671`.
+030-032 are SHARED-APPLIED with old-table preservation, forced RLS and denied
+browser RPC checks; 026-029 were inspected, not replayed. Do not edit or replay
+023-032. 032 clears a resolved monitoring queue without masking source outages.
+Actual qwen3:4b evaluation: 19/20 development primary labels, 9/10 held
+out, with significant date/explanation errors. Local AI remains experimental.
+Two historical official-program guides, isolated review/50 XP, source failure,
+scheduled retrieval and labeled operator-confirmed replay notification have
+browser evidence. No new live claim announcement was observed. Genuine staffing
+is unchanged; no paid calls, production deployment, claims or upgrades.
+
 Latest launch completion: `docs/launch-completion.md` (2026-10-06). Owner-approved
 027-028 and the separately approved, function-only 029 repair are SHARED-APPLIED.
 Old-table preservation, forced RLS and denied browser RPC grants passed. Do not

@@ -1,5 +1,60 @@
 # Actual verification
 
+## Airdrop guide, actual local reasoning and follow-up - 2026-10-06
+
+- Verified branch `codex/category-alpha-review`, baseline/remote `2d1a671`.
+  Preserved annotation history and unrelated untracked branding.
+- Inspected active 026-029 catalog and permissions. Applied only new 030 then
+  031 to `errbtterppmvtlfltgzp`, each through the authorized preservation
+  transaction: prior public-table digests unchanged, zero unprotected tables,
+  zero browser RPC grants. Final state-only 032 also applied once with all prior
+  digests unchanged, forced RLS and denied browser RPC assertions. It clears a
+  resolved event queue while preserving source-unavailable status; its focused
+  database/security tests passed. No production executable deployment.
+- Actual signed-in browser, existing isolated Project author: saved Starknet
+  historical guide and its correction, Optimism historical guide, and a warning
+  whose official-host source returned unavailable. Receipts, original dates,
+  structured fields, pending sharing, reload and source status were inspected.
+- Real local qwen3:4b calls: 20 initial development, 20 refined development,
+  then 10 separately held-out cases, with expectations before execution and
+  frozen instructions for held-out. These are 30 distinct evaluation cases,
+  not 50 independent examples. Results/mistakes are in `airdrop-evidence`.
+- Full-guide model attempt exposed omitted claims and Ollama's unsupported tuple
+  schema. Fixed to bounded explicit claim arrays, validated identities/citations
+  and relevant prior work. Failed runs remain failed in history. Successful
+  persisted Starknet v2 and Optimism cards were read through the actual UI.
+  Unsupported guarantee is Unknown; historical steps retain source-grounded
+  labels. Date/overstatement errors remain explicit experimental limitations.
+- Existing separate Risk identity requested Starknet correction (0 XP), accepted
+  Optimism's sourced warning (50 work XP), with dated evidence/assessment and
+  conflict disclosure. Author Profile/Activity show the same award and feedback.
+  No author self-approval, genuine appointment or model-issued award.
+- Real local scheduler fetched both official campaign pages around 12:24 UTC;
+  subsequent ticks ran with no due work. Shared last-success and next-due states
+  displayed in Home following. No live material event occurred.
+- Captured official 2024 Starknet opening passage was replayed with `is_demo`
+  metadata and a visible historical sample label. Existing Operations identity
+  confirmed it in Review Desk. Author received, acknowledged and completed it.
+  Announced/scheduled dates stayed in 2024; observed availability stayed Unknown.
+- Browser alert preferences paused then resumed successfully. Unit/transactional
+  regressions cover changed deadlines, duplicate/marketing suppression, future
+  announcement versus observed opening, wrong-rank notification access, multiple
+  guide deduplication, unavailable sources and invented event quotes.
+- Desktop 1440x1000 and mobile 390x844 captures include form, receipt, Intelligence,
+  following, notification, XP guide and Profile. Mobile navigation was clicked;
+  Grind Intelligence remains below Submit alpha and My Profile top-right.
+  Captures use sample identities; no genuine private content, OTP/session or key.
+- Final `pnpm check` passed: 241 unit / 309 database / 11 contract tests, lint,
+  types, database type drift and build. Foundation Chrome: 52/52 with two workers.
+  An intervening 12-worker run had two 30-second timeouts (50 passed), resolved
+  by reducing concurrent test browsers; no assertions/timeouts were weakened.
+  New regressions are additional cases, not extra genuine journeys. A final
+  screenshot review corrected an undefined CSS border variable to the existing
+  theme token. Read-only `shared-checkpoint.json` confirms exactly one 50-XP work
+  event, notification Done with dated acknowledgment, zero genuine replay
+  recipients, and successful scheduler ticks. Author's direct Silver room URL
+  was denied in the signed-in browser.
+
 ## Launch activation and signed-in completion - 2026-10-06
 
 - Checkout verified `codex/category-alpha-review` at starting `f23db77`.

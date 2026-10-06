@@ -6,6 +6,7 @@ import { launchFields, legacyDetails } from "../../src/launch/forms";
 import { launchPolicy } from "../../src/launch/policy";
 import { alphaSubmission } from "../../src/alpha/model";
 import { checklistVersion } from "../../src/alpha/checklists";
+import { airdropGuideVersion } from "../../src/alpha/airdrop";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 type Category = (typeof categories)[number];
@@ -176,4 +177,66 @@ it("rejects omitted or malformed category context on both validation boundaries"
     ]),
   ).rejects.toThrow(/research: official HTTPS source required/);
   await db.exec("rollback to savepoint malformed");
+});
+
+it("preserves structured airdrop fields on versions and idempotent retries", async () => {
+  const input = alphaSubmission.parse({
+    ...sample("Airdrop Hunters"),
+    airdrop: {
+      version: airdropGuideVersion,
+      stage: "Closed or historical",
+      official: "https://www.starknet.io/blog/starknet-provisions-program/",
+      confirmed: "Historical claiming window closed in 2024",
+      speculative: "Unknown",
+      steps: "Read the official requirements before acting",
+      prerequisites: "Starknet wallet",
+      testEvidence: "Unknown",
+      exclusions: "Sybil activity excluded",
+    },
+  });
+  const args = [member, binding, input.request, JSON.stringify(input)];
+  const first = (
+    await db.query<{ v: { id: string; version: string } }>(
+      "select public.launch_submit($1,$2,$3,$4::jsonb) v",
+      args,
+    )
+  ).rows[0]!.v;
+  const retry = (
+    await db.query<{ v: { id: string; version: string } }>(
+      "select public.launch_submit($1,$2,$3,$4::jsonb) v",
+      args,
+    )
+  ).rows[0]!.v;
+  expect(retry).toMatchObject({ id: first.id, version: first.version });
+  const saved = await db.query<{ details: unknown }>(
+    "select details from public.airdrop_guides where version_id=$1",
+    [first.version],
+  );
+  expect(saved.rows).toEqual([{ details: input.airdrop }]);
+  await db.exec("savepoint changed");
+  await expect(
+    db.query("select public.launch_submit($1,$2,$3,$4::jsonb)", [
+      member,
+      binding,
+      input.request,
+      JSON.stringify({
+        ...input,
+        airdrop: { ...input.airdrop, steps: "Changed after save" },
+      }),
+    ]),
+  ).rejects.toThrow(/request conflict/);
+  await db.exec("rollback to savepoint changed");
+  await db.exec("savepoint invalid");
+  await expect(
+    db.query("select public.launch_submit($1,$2,$3,$4::jsonb)", [
+      member,
+      binding,
+      randomUUID(),
+      JSON.stringify({
+        ...input,
+        airdrop: { ...input.airdrop, confirmed: undefined },
+      }),
+    ]),
+  ).rejects.toThrow(/airdrop/);
+  await db.exec("rollback to savepoint invalid");
 });

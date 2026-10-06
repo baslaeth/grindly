@@ -1,5 +1,29 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Airdrop guide checkpoint (2026-10-06)
+
+Current handoff: [airdrop-experience.md](airdrop-experience.md); evidence and
+screenshots: [airdrop-evidence/README.md](airdrop-evidence/README.md).
+Continues `codex/category-alpha-review` from reviewed `2d1a671`.
+030-032 are shared-applied with preservation/security assertions. 026-029 were
+verified and never replayed. Structured airdrop guides, bounded official source
+sections, local model context, campaign following/preferences and notifications
+are connected to the existing versioned records and exact-rank permissions.
+
+Actual browser: two historical program guides plus a source-unavailable save,
+correction feedback, separate isolated reviewer acceptance for 50 work XP,
+matching Profile/Activity, scheduled source retrieval, and operator-confirmed
+historical replay notification acknowledged/completed. No genuine research,
+reviewer appointment, live claim event or future outcome was manufactured.
+
+Actual qwen3:4b atomic evaluation: initial 13/20, refined 19/20 development;
+9/10 held out once. These label counts conceal date/explanation errors detailed
+in the evidence report. Whole-guide findings remain experimental, not established
+category accuracy. No cloud fallback. Monitoring is limited to two configured
+historical official pages; local scheduling requires the computer to stay running.
+Genuine independent reviewer staffing is still an owner action. Claims and
+upgrade execution remain inactive; approved XP rules are unchanged.
+
 ## Launch completion (2026-10-06)
 
 Continue `codex/category-alpha-review`, local review `http://localhost:3000/`.

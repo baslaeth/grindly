@@ -9,6 +9,265 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      airdrop_alert_preferences: {
+        Row: {
+          follow_id: string;
+          types: string[];
+          paused: boolean;
+        };
+        Insert: {
+          follow_id: string;
+          types?: string[];
+          paused?: boolean;
+        };
+        Update: {
+          follow_id?: string;
+          types?: string[];
+          paused?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_alert_preferences_follow_id_fkey";
+            columns: ["follow_id"];
+            isOneToOne: true;
+            referencedRelation: "launch_follows";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      airdrop_campaigns: {
+        Row: {
+          id: string;
+          project: string;
+          name: string;
+          url: string;
+          enabled: boolean;
+          next_due: string;
+          last_success_at: string | null;
+          last_status: string;
+          failures: number;
+          snapshot: Json | null;
+          digest: string | null;
+        };
+        Insert: {
+          id: string;
+          project: string;
+          name: string;
+          url: string;
+          enabled?: boolean;
+          next_due?: string;
+          last_success_at?: string | null;
+          last_status?: string;
+          failures?: number;
+          snapshot?: Json | null;
+          digest?: string | null;
+        };
+        Update: {
+          id?: string;
+          project?: string;
+          name?: string;
+          url?: string;
+          enabled?: boolean;
+          next_due?: string;
+          last_success_at?: string | null;
+          last_status?: string;
+          failures?: number;
+          snapshot?: Json | null;
+          digest?: string | null;
+        };
+        Relationships: [];
+      };
+      airdrop_events: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          fingerprint: string;
+          kind: string;
+          passage: string;
+          source_url: string;
+          source_date: string | null;
+          announced_at: string | null;
+          scheduled_at: string | null;
+          observed_available_at: string | null;
+          detected_at: string;
+          status: string;
+          required_action: string;
+          is_demo: boolean;
+          confirmed_by: string | null;
+          confirmed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          fingerprint: string;
+          kind: string;
+          passage: string;
+          source_url: string;
+          source_date?: string | null;
+          announced_at?: string | null;
+          scheduled_at?: string | null;
+          observed_available_at?: string | null;
+          detected_at?: string;
+          status?: string;
+          required_action: string;
+          is_demo?: boolean;
+          confirmed_by?: string | null;
+          confirmed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          fingerprint?: string;
+          kind?: string;
+          passage?: string;
+          source_url?: string;
+          source_date?: string | null;
+          announced_at?: string | null;
+          scheduled_at?: string | null;
+          observed_available_at?: string | null;
+          detected_at?: string;
+          status?: string;
+          required_action?: string;
+          is_demo?: boolean;
+          confirmed_by?: string | null;
+          confirmed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_events_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "airdrop_campaigns";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "airdrop_events_confirmed_by_fkey";
+            columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      airdrop_guides: {
+        Row: {
+          version_id: string;
+          details: Json;
+          created_at: string;
+        };
+        Insert: {
+          version_id: string;
+          details: Json;
+          created_at?: string;
+        };
+        Update: {
+          version_id?: string;
+          details?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_guides_version_id_fkey";
+            columns: ["version_id"];
+            isOneToOne: true;
+            referencedRelation: "alpha_versions";
+            referencedColumns: ["version_id"];
+          },
+        ];
+      };
+      airdrop_monitor_runs: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          status: string;
+          checked_at: string;
+          source_date: string | null;
+          snapshot: Json | null;
+          digest: string | null;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          status: string;
+          checked_at?: string;
+          source_date?: string | null;
+          snapshot?: Json | null;
+          digest?: string | null;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          status?: string;
+          checked_at?: string;
+          source_date?: string | null;
+          snapshot?: Json | null;
+          digest?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_monitor_runs_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "airdrop_campaigns";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      airdrop_notifications: {
+        Row: {
+          id: string;
+          member_id: string;
+          follow_id: string;
+          event_id: string;
+          status: string;
+          created_at: string;
+          acknowledged_at: string | null;
+          done_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          follow_id: string;
+          event_id: string;
+          status?: string;
+          created_at?: string;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          follow_id?: string;
+          event_id?: string;
+          status?: string;
+          created_at?: string;
+          acknowledged_at?: string | null;
+          done_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_notifications_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "airdrop_events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "airdrop_notifications_follow_id_fkey";
+            columns: ["follow_id"];
+            isOneToOne: false;
+            referencedRelation: "launch_follows";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "airdrop_notifications_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       alpha_award_authorizations: {
         Row: {
           category: string;
@@ -3219,6 +3478,45 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      airdrop_confirm: {
+        Args: {
+          p_actor: string;
+          p_binding: string;
+          p_event: string;
+          p_confirm: boolean;
+        };
+        Returns: number;
+      };
+      airdrop_ingest: {
+        Args: {
+          p_campaign: string;
+          p_status: string;
+          p_snapshot: Json;
+          p_digest: string;
+          p_source_date: string;
+          p_candidates: Json;
+        };
+        Returns: Json;
+      };
+      airdrop_notification_action: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_id: string;
+          p_action: string;
+        };
+        Returns: boolean;
+      };
+      airdrop_preferences: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_follow: string;
+          p_types: string[];
+          p_paused: boolean;
+        };
+        Returns: boolean;
+      };
       allocate_mint_nonce: {
         Args: {
           p_operation: string;
@@ -3411,6 +3709,22 @@ export type Database = {
         Returns: Json;
       };
       alpha_snapshot_base: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_snapshot_pre_airdrop: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_room?: string;
+        };
+        Returns: Json;
+      };
+      alpha_snapshot_pre_campaign: {
         Args: {
           p_member: string;
           p_binding: string;
@@ -3723,6 +4037,15 @@ export type Database = {
         Returns: boolean;
       };
       launch_submit: {
+        Args: {
+          p_member: string;
+          p_binding: string;
+          p_request: string;
+          p_data: Json;
+        };
+        Returns: Json;
+      };
+      launch_submit_pre_airdrop: {
         Args: {
           p_member: string;
           p_binding: string;

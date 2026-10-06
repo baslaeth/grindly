@@ -523,17 +523,35 @@ export function FindingRecord({
     <>
       <section className="section">
         {receipt && (
-          <p className="notice" role="status">
-            Alpha saved: version {receipt.version}, {date(receipt.submitted_at)}
-            .{" "}
-            {finding.visibility === "members"
-              ? "Shared with permitted members of your rank, pending independent review."
-              : "Visible to you and the permitted review team."}{" "}
-            Source or AI availability does not change this receipt.
-          </p>
+          <div className="notice" role="status">
+            <h2>Alpha saved</h2>
+            <p>
+              Save receipt: version {receipt.version},{" "}
+              {date(receipt.submitted_at)}.
+            </p>
+            <p>
+              {finding.visibility === "members"
+                ? "Shared with permitted members of your rank. Current review status is shown below."
+                : "Visible to you and the permitted review team."}{" "}
+              Source or AI availability does not change this receipt.
+            </p>
+            <Link
+              className="button secondary"
+              href={`/intelligence?alpha=${finding.id}`}
+            >
+              Inspect evidence in Grind Intelligence
+            </Link>
+          </div>
         )}
         <Status value={finding.status} />
-        <h2 className="record-title">{current.claim}</h2>
+        <h2 className="record-title">
+          {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
+            current.claim}
+        </h2>
+        <details>
+          <summary>Original action or claim</summary>
+          <p>{current.claim}</p>
+        </details>
         <p className="notice">
           {finding.status === "needs_correction"
             ? "Next: the author submits a corrected version for independent review."
@@ -972,6 +990,59 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
     <>
       <section className="section profile-intro">
         <h2>{profile?.display_name ?? "Your profile"}</h2>
+        <div className="progress-summary">
+          <dl className="metrics">
+            <div>
+              <dt>Current rank</dt>
+              <dd>{data.token.tier}</dd>
+            </div>
+            <div>
+              <dt>Available progression XP</dt>
+              <dd>{data.launchProgress?.available ?? "Unavailable"}</dd>
+            </div>
+            {next && (
+              <div>
+                <dt>Next: {next}</dt>
+                <dd>
+                  {launchPolicy.upgrade[
+                    data.token.tier as keyof typeof launchPolicy.upgrade
+                  ].toLocaleString("en-US")}{" "}
+                  XP
+                </dd>
+              </div>
+            )}
+          </dl>
+          {next && data.launchProgress && (
+            <>
+              <progress
+                aria-label={`Progress toward ${next}`}
+                max={
+                  launchPolicy.upgrade[
+                    data.token.tier as keyof typeof launchPolicy.upgrade
+                  ]
+                }
+                value={Math.max(
+                  0,
+                  Math.min(
+                    data.launchProgress.available,
+                    launchPolicy.upgrade[
+                      data.token.tier as keyof typeof launchPolicy.upgrade
+                    ],
+                  ),
+                )}
+              />
+              <p>
+                {Math.max(
+                  0,
+                  launchPolicy.upgrade[
+                    data.token.tier as keyof typeof launchPolicy.upgrade
+                  ] - data.launchProgress.available,
+                ).toLocaleString("en-US")}{" "}
+                XP remaining. Upgrade execution is inactive.
+              </p>
+            </>
+          )}
+        </div>
         <p>{profile?.bio || "No bio shared yet."}</p>
         <p>
           {primaryFocus(profile) ??
@@ -1000,7 +1071,12 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
         </details>
       </section>
       <section className="section">
-        <p className="eyebrow">Current membership / live ownership verified</p>
+        <p className="eyebrow">
+          Current membership /{" "}
+          {profile?.is_demo
+            ? "isolated test membership"
+            : "live ownership verified"}
+        </p>
         <div className="membership-heading">
           <Fingerprint aria-hidden="true" />
           <div>

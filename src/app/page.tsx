@@ -84,6 +84,11 @@ export default async function Home({
           <Link className="inline-link" href={sample ? "/" : "/?sample=1"}>
             {sample ? "Back to Home" : "Explore sample opportunities"}
           </Link>
+          {data && (
+            <Link className="inline-link" href="#following">
+              Following and updates
+            </Link>
+          )}
         </div>
       </section>
       <section className="section">
@@ -96,6 +101,29 @@ export default async function Home({
         <Link className="inline-link" href="/xp">
           How XP and ranks work
         </Link>
+      </section>
+      <section className="section">
+        <h2>Airdrop Hunters</h2>
+        <p>
+          Share a useful route, check official evidence, and follow important
+          campaign changes. Points, eligibility and an open claim are different
+          stages.
+        </p>
+        <div className="form-actions">
+          <Link
+            className="button secondary"
+            href={
+              data?.rooms?.find((r) => r.category === "Airdrop Hunters")
+                ? `/workbench?room=${data.rooms.find((r) => r.category === "Airdrop Hunters")!.id}`
+                : "/join"
+            }
+          >
+            Open Airdrop Hunters
+          </Link>
+          <Link className="inline-link" href="/intelligence">
+            Check a saved guide
+          </Link>
+        </div>
       </section>
       {sample && (
         <p className="notice">

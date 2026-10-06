@@ -3,6 +3,7 @@ const mocks = vi.hoisted(() => ({
   access: vi.fn(),
   rpc: vi.fn(),
   assignment: vi.fn(),
+  context: vi.fn(),
   sources: vi.fn(),
   model: vi.fn(),
 }));
@@ -15,12 +16,13 @@ vi.mock("@/server/membership/access", () => ({
 vi.mock("@/server/supabase", () => ({
   createDataClient: () => ({
     rpc: mocks.rpc,
-    from: () => {
+    from: (table: string) => {
       const q = {
         select: () => q,
         eq: () => q,
         is: () => q,
-        maybeSingle: mocks.assignment,
+        maybeSingle:
+          table === "review_assignments" ? mocks.assignment : mocks.context,
       };
       return q;
     },
@@ -38,6 +40,7 @@ beforeEach(() => {
     data: { scope: "evidence" },
     error: null,
   });
+  mocks.context.mockResolvedValue({ data: null, error: null });
 });
 it("source refresh persists checks without invoking a model or award code", async () => {
   const context = {
@@ -110,9 +113,13 @@ it("an author may start a review only after the live membership and version gate
   mocks.rpc
     .mockResolvedValueOnce({ data: { author_id: "actor" }, error: null })
     .mockResolvedValueOnce({ data: { run: "operation" }, error: null });
-  expect(await preparePreliminary("version")).toEqual({ run: "operation" });
+  expect(await preparePreliminary("version")).toMatchObject({
+    run: "operation",
+    launchContext: {},
+  });
   expect(mocks.access).toHaveBeenCalledWith(true);
   expect(mocks.assignment).not.toHaveBeenCalled();
+  expect(mocks.context).toHaveBeenCalledTimes(2);
 });
 it("failed ownership never reads private review context", async () => {
   mocks.access.mockRejectedValue(new Error("Ownership unavailable"));

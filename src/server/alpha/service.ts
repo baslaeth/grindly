@@ -19,9 +19,32 @@ import { ServiceError } from "../errors";
 import { checklistVersion } from "@/alpha/checklists";
 import { localModelConfiguration } from "./local-model";
 import { modelReview, PreliminaryError } from "./provider";
+import { airdropAlertTypes } from "@/alpha/airdrop-events";
 export const alphaAction = z.union([
   alphaSubmission,
   outcomeAssessment,
+  z
+    .object({
+      action: z.literal("airdropPreferences"),
+      follow: z.uuid(),
+      types: z.array(z.enum(airdropAlertTypes)).max(5),
+      paused: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("airdropConfirm"),
+      event: z.uuid(),
+      confirm: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("airdropNotification"),
+      id: z.uuid(),
+      operation: z.enum(["acknowledge", "done"]),
+    })
+    .strict(),
   z
     .object({
       action: z.literal("appointReviewer"),
@@ -196,13 +219,42 @@ export async function preparePreliminary(version: string, local = false) {
     if (profile.error) throw profile.error;
     localModelConfiguration(profile.data.is_demo);
   }
-  return privateResult(
+  const context = privateResult(
     await db.rpc(local ? "alpha_begin_review" : "alpha_begin_sources", {
       p_member: active.member.id,
       p_binding: active.binding.id,
       p_version: version,
     }),
   ) as unknown as ReviewContext;
+  if (context.existing) return context;
+  if (local)
+    Object.assign(
+      context,
+      privateResult(
+        await db.rpc("alpha_source_context", {
+          p_member: active.member.id,
+          p_binding: active.binding.id,
+          p_version: version,
+        }),
+      ),
+    );
+  const terms = await db
+    .from("launch_submission_terms")
+    .select("context")
+    .eq("version_id", version)
+    .maybeSingle();
+  if (terms.error) throw terms.error;
+  context.launchContext = (terms.data?.context ?? {}) as Record<string, string>;
+  context.reviewedAt = new Date().toISOString();
+  const guide = await db
+    .from("airdrop_guides")
+    .select("details")
+    .eq("version_id", version)
+    .maybeSingle();
+  if (guide.error && guide.error.code !== "PGRST205") throw guide.error;
+  context.airdropGuide = guide.data
+    ?.details as unknown as ReviewContext["airdropGuide"];
+  return context;
 }
 export async function executeLocalReview(context: ReviewContext) {
   if (context.existing) return;
@@ -275,6 +327,34 @@ export async function executePreliminary(context: ReviewContext) {
 export async function alphaMutation(input: z.infer<typeof alphaAction>) {
   const active = await requireActiveMembership(true);
   const db = createDataClient();
+  if (input.action === "airdropPreferences")
+    return privateResult(
+      await db.rpc("airdrop_preferences", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_follow: input.follow,
+        p_types: input.types,
+        p_paused: input.paused,
+      }),
+    );
+  if (input.action === "airdropConfirm")
+    return privateResult(
+      await db.rpc("airdrop_confirm", {
+        p_actor: active.member.id,
+        p_binding: active.binding.id,
+        p_event: input.event,
+        p_confirm: input.confirm,
+      }),
+    );
+  if (input.action === "airdropNotification")
+    return privateResult(
+      await db.rpc("airdrop_notification_action", {
+        p_member: active.member.id,
+        p_binding: active.binding.id,
+        p_id: input.id,
+        p_action: input.operation,
+      }),
+    );
   if (input.action === "reverseWork")
     return privateResult(
       await db.rpc("launch_reverse_work", {

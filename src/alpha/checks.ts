@@ -1,5 +1,6 @@
 import type { AlphaVersion, CheckedSource } from "./model";
 import { categoryFields, reviewChecklist, unspecified } from "./checklists";
+import type { AirdropGuide } from "./airdrop";
 export type PriorCandidate = {
   id: string;
   claim: string;
@@ -12,6 +13,9 @@ export type PriorCandidate = {
   author_id?: string;
 };
 export type ReviewContext = {
+  launchContext?: Record<string, string>;
+  airdropGuide?: AirdropGuide;
+  reviewedAt?: string;
   existing: boolean;
   run: string;
   isDemo: boolean;
