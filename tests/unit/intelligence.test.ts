@@ -132,3 +132,40 @@ it("keeps saved analysis dated separately from newer source checks and a failed 
   expect(html).toContain("The latest source refresh failed");
   expect(html).toContain("AI analysis is not connected yet");
 });
+
+it.each(["running", "failed"])(
+  "retains the completed model result during a %s attempt",
+  (status) => {
+    const data = fixture();
+    data.localAIEnabled = true;
+    data.preliminary = [
+      {
+        id: "new",
+        version_id: "version",
+        status,
+        created_at: "2026-10-02T12:00:00Z",
+        sources: [],
+        checks: [],
+      },
+      {
+        id: "saved",
+        version_id: "version",
+        status: "complete",
+        created_at: "2026-10-01T12:00:00Z",
+        completed_at: "2026-10-01T12:00:01Z",
+        sources: [],
+        checks: [],
+      },
+    ] as unknown as ResearchData["preliminary"];
+    const html = renderToStaticMarkup(GrindIntelligence({ data }));
+    expect(html).toContain("Saved 2026-10-01 12:00:01 UTC");
+    expect(html).not.toContain("No completed AI analysis for this version");
+    expect(html).toContain(
+      status === "running"
+        ? "Analysis is running"
+        : "The latest analysis did not complete",
+    );
+    if (status === "running")
+      expect(html).not.toContain("Run fresh local analysis");
+  },
+);

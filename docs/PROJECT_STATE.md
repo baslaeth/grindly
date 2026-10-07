@@ -1,5 +1,23 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Public MVP polish (2026-10-07)
+
+See [mvp-polish.md](mvp-polish.md) and its [before/after browser evidence](mvp-polish-evidence/README.md).
+Five rank badges and one truthful progression summary replace fingerprint art
+and repeated balances. Home, receipts, evidence freshness, scoped review and
+campaign Following are clearer. Exact duplicate alpha text is collapsed without
+deleting evidence. Same-campaign alerts are grouped while preserving preferences.
+
+Public isolated guide -> receipt/reload -> source refresh -> saved local analysis
+-> separate sample reviewer -> one 50 XP event -> Follow -> Profile passed.
+The existing 75 sample XP is preserved; the author now has 125. No genuine awards,
+reviewer appointments, schema changes, token claims or upgrades. Actual local
+qwen3:4b testing found a personal-execution overstatement; guards were strengthened
+and old results preserved. This is not an accuracy benchmark. Public fresh AI is
+still disconnected; hosted daily monitoring is configured, with an authenticated
+no-due-work invocation verified, not a fabricated live event. Local dev uses
+localhost:3000. Release details and concrete limits are in the handoff.
+
 ## Public domain release (2026-10-07)
 
 Owner-authorized public deployment is live at **https://grindly.io** on the

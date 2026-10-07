@@ -7,7 +7,7 @@ export type GuideClaim = { text: string; field: string; original: string };
 function personalExecution(text: string, field?: string) {
   return (
     field === "tested" ||
-    /\b(?:I|we|my wallet|our wallet|your wallet|you)\s+(?:am |are |have |has |did |not |never |personally |successfully )*(?:eligible|qualified|qualify|received|claimed|tested|executed|completed|deposited|earned|perform)\b|\b(?:no|without)\s+(?:personal |actual )?(?:wallet (?:actions?|activity)|transactions?|personal execution)\b|\b(?:wallet actions?|transactions?|steps?)\s+(?:were |was |have been )?(?:not )?(?:performed|tested|executed)\b/i.test(
+    /\b(?:I|we|my wallet|our wallet|your wallet|you)\s+(?:am |are |have |has |did |not |never |personally |successfully )*(?:eligible|qualified|qualify|received|claimed|tested|executed|completed|deposited|earned|perform)\b|\b(?:no|without)\s+(?:personal |actual )?(?:wallet (?:actions?|activity|execution)|transactions?|personal execution)\b|\b(?:wallet actions?|transactions?|steps?)\s+(?:were |was |have been )?(?:not )?(?:performed|tested|executed)\b/i.test(
       text,
     )
   );

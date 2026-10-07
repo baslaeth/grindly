@@ -12,7 +12,7 @@ Baseline: `2fb6ce0`, branch `codex/category-alpha-review`.
 - [x] Separate saved model analysis from latest source checks; improve retries.
 - [x] Improve campaign monitoring clarity and compact Following / notifications.
 - [x] Verify local changes, then the signed-in public contribution journey.
-- [ ] Run checks, preserve unrelated assets, push, deploy and verify CI.
+- [x] Run checks, preserve unrelated assets, push, deploy and verify CI.
 
 ## Boundaries
 
@@ -50,8 +50,9 @@ original model and timestamps. Fresh source checks are not fresh model analysis.
   while preserving the model timestamp. No paid or cloud-model calls.
 - Local desktop and 390px mobile Profile inspected; no horizontal overflow.
   Full checks: 254 unit, 309 database, type drift, 11 contract tests and build;
-  foundation desktop/mobile suite: 52 passed. Final hosted verification follows
-  deployment and is recorded separately below.
+  foundation desktop/mobile suite: 52 passed. Two final regressions cover keeping
+  the earlier completed model result during running/failed attempts (256 unit
+  cases in the release check). Hosted verification is recorded below.
 
 ## Hosted walkthrough, October 7
 
@@ -64,6 +65,10 @@ original model and timestamps. Fresh source checks are not fresh model analysis.
 - Official source retrieved at 14:27:58 and explicitly refreshed at 14:29:55.
   A third actual qwen3:4b run on this guide completed locally at 14:32:12; the
   public website displays that saved result, not fresh hosted inference.
+  A fourth real run completed at 14:55:00, preserving supported signing, task-cap
+  and points facts while marking the personal wallet-execution declaration
+  Unknown. Previous cards and their source snapshots remain available. A new
+  attempt no longer hides the last completed result while running or failing.
   The overview now prioritizes published facts over generic instructions and
   withholds short extraction fragments; full saved claims remain inspectable.
 - Existing isolated risk reviewer signed in through the normal public OTP UI,
@@ -81,6 +86,11 @@ original model and timestamps. Fresh source checks are not fresh model analysis.
 - The on-site audit also removed exact duplicate alpha text, made assigned
   reviews expandable, and added a direct Intelligence link on saved alpha pages.
   Distinct claims, original evidence, decision history and old analyses remain.
+- Three intermediate code releases passed CI and were verified on grindly.io;
+  the final evidence release uses the same committed-source deployment script.
+  Deployment metadata `sourceCommit` and the remote branch SHA are checked after
+  publishing. Sanitized desktop/mobile captures are linked in
+  [the evidence index](mvp-polish-evidence/README.md).
 
 ## Practical limits and recording
 

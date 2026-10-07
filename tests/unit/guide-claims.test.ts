@@ -86,6 +86,7 @@ it("withholds self-reported non-execution from both fresh and historical support
     claims: [
       "No wallet actions were performed for this example.",
       "Only signed submissions count.",
+      "No personal wallet execution or rewards claimed.",
     ].map((claim) => ({
       claim,
       status: "supported",
@@ -105,6 +106,7 @@ it("withholds self-reported non-execution from both fresh and historical support
   guardGuideCard(card, context);
   expect(card.claims[0]?.status).toBe("unverified");
   expect(card.claims[1]?.status).toBe("supported");
+  expect(card.claims[2]?.status).toBe("unverified");
 });
 it("calculates calendar months only with an explicit timezone and rule", () => {
   expect(calendarDeadline("2024-02-20T12:00:00Z", 4)).toBe(

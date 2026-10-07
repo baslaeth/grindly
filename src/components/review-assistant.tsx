@@ -91,9 +91,11 @@ export function ReviewAssistant({
     const prior = data.versions.find((v) => v.id === hint.version);
     return prior && data.findings.some((f) => f.id === prior.finding_id);
   });
-  const old = data.preliminary
+  const analyses = data.preliminary
     ?.filter((r) => r.version_id === version)
-    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const latest = analyses?.[0];
+  const old = analyses?.find((r) => r.status === "complete") ?? latest;
   const sources = run?.sources ?? old?.sources ?? [];
   const versioned = data.checklistVersions?.find(
     (c) => c.version_id === version,
@@ -462,7 +464,7 @@ export function ReviewAssistant({
         )}
       </Question>
       <h4>AI analysis</h4>
-      {old?.status === "running" && (
+      {latest?.status === "running" && (
         <div className="analysis-freshness" role="status">
           <strong>Analysis is running</strong>
           <span>
@@ -471,6 +473,12 @@ export function ReviewAssistant({
           </span>
           <RefreshResearch label="Check analysis result" />
         </div>
+      )}
+      {latest && latest.id !== old?.id && latest.status !== "running" && (
+        <p className="notice">
+          The latest analysis did not complete. Your alpha and the earlier saved
+          result are preserved; no new conclusion was added.
+        </p>
       )}
       {a.category === "Airdrop Hunters" && data.localAIEnabled && (
         <p className="notice">
@@ -485,7 +493,7 @@ export function ReviewAssistant({
           : "AI analysis is not connected yet."}
       </p>
       {data.localAIEnabled &&
-        old?.status !== "running" &&
+        latest?.status !== "running" &&
         (f.author_id === data.memberId ||
           assigned?.reviewer_id === data.memberId) && (
           <AlphaAction

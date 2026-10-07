@@ -1,5 +1,32 @@
 # Actual verification
 
+## Public MVP polish - 2026-10-07
+
+- Inspected public Home, Bronze's ten rooms/chat, airdrop form, receipt, Grind
+  Intelligence, Review Desk, Following/notifications and Profile. Preserved
+  top-right Profile, navigation order, genuine data, permissions and XP policy.
+- Saved sample guide `3e2e025f-45f3-418c-872e-8666248a8062` through public browser
+  form; reloaded immutable receipt, refreshed real official Axis evidence,
+  followed it and inspected existing labeled historical alerts. Signed-out
+  access showed no private guide content.
+- Separate existing isolated risk reviewer logged in through OTP UI and accepted
+  within its pre-existing scope. One 50-XP work event verified in the ledger;
+  matching Activity, accepted history and 125 sample lifetime/available XP in
+  author's Profile. No genuine staffing, wallet transaction or outcome fabricated.
+- Real local qwen3:4b analyses, saved source timestamps and freshness warnings
+  exercised. A false-support execution declaration was found, guarded and rerun;
+  details in mvp-polish.md. Public AI remains disconnected from fresh inference.
+- Public authenticated monitor invocation returned 200 with no due sources;
+  no notification manufactured. Vercel deployment API confirms daily `0 5 * * *`
+  cron. First automatic hosted execution remains unobserved in this checkpoint.
+- Final functional checks: lint/types, 256 unit, 309 database, type drift,
+  11 contract tests and build passed; 52 foundation desktop/mobile E2E passed.
+  Signed-in browser walkthrough is separate evidence. No manual NFT transfer
+  test or fresh broad model-accuracy benchmark was performed.
+- Actual 390px mobile and wide desktop layouts checked. Sanitized public and
+  local [screenshots](mvp-polish-evidence/README.md) identify controlled samples.
+  Unrelated branding assets and existing local fixture/session files preserved.
+
 ## Public domain and hosted member journey - 2026-10-07
 
 - Explicit owner deployment authorization; source `eb67d32bcf692bf2997e017b6d13575e79cd2808`
