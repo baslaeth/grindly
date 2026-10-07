@@ -9,11 +9,10 @@ $sha = (git rev-parse HEAD).Trim()
 $release = Join-Path $repo ('.local/releases/' + $sha)
 if (Test-Path -LiteralPath $release) { throw 'Release directory already exists. Inspect it rather than overwriting it.' }
 New-Item -ItemType Directory -Path $release -Force | Out-Null
-$archive = Join-Path $repo ('.local/releases/' + $sha + '.tar')
-git archive --format=tar --output=$archive HEAD
+$archive = Join-Path $repo ('.local/releases/' + $sha + '.zip')
+git archive --format=zip --output=$archive HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Source archive failed.' }
-tar -xf $archive -C $release
-if ($LASTEXITCODE -ne 0) { throw 'Archive extraction failed.' }
+Expand-Archive -LiteralPath $archive -DestinationPath $release
 New-Item -ItemType Directory -Path (Join-Path $release '.vercel') | Out-Null
 Copy-Item -LiteralPath (Join-Path $repo '.vercel/project.json') -Destination (Join-Path $release '.vercel/project.json')
 $env:NODE_USE_SYSTEM_CA = '1'
