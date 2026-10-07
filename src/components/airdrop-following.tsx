@@ -56,7 +56,9 @@ export function AirdropFollowing({
           </h3>
           <p>
             Registered official pages only; changes need operator confirmation.
-            Local checks need this computer and scheduler running.
+            {data.monitoringSchedule === "hosted-daily"
+              ? "Hosted checks run daily. Check times can vary; alerts are not immediate."
+              : "Local checks need this computer and scheduler running."}
           </p>
           {data.airdropFollowing?.map((f) => (
             <article className="watch-row" key={f.followId}>

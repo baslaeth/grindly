@@ -161,6 +161,14 @@ it("keeps optional providers and local model disconnected without credentials/co
   expect(() => localModelConfiguration(true)).toThrow("not connected");
   expect(fetch).not.toHaveBeenCalled();
 });
+it("does not advertise loopback Ollama on hosted Vercel even with local configuration", () => {
+  vi.stubEnv("LOCAL_AI_APPROVAL", "all");
+  vi.stubEnv("OLLAMA_MODEL", "qwen3:4b");
+  vi.stubEnv("VERCEL", "1");
+  expect(() => localModelConfiguration(true)).toThrow("not connected");
+  vi.stubEnv("VERCEL", "");
+  expect(localModelConfiguration(true)).toEqual({ model: "qwen3:4b" });
+});
 it("does not redirect a devnet reference to mainnet or accept EVM keys for Solana", async () => {
   const fetch = vi.fn().mockResolvedValue(
     reply({
@@ -246,14 +254,12 @@ it("keeps configured optional-provider credentials out of persisted observations
 it("requires the exact Helius asset, without inferring ownership history or rank", async () => {
   vi.stubEnv("HELIUS_API_KEY", "isolated-helius-test-key");
   const mint = "So11111111111111111111111111111111111111112";
-  const fetch = vi
-    .fn()
-    .mockResolvedValue(
-      reply({
-        jsonrpc: "2.0",
-        result: { id: mint, interface: "FungibleToken" },
-      }),
-    );
+  const fetch = vi.fn().mockResolvedValue(
+    reply({
+      jsonrpc: "2.0",
+      result: { id: mint, interface: "FungibleToken" },
+    }),
+  );
   vi.stubGlobal("fetch", fetch);
   const result = await optionalAccountSource({
     ...a,

@@ -6,6 +6,7 @@ export function localModelConfiguration(isDemo: boolean) {
   const scope = process.env.LOCAL_AI_APPROVAL;
   const model = process.env.OLLAMA_MODEL;
   if (
+    process.env.VERCEL === "1" ||
     (scope !== "all" && !(scope === "demo" && isDemo)) ||
     !model ||
     !/^[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+$/.test(model) ||

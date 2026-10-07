@@ -78,6 +78,8 @@ export type SpaceMember = {
 };
 export type ResearchData = Snapshot & {
   memberId: string;
+  memberEmail?: string;
+  monitoringSchedule?: "hosted-daily" | "local";
   tiers: Record<string, string>;
   token: { id: string; contract: string; tier: string; mint: string | null };
 };

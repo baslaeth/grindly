@@ -994,6 +994,12 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
     <>
       <section className="section profile-intro">
         <h2>{profile?.display_name ?? "Your profile"}</h2>
+        {data.memberEmail && (
+          <p>
+            Signed in as {data.memberEmail}. Sign in again with an email code;
+            no password is needed.
+          </p>
+        )}
         <div className="progress-summary">
           <dl className="metrics">
             <div>

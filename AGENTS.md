@@ -10,6 +10,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Grindly Handoff
 
+Current public deployment authorization (2026-10-07): the owner explicitly requests
+the current site at `https://grindly.io` with HTTPS/authentication and a desktop
+walkthrough. This supersedes older no-production instructions for this release.
+See `docs/public-hosting.md`. Keep the existing Vercel project, Supabase data,
+testnet membership and local development environment. Public Ollama is disconnected;
+source checks and the configured hosted monitoring job are independent of AI.
+No new product economics, genuine reviewer appointments or paid AI are authorized.
+
 Latest reliability checkpoint: `docs/airdrop-reliability.md` and
 `docs/airdrop-reliability-evidence/README.md`, continuing reviewed `7d571bd`.
 026-032 were inspected, not replayed; additive 033 is SHARED-APPLIED with

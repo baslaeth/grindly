@@ -1,5 +1,13 @@
 # Setup and operations
 
+## Public domain (2026-10-07)
+
+The owner authorized publishing the current site at `https://grindly.io`.
+See [public-hosting.md](public-hosting.md) for the canonical domain, email-code
+authentication, hosted monitoring, local AI limitations and repeatable deployment
+command. This authorization supersedes the historical no-deployment notes below.
+Local development and `.env.local` remain separate from the production environment.
+
 ## Launch checkpoint operations (2026-10-06)
 
 The older instructions below describe historical deployed checkpoints. The

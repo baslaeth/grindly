@@ -11,6 +11,18 @@ const config: NextConfig = {
   experimental: { serverComponentsHmrCache: false },
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.grindly.io" }],
+        destination: "https://grindly.io/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "grindly-woad.vercel.app" }],
+        destination: "https://grindly.io/:path*",
+        permanent: true,
+      },
       { source: "/submit", destination: "/findings/new", permanent: true },
       {
         source: "/contribution",
