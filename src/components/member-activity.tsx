@@ -43,7 +43,9 @@ export function MemberActivity({
                 {a.kind === "outcome"
                   ? "Later outcome recorded"
                   : a.kind === "xp"
-                    ? a.xp !== null && a.xp < 0 ? `${Math.abs(a.xp)} XP loss recorded` : `${a.xp} XP awarded`
+                    ? a.xp !== null && a.xp < 0
+                      ? `${Math.abs(a.xp)} XP loss recorded`
+                      : `${a.xp} XP awarded`
                     : a.decision === "accept"
                       ? "Alpha accepted"
                       : a.decision === "reject"
@@ -51,7 +53,14 @@ export function MemberActivity({
                         : "Correction requested"}
               </strong>
               <span>
-                {data.versions.find((v) => v.finding_id === a.finding)?.claim ??
+                {data.alphas?.find(
+                  (alpha) =>
+                    alpha.version_id ===
+                    data.findings.find((f) => f.id === a.finding)
+                      ?.current_version,
+                )?.subject ??
+                  data.versions.find((v) => v.finding_id === a.finding)
+                    ?.claim ??
                   "View your contribution"}
               </span>
             </Link>

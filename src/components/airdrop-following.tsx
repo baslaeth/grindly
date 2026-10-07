@@ -36,13 +36,14 @@ export function AirdropFollowing({
     }
   }
   const labels: Record<string, string> = {
-    active: "Active: queued changes reviewed",
+    active: "Monitoring active: queued changes reviewed",
     not_checked: "Not checked",
-    no_confirmed_change: "Active: no new confirmed event",
+    no_confirmed_change: "Monitoring active: no new confirmed event",
     awaiting_confirmation: "Change awaiting confirmation",
     unavailable: "Source unavailable",
     paused: "Paused",
   };
+  const campaigns = Map.groupBy(data.airdropFollowing ?? [], (f) => f.campaign);
   return (
     <>
       {(data.airdropFollowing?.length ?? 0) > 0 && (
@@ -55,62 +56,98 @@ export function AirdropFollowing({
             <Bell size={18} /> Airdrop alerts
           </h3>
           <p>
-            Registered official pages only; changes need operator confirmation.
+            Registered official pages only; changes need operator confirmation.{" "}
             {data.monitoringSchedule === "hosted-daily"
               ? "Hosted checks run daily. Check times can vary; alerts are not immediate."
               : "Local checks need this computer and scheduler running."}
           </p>
-          {data.airdropFollowing?.map((f) => (
-            <article className="watch-row" key={f.followId}>
-              <strong>{f.name}</strong>
-              <p>{labels[f.status] ?? f.status}</p>
-              <p>
-                Last successful check: {when(f.lastSuccessAt)}. Next check:{" "}
-                {when(f.nextDue)}.
-              </p>
-              <a href={f.url} target="_blank" rel="noreferrer">
-                Official source
-              </a>
-              <details>
-                <summary>Choose important alerts</summary>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const fields = new FormData(e.currentTarget);
-                    void save({
-                      action: "airdropPreferences",
-                      follow: f.followId,
-                      types: fields.getAll("types"),
-                      paused: fields.get("paused") === "on",
-                    });
-                  }}
-                >
-                  {airdropAlertTypes.map((t) => (
-                    <label className="check-field" key={t}>
-                      <input
-                        type="checkbox"
-                        name="types"
-                        value={t}
-                        defaultChecked={f.types.includes(t)}
-                      />
-                      {airdropAlertLabels[t]}
-                    </label>
+          {[...campaigns.values()].map((follows) => {
+            const f = follows[0];
+            if (!f) return null;
+            return (
+              <article className="watch-row" key={f.campaign}>
+                <strong>{f.name}</strong>
+                <p className="status-label">
+                  {follows.every((f) => f.paused)
+                    ? "Alerts paused"
+                    : (labels[f.status] ?? f.status)}
+                </p>
+                <p>
+                  Last successful check: {when(f.lastSuccessAt)}. Source due:{" "}
+                  {when(f.nextDue)}.
+                </p>
+                <a href={f.url} target="_blank" rel="noreferrer">
+                  Official source
+                </a>
+                <details>
+                  <summary>
+                    Choose important alerts ({follows.length} followed{" "}
+                    {follows.length === 1 ? "guide" : "guides"})
+                  </summary>
+                  <p className="muted">
+                    This is source monitoring status, not proof the campaign or
+                    claim is open. Due sources are picked up by the next
+                    scheduled run.
+                  </p>
+                  {follows.map((f) => (
+                    <div key={f.followId} className="follow-preferences">
+                      <p>
+                        <strong>
+                          {data.alphas?.find(
+                            (a) =>
+                              a.version_id ===
+                              data.findings.find(
+                                (finding) =>
+                                  finding.id ===
+                                  data.follows?.find(
+                                    (follow) => follow.id === f.followId,
+                                  )?.finding_id,
+                              )?.current_version,
+                          )?.subject ?? "Followed guide"}
+                        </strong>
+                        {f.paused ? " · Paused" : ""}
+                      </p>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const fields = new FormData(e.currentTarget);
+                          void save({
+                            action: "airdropPreferences",
+                            follow: f.followId,
+                            types: fields.getAll("types"),
+                            paused: fields.get("paused") === "on",
+                          });
+                        }}
+                      >
+                        {airdropAlertTypes.map((t) => (
+                          <label className="check-field" key={t}>
+                            <input
+                              type="checkbox"
+                              name="types"
+                              value={t}
+                              defaultChecked={f.types.includes(t)}
+                            />
+                            {airdropAlertLabels[t]}
+                          </label>
+                        ))}
+                        <label className="check-field">
+                          <input
+                            type="checkbox"
+                            name="paused"
+                            defaultChecked={f.paused}
+                          />
+                          Pause these alerts
+                        </label>
+                        <button className="button secondary" disabled={busy}>
+                          Save alert preferences
+                        </button>
+                      </form>
+                    </div>
                   ))}
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      name="paused"
-                      defaultChecked={f.paused}
-                    />
-                    Pause these alerts
-                  </label>
-                  <button className="button secondary" disabled={busy}>
-                    Save alert preferences
-                  </button>
-                </form>
-              </details>
-            </article>
-          ))}
+                </details>
+              </article>
+            );
+          })}
         </section>
       )}
       {(data.airdropNotifications?.length ?? 0) > 0 && (
@@ -138,10 +175,6 @@ export function AirdropFollowing({
                       n.event.kind as keyof typeof airdropAlertLabels
                     ] ?? "Official update")}
               </h4>
-              <p className="muted">
-                Official announcement, confirmed by an operator. Not a personal
-                eligibility or live claim-availability check.
-              </p>
               <p>
                 <strong>Required action:</strong> {n.event.required_action}
               </p>
@@ -155,13 +188,19 @@ export function AirdropFollowing({
               </a>
               <details>
                 <summary>Evidence and dated history</summary>
+                <p className="muted">
+                  Official announcement, confirmed by an operator. Not a
+                  personal eligibility or live claim-availability check.
+                </p>
                 <blockquote>{n.event.passage}</blockquote>
                 <p>
                   Detected {when(n.event.detected_at)}. Availability observed:{" "}
                   {when(n.event.observed_available_at)}.
                 </p>
               </details>
-              <p>{n.status}</p>
+              <p className="status-label">
+                <Check size={14} aria-hidden="true" /> {n.status}
+              </p>
               {n.status !== "done" && (
                 <div className="form-actions">
                   {n.status === "unread" && (

@@ -7,7 +7,6 @@ import {
   ListChecks,
   FileText,
   ShieldCheck,
-  Fingerprint,
   MessagesSquare,
   Play,
   Pause,
@@ -47,7 +46,7 @@ const scenes = [
     title: "Build a history that stays yours.",
     detail:
       "Useful reviewed work earns attributable credit. Eligibility is not automatic promotion or payment.",
-    icon: Fingerprint,
+    icon: ShieldCheck,
     outcome: "Personal contribution history",
   },
   {

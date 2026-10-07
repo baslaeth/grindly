@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Screen } from "@/components/screen";
 import { launchPolicy as p } from "@/launch/policy";
+import { RankBadges } from "@/components/rank-progression";
 
 export const metadata = { title: "How XP and ranks work" };
 const examples = [
@@ -55,6 +56,7 @@ export default function XpGuide() {
   let total = 0;
   return (
     <Screen title="How XP and ranks work">
+      <RankBadges />
       <p>
         Share useful alpha in any category in your rank. Saving creates a
         record, not an award. An authorized independent reviewer checks

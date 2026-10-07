@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FilePlus2, ScanLine, Bell } from "lucide-react";
 import { Screen } from "@/components/screen";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { OpportunityManager } from "@/components/opportunity-manager";
@@ -67,8 +68,7 @@ export default async function Home({
     <Screen title="Home">
       {demo && (
         <p className="sample-label">
-          Isolated walkthrough account. Activity and XP here are test records,
-          not genuine member work.
+          Sample account: isolated contributions and XP.
         </p>
       )}
       <section className="home-intro">
@@ -91,57 +91,58 @@ export default async function Home({
           )}
         </div>
       </section>
-      <section className="section">
-        <h2>Earn credit for useful work</h2>
-        <p>
-          Share a find, guide, analysis, prediction, warning or update.
-          Independent review determines work credit; forecasts have separate
-          later outcomes.
-        </p>
-        <Link className="inline-link" href="/xp">
-          How XP and ranks work
-        </Link>
-      </section>
-      <section className="section">
-        <h2>Airdrop Hunters</h2>
-        <p>
-          Share a useful route, check official evidence, and follow important
-          campaign changes. Points, eligibility and an open claim are different
-          stages.
-        </p>
-        <div className="form-actions">
-          <Link
-            className="button secondary"
-            href={
-              data?.rooms?.find((r) => r.category === "Airdrop Hunters")
-                ? `/workbench?room=${data.rooms.find((r) => r.category === "Airdrop Hunters")!.id}`
-                : "/join"
-            }
-          >
-            Open Airdrop Hunters
+      <div className="home-journey" aria-label="Your contribution journey">
+        <section className="section">
+          <FilePlus2 size={22} aria-hidden="true" />
+          <h2>Share useful work</h2>
+          <p>
+            Bring a find, guide or analysis. Independent review determines work
+            credit; predictions have separate later outcomes.
+          </p>
+          <Link className="inline-link" href="/xp">
+            How XP and ranks work
           </Link>
+        </section>
+        <section className="section">
+          <Bell size={22} aria-hidden="true" />
+          <h2>Airdrop Hunters</h2>
+          <p>
+            Share a useful route, check official evidence, and follow important
+            campaign changes. Points, eligibility and an open claim are
+            different stages.
+          </p>
+          <div className="form-actions">
+            <Link
+              className="button secondary"
+              href={
+                data?.rooms?.find((r) => r.category === "Airdrop Hunters")
+                  ? `/workbench?room=${data.rooms.find((r) => r.category === "Airdrop Hunters")!.id}`
+                  : "/join"
+              }
+            >
+              Open Airdrop Hunters
+            </Link>
+          </div>
+        </section>
+        <section className="section">
+          <ScanLine size={22} aria-hidden="true" />
+          <h2>Grind Intelligence</h2>
+          <p>
+            Explore your alpha&apos;s checked sources, missing information,
+            earlier work and later outcomes. Source checks are not proof that a
+            claim is correct.
+          </p>
           <Link className="inline-link" href="/intelligence">
-            Check a saved guide
+            Explore Grind Intelligence
           </Link>
-        </div>
-      </section>
+        </section>
+      </div>
       {sample && (
         <p className="notice">
-          Separate sample experience. All cards here are fictional. No real
-          partnership, application, payment or claim.
+          Separate sample experience. Fictional cards, with no real partnership,
+          application, payment or claim.
         </p>
       )}
-      <section className="section">
-        <h2>Grind Intelligence</h2>
-        <p>
-          Explore your alpha&apos;s checked sources, missing information,
-          earlier work and later outcomes. Source checks are not proof that a
-          claim is correct.
-        </p>
-        <Link className="inline-link" href="/intelligence">
-          Explore Grind Intelligence
-        </Link>
-      </section>
       <section className="section">
         <div className="section-heading">
           <h2>{sample ? "Sample opportunities" : "Opportunities"}</h2>

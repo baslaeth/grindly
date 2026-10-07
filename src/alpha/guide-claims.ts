@@ -1,8 +1,17 @@
 import type { ReviewContext } from "./checks";
 import type { CheckedSource, ReviewCard } from "./model";
 
-export const guideAssessmentVersion = "2026-10-06.3";
+export const guideAssessmentVersion = "2026-10-07.1";
 export type GuideClaim = { text: string; field: string; original: string };
+
+function personalExecution(text: string, field?: string) {
+  return (
+    field === "tested" ||
+    /\b(?:I|we|my wallet|our wallet|your wallet|you)\s+(?:am |are |have |has |did |not |never |personally |successfully )*(?:eligible|qualified|qualify|received|claimed|tested|executed|completed|deposited|earned|perform)\b|\b(?:no|without)\s+(?:personal |actual )?(?:wallet (?:actions?|activity)|transactions?|personal execution)\b|\b(?:wallet actions?|transactions?|steps?)\s+(?:were |was |have been )?(?:not )?(?:performed|tested|executed)\b/i.test(
+      text,
+    )
+  );
+}
 
 // Split only explicit clause boundaries, retaining the unchanged source field.
 // This is bounded syntactic coverage, not a claim of semantic extraction accuracy.
@@ -53,10 +62,7 @@ export function guardGuideCard(
     claim.assessedAt = context.reviewedAt ?? null;
     // This adapter has no authenticated wallet/execution or live claim observation.
     // Official prose is categorically insufficient for these particular assertions.
-    const personal =
-      /\b(?:I|we|my wallet|our wallet|your wallet|you)\s+(?:am |are |have |has |personally |successfully )*(?:eligible|qualified|qualify|received|claimed|tested|executed|completed|deposited|earned)\b/i.test(
-        claim.claim,
-      );
+    const personal = personalExecution(claim.claim, claim.field);
     const current =
       /\b(?:claim|portal|campaign)\b.{0,50}\b(?:open|active|working|available|live)\s+(?:now|today|currently)\b|\bcurrently\s+(?:open|active|available)\b/i.test(
         claim.claim,
@@ -186,12 +192,19 @@ export function guardGuideCard(
 }
 
 export function guideOverview(card: ReviewCard | null | undefined) {
-  if (card?.assessmentVersion !== guideAssessmentVersion) return null;
+  if (
+    !card ||
+    ![guideAssessmentVersion, "2026-10-06.3"].includes(
+      card.assessmentVersion ?? "",
+    )
+  )
+    return null;
   return {
     supported: card.claims
       .filter(
         (c) =>
           c.status === "supported" &&
+          !personalExecution(c.claim, c.field) &&
           !/Codex.authored|Controlled example|no personal execution is claimed/i.test(
             c.claim,
           ),

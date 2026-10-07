@@ -90,3 +90,45 @@ it("an empty permitted snapshot has no actionable selector or fabricated example
   expect(html).toContain("disabled");
   expect(html).not.toContain("Isolated evidence example");
 });
+
+it("keeps saved analysis dated separately from newer source checks and a failed refresh", () => {
+  const data = fixture();
+  data.sourceChecks = [
+    {
+      id: "successful",
+      version_id: "version",
+      status: "complete",
+      created_at: "2026-10-02T12:00:00Z",
+      completed_at: "2026-10-02T12:00:01Z",
+      sources: [],
+      hints: [],
+      checks: [],
+    },
+    {
+      id: "failed",
+      version_id: "version",
+      status: "failed",
+      created_at: "2026-10-03T12:00:00Z",
+      completed_at: "2026-10-03T12:00:01Z",
+      sources: [],
+      hints: [],
+      checks: [],
+    },
+  ] as ResearchData["sourceChecks"];
+  data.preliminary = [
+    {
+      version_id: "version",
+      status: "complete",
+      created_at: "2026-10-01T12:00:00Z",
+      completed_at: "2026-10-01T12:00:01Z",
+      sources: [],
+      checks: [],
+    },
+  ] as unknown as ResearchData["preliminary"];
+  const html = renderToStaticMarkup(GrindIntelligence({ data }));
+  expect(html).toContain("Saved preliminary analysis");
+  expect(html).toContain("Saved 2026-10-01 12:00:01 UTC");
+  expect(html).toContain("Newer source checks are available below");
+  expect(html).toContain("The latest source refresh failed");
+  expect(html).toContain("AI analysis is not connected yet");
+});

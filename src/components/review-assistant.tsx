@@ -12,6 +12,7 @@ import { launchFields } from "@/launch/forms";
 import { launchEvidenceIssues } from "@/launch/evidence-summary";
 import { AlphaAction } from "./alpha-actions";
 import { SourceObservations } from "./source-observations";
+import { RefreshResearch } from "./research-forms";
 import { campaignDates, guideOverview } from "@/alpha/guide-claims";
 
 export const alphaTime = (s: string) =>
@@ -119,7 +120,7 @@ export function ReviewAssistant({
   );
   const decisions = data.decisions.filter((d) => d.version_id === version);
   const lastChecked =
-    runs.find((r) => r.completed_at)?.completed_at ?? old?.completed_at;
+    runs.find((r) => r.status === "complete")?.completed_at ?? null;
   const unknownSources = sources.filter((s) => s.status !== "retrieved").length;
   const specificIssues = terms ? launchEvidenceIssues(a, terms, sources) : [];
   const contradictions =
@@ -129,7 +130,8 @@ export function ReviewAssistant({
       : 0;
   const canRefresh =
     f.author_id === data.memberId || assigned?.reviewer_id === data.memberId;
-  const overview = guide ? guideOverview(old?.card) : null;
+  const overview =
+    guide && old?.status === "complete" ? guideOverview(old.card) : null;
   return (
     <section
       className="section review-assistant"
@@ -144,6 +146,35 @@ export function ReviewAssistant({
         Evidence checks help you and an independent reviewer assess this alpha.
         Retrieving a source does not establish that the claim is supported.
       </p>
+      <div className="analysis-freshness" role="status">
+        <strong>
+          {old?.status === "complete"
+            ? "Saved preliminary analysis"
+            : "No completed AI analysis for this version"}
+        </strong>
+        <span>
+          {old?.status === "complete" && old.completed_at
+            ? `Saved ${alphaTime(old.completed_at)}. `
+            : ""}
+          {data.localAIEnabled
+            ? "Local analysis is configured on this machine."
+            : "AI analysis is not connected yet."}
+        </span>
+        {old?.status === "complete" && (
+          <span>
+            Source refresh does not rerun this analysis.
+            {lastChecked && old.completed_at && lastChecked > old.completed_at
+              ? " Newer source checks are available below; the saved findings have not assessed them."
+              : ""}
+          </span>
+        )}
+        {runs[0]?.status === "failed" && (
+          <span>
+            The latest source refresh failed. Your alpha and earlier checks are
+            preserved.
+          </span>
+        )}
+      </div>
       {terms && (
         <div
           className="intelligence-overview"
@@ -301,37 +332,39 @@ export function ReviewAssistant({
           Explore in Grind Intelligence
         </Link>
       )}
-      <h4>Completeness and provenance</h4>
-      <p>
-        Saved {alphaTime(a.created_at)}.{" "}
-        {versioned
-          ? `Category checklist ${versioned.checklist}.`
-          : "Earlier submission: newer context questions may still need answers."}
-      </p>
-      <p>
-        {a.first_noticed
-          ? `First noticed ${alphaTime(a.first_noticed)} (self-reported).`
-          : "No self-reported first-noticed date."}{" "}
-        First in Grindly does not establish first discovery elsewhere.
-      </p>
-      {a.source_created_at && (
+      <details className="intelligence-question">
+        <summary>Completeness and provenance</summary>
         <p>
-          Original linked message: {alphaTime(a.source_created_at)}. Its
-          author&apos;s attribution is retained.
+          Saved {alphaTime(a.created_at)}.{" "}
+          {versioned
+            ? `Category checklist ${versioned.checklist}.`
+            : "Earlier submission: newer context questions may still need answers."}
         </p>
-      )}
-      <details>
-        <summary>Recorded checks</summary>
-        <ul>
-          {(
-            run?.checks ??
-            old?.checks ?? [
-              "Source checks have not completed yet. Your submission is saved.",
-            ]
-          ).map((c, i) => (
-            <li key={i}>{c}</li>
-          ))}
-        </ul>
+        <p>
+          {a.first_noticed
+            ? `First noticed ${alphaTime(a.first_noticed)} (self-reported).`
+            : "No self-reported first-noticed date."}{" "}
+          First in Grindly does not establish first discovery elsewhere.
+        </p>
+        {a.source_created_at && (
+          <p>
+            Original linked message: {alphaTime(a.source_created_at)}. Its
+            author&apos;s attribution is retained.
+          </p>
+        )}
+        <details>
+          <summary>Recorded checks</summary>
+          <ul>
+            {(
+              run?.checks ??
+              old?.checks ?? [
+                "Source checks have not completed yet. Your submission is saved.",
+              ]
+            ).map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </details>
       </details>
       <Question enabled={questions} title="What sources were checked?">
         <h4>Retrieved evidence</h4>
@@ -429,6 +462,16 @@ export function ReviewAssistant({
         )}
       </Question>
       <h4>AI analysis</h4>
+      {old?.status === "running" && (
+        <div className="analysis-freshness" role="status">
+          <strong>Analysis is running</strong>
+          <span>
+            Your alpha is saved. Check for the result when the local model
+            finishes.
+          </span>
+          <RefreshResearch label="Check analysis result" />
+        </div>
+      )}
       {a.category === "Airdrop Hunters" && data.localAIEnabled && (
         <p className="notice">
           Experimental local analysis can misread dates, overstate support and

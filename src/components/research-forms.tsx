@@ -596,14 +596,18 @@ export function ResearchForm({
     </form>
   );
 }
-export function RefreshResearch() {
+export function RefreshResearch({
+  label = "Refresh research",
+}: {
+  label?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
     <button
       className="button secondary icon-button"
-      title="Refresh research"
-      aria-label="Refresh research"
+      title={label}
+      aria-label={label}
       disabled={pending}
       aria-busy={pending}
       onClick={() => startTransition(() => router.refresh())}

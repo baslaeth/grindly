@@ -4,6 +4,7 @@ import { ServiceError } from "@/server/errors";
 import { getEnvironment } from "@/server/environment";
 import { reportFailure } from "@/server/diagnostics";
 import Link from "next/link";
+import { RefreshResearch } from "./research-forms";
 import { GrindIntelligence } from "./grind-intelligence";
 import {
   Workbench,
@@ -80,14 +81,18 @@ export async function ResearchScreen({
             <strong>
               {data?.localAIEnabled
                 ? "Local AI: preliminary, not independent verification."
-                : "AI analysis is not connected yet."}
+                : !data
+                  ? "AI analysis is not connected yet."
+                  : "Evidence, saved analysis and independent decisions."}
             </strong>{" "}
             Retrieved sources do not by themselves prove a claim.
           </p>
         </section>
       )}
       {data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
-        <p className="notice">Sample account: isolated contributions and XP.</p>
+        <p className="sample-label">
+          Sample account: isolated contributions and XP.
+        </p>
       )}
       {!data ? (
         unavailable ? (
@@ -98,9 +103,10 @@ export async function ResearchScreen({
         ) : denied ? (
           <MembershipRequired />
         ) : (
-          <p className="notice" role="alert">
+          <div className="notice" role="alert">
             Research or ownership check unavailable. Please reload to retry.
-          </p>
+            <RefreshResearch />
+          </div>
         )
       ) : view === "review" &&
         !data.roles.includes("reviewer") &&

@@ -824,24 +824,26 @@ export function AlphaForm({
             </p>
           </aside>
         )}
-        <div className="form-step">
-          {!launchActive && (
-            <Field
-              label="What did you find or conclude?"
-              name="claim"
-              value={version?.claim}
-              required
-            />
-          )}
-          {category !== "Airdrop Hunters" && (
-            <Field
-              label="Why does it matter to members?"
-              name="purpose"
-              value={av?.purpose}
-              required
-            />
-          )}
-        </div>
+        {(!launchActive || category !== "Airdrop Hunters") && (
+          <div className="form-step">
+            {!launchActive && (
+              <Field
+                label="What did you find or conclude?"
+                name="claim"
+                value={version?.claim}
+                required
+              />
+            )}
+            {category !== "Airdrop Hunters" && (
+              <Field
+                label="Why does it matter to members?"
+                name="purpose"
+                value={av?.purpose}
+                required
+              />
+            )}
+          </div>
+        )}
         <div className="form-step">
           <h3>Evidence</h3>
           <details open={category !== "Airdrop Hunters"}>

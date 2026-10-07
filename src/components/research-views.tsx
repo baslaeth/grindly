@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   Clock3,
   CircleAlert,
-  Fingerprint,
+  ShieldCheck,
 } from "lucide-react";
 import { WorkbenchSections } from "./workbench-sections";
 import { RoomChat } from "./room-chat";
@@ -17,7 +17,7 @@ import { AlphaForm } from "./alpha-form";
 import { AlphaDetails, CategoryHistory, SharedAlpha } from "./alpha-views";
 import { primaryFocus } from "@/alpha/checklists";
 import { DueOutcomes } from "./alpha-outcomes";
-import { nextRank } from "@/research/spaces";
+import { RankProgression } from "./rank-progression";
 import { MemberActivity } from "./member-activity";
 import { ResearchForm, RefreshResearch } from "./research-forms";
 import { RankSpace, MemberDirectory, profileHref } from "./rank-space";
@@ -31,7 +31,6 @@ import {
   type ResearchData,
 } from "@/research/model";
 import { illustration } from "@/research/illustration";
-import { launchPolicy } from "@/launch/policy";
 import { ReviewerAppointments } from "./reviewer-appointments";
 import { Watchlist } from "./watchlist";
 import { MonitorQueue } from "./monitor-queue";
@@ -71,12 +70,10 @@ function Identity({
       ) : (
         <strong>{person(data, id)}</strong>
       )}
-      {profile?.is_demo && (
-        <span className="sample-label">Illustrative QA persona</span>
-      )}
+      {profile?.is_demo && <span className="sample-label">Sample member</span>}
       <Specialty value={specialty ?? primaryFocus(profile) ?? ""} />
       <span className="rank-label">
-        <Fingerprint size={13} aria-hidden="true" />
+        <ShieldCheck size={13} aria-hidden="true" />
         {data.tiers[id] ?? "Membership not checked"}
       </span>
     </div>
@@ -523,7 +520,10 @@ export function FindingRecord({
     <>
       <section className="section">
         {receipt && (
-          <div className="notice" role="status">
+          <div className="save-receipt" role="status">
+            <p className="receipt-label">
+              <CheckCircle2 size={18} aria-hidden="true" /> Alpha saved
+            </p>
             <h2>
               {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
                 "Alpha saved"}
@@ -535,9 +535,9 @@ export function FindingRecord({
             </p>
             <p>
               {finding.visibility === "members"
-                ? "Shared with permitted members of your rank. Current review status is shown below."
+                ? "Shared with permitted members of your rank."
                 : "Visible to you and the permitted review team."}{" "}
-              Source or AI availability does not change this receipt.
+              Your record is safe even if source or AI checks are unavailable.
             </p>
             <Link
               className="button secondary"
@@ -547,11 +547,15 @@ export function FindingRecord({
             </Link>
           </div>
         )}
-        <Status value={finding.status} />
-        <h2 className="record-title">
-          {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
-            current.claim}
-        </h2>
+        {!receipt && (
+          <>
+            <Status value={finding.status} />
+            <h2 className="record-title">
+              {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
+                current.claim}
+            </h2>
+          </>
+        )}
         <details>
           <summary>Original action or claim</summary>
           <p>{current.claim}</p>
@@ -794,10 +798,11 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
   return (
     <>
       {data.launchAvailable && data.roles.includes("steward") && (
-        <ReviewerAppointments data={data} />
-      )}
-      {data.launchAvailable && data.roles.includes("steward") && (
-        <MonitorQueue data={data} />
+        <details className="operator-tools">
+          <summary>Operator tools: reviewers and monitoring</summary>
+          <ReviewerAppointments data={data} />
+          <MonitorQueue data={data} />
+        </details>
       )}
       {data.roles.includes("steward") && !data.launchAvailable && (
         <section className="section">
@@ -837,7 +842,9 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
                   className="inline-link"
                   href={`/findings/${v.finding_id}`}
                 >
-                  {v.claim} (v{v.version})
+                  {data.alphas?.find((alpha) => alpha.version_id === v.id)
+                    ?.subject ?? v.claim}{" "}
+                  (v{v.version})
                 </Link>
               </h3>
               <p className="decision-context">
@@ -986,143 +993,48 @@ function PeerRequests({ data }: { data: ResearchData }) {
 export function MembershipProgress({ data }: { data: ResearchData }) {
   const c = credit(data);
   const own = data.findings.filter((f) => f.author_id === data.memberId);
-  const accepted = own.filter((f) => f.status === "accepted");
   const profile = data.profiles.find((p) => p.member_id === data.memberId);
-  const next = nextRank(data.token.tier);
   const explorer = "https://explorer.testnet.chain.robinhood.com";
   return (
     <>
       <section className="section profile-intro">
-        <h2>{profile?.display_name ?? "Your profile"}</h2>
-        {data.memberEmail && (
-          <p>
-            Signed in as {data.memberEmail}. Sign in again with an email code;
-            no password is needed.
-          </p>
-        )}
-        <div className="progress-summary">
-          <dl className="metrics">
-            <div>
-              <dt>Current rank</dt>
-              <dd>{data.token.tier}</dd>
-            </div>
-            <div>
-              <dt>Available progression XP</dt>
-              <dd>{data.launchProgress?.available ?? "Unavailable"}</dd>
-            </div>
-            {next && (
-              <div>
-                <dt>Next: {next}</dt>
-                <dd>
-                  {launchPolicy.upgrade[
-                    data.token.tier as keyof typeof launchPolicy.upgrade
-                  ].toLocaleString("en-US")}{" "}
-                  XP
-                </dd>
-              </div>
-            )}
-          </dl>
-          {next && data.launchProgress && (
-            <>
-              <progress
-                aria-label={`Progress toward ${next}`}
-                max={
-                  launchPolicy.upgrade[
-                    data.token.tier as keyof typeof launchPolicy.upgrade
-                  ]
-                }
-                value={Math.max(
-                  0,
-                  Math.min(
-                    data.launchProgress.available,
-                    launchPolicy.upgrade[
-                      data.token.tier as keyof typeof launchPolicy.upgrade
-                    ],
-                  ),
-                )}
-              />
-              <p>
-                {Math.max(
-                  0,
-                  launchPolicy.upgrade[
-                    data.token.tier as keyof typeof launchPolicy.upgrade
-                  ] - data.launchProgress.available,
-                ).toLocaleString("en-US")}{" "}
-                XP remaining. Upgrade execution is inactive.
-              </p>
-            </>
-          )}
-        </div>
-        <p>{profile?.bio || "No bio shared yet."}</p>
-        <p>
-          {primaryFocus(profile) ??
-            "Choose your primary focus in Edit profile."}
-        </p>
-        {profile?.specialty &&
-          ![
-            "Whitelist Hunters",
-            "Airdrop Hunters",
-            "Presale Hunters",
-            "Degens",
-            "Traders",
-            "Project Analysts",
-            "Seed and Early Stage Investors",
-            "NFT Specialists",
-            "Meta Catchers",
-          ].includes(profile.specialty) && (
+        <div className="section-heading">
+          <div>
+            <h2>{profile?.display_name ?? "Your profile"}</h2>
             <p className="muted">
-              Legacy specialty: {specialtyLabel(profile.specialty)}. Earlier
+              {primaryFocus(profile) ??
+                "Choose your primary focus in Edit profile."}
+            </p>
+          </div>
+          <Link className="button secondary" href="/findings/new">
+            <FilePlus2 size={16} /> Submit alpha
+          </Link>
+        </div>
+        {profile?.bio && <p>{profile.bio}</p>}
+        <details>
+          <summary>Edit profile</summary>
+          {data.memberEmail && (
+            <p>
+              Signed in as {data.memberEmail}. Sign in again with an email code;
+              no password is needed.
+            </p>
+          )}
+          {profile?.specialty && (
+            <p className="muted">
+              Recorded specialty: {specialtyLabel(profile.specialty)}. Earlier
               attribution is preserved.
             </p>
           )}
-        <details>
-          <summary>Edit profile</summary>
           <ResearchForm kind="profile" data={data} />
         </details>
       </section>
-      <section className="section">
-        <p className="eyebrow">
-          Current membership /{" "}
-          {profile?.is_demo
-            ? "isolated test membership"
-            : "live ownership verified"}
-        </p>
-        <div className="membership-heading">
-          <Fingerprint aria-hidden="true" />
-          <div>
-            <h2>{data.token.tier}</h2>
-            <span className="muted">
-              Your access credential. Your history stays with you.
-            </span>
-          </div>
-        </div>
-        <div className="form-actions">
-          <a
-            className="inline-link"
-            href={`${explorer}/token/${data.token.contract}/instance/${data.token.id}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Token #{data.token.id}
+      <RankProgression data={data} />
+      <section className="section" aria-label="Your contribution credit">
+        <div className="section-heading">
+          <h2>Your contribution credit</h2>
+          <a className="inline-link" href="#following">
+            Following and updates
           </a>
-          <a
-            className="inline-link"
-            href={`${explorer}/address/${data.token.contract}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {data.token.contract}
-          </a>
-          {data.token.mint && (
-            <a
-              className="inline-link"
-              href={`${explorer}/tx/${data.token.mint}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Mint transaction
-            </a>
-          )}
         </div>
         <dl className="metrics">
           <div>
@@ -1130,173 +1042,81 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             <dd>{c.xp}</dd>
           </div>
           <div>
-            <dt>Seasonal points</dt>
-            <dd>{c.points}</dd>
-          </div>
-          <div>
             <dt>Accepted contributions</dt>
-            <dd>{accepted.length}</dd>
+            <dd>{own.filter((f) => f.status === "accepted").length}</dd>
           </div>
           {data.launchAllowance && (
-            <>
-              <div>
-                <dt>New alphas left today (UTC)</dt>
-                <dd>{data.launchAllowance.dailyRemaining}</dd>
-              </div>
-              <div>
-                <dt>Ordinary XP left this week (UTC)</dt>
-                <dd>{data.launchAllowance.weeklyRemaining}</dd>
-              </div>
-            </>
+            <div>
+              <dt>New alphas left today (UTC)</dt>
+              <dd>{data.launchAllowance.dailyRemaining}</dd>
+            </div>
           )}
         </dl>
-        <p className="muted">
-          Credit belongs to your member identity, not the transferable NFT. The
-          NFT retains its tier when sold; its buyer does not inherit your
-          personal XP, contributions or earned balances. No cash or token
-          conversion is promised.
-        </p>
-      </section>
-      <section className="section">
-        <h2>Your NFT progression</h2>
-        <Link className="inline-link" href="/xp">
-          How XP and ranks work
-        </Link>
-        <div className="tier-path">
-          <div>
-            <Fingerprint size={24} />
-            <strong>{data.token.tier}</strong>
-            <span>Current NFT</span>
-          </div>
-          {next && (
-            <>
-              <ArrowRight aria-hidden="true" />
-              <div>
-                <strong>{next}</strong>
-                <span>Next tier</span>
-              </div>
-            </>
-          )}
-        </div>
-        {next && data.launchAvailable && data.launchProgress ? (
-          <>
-            <dl className="metrics">
-              <div>
-                <dt>
-                  XP needed for {data.token.tier} → {next}
-                </dt>
-                <dd>
-                  {
-                    launchPolicy.upgrade[
-                      data.token.tier as keyof typeof launchPolicy.upgrade
-                    ]
-                  }
-                </dd>
-              </div>
-              <div>
-                <dt>
-                  {data.launchProgress.unreconciledHistory
-                    ? "Provisional progression XP"
-                    : "Unused progression XP"}
-                </dt>
-                <dd>{data.launchProgress.available}</dd>
-              </div>
-              <div>
-                <dt>Remaining XP for {next}</dt>
-                <dd>
-                  {Math.max(
-                    0,
-                    launchPolicy.upgrade[
-                      data.token.tier as keyof typeof launchPolicy.upgrade
-                    ] - data.launchProgress.available,
-                  )}
-                </dd>
-              </div>
-            </dl>
-            <details>
-              <summary>Progression accounting</summary>
-              <dl className="metrics">
-                <div>
-                  <dt>Already applied to upgrades</dt>
-                  <dd>{data.launchProgress.applied}</dd>
-                </div>
-                <div>
-                  <dt>Reserved for High predictions</dt>
-                  <dd>{data.launchProgress.reserved}</dd>
-                </div>
-              </dl>
-              <p>
-                Net earned progression minus applied XP and active reservations.
-                Losses can reduce available progress below zero. Completed
-                upgrades are not automatically reversed.
-              </p>
-            </details>
-            <p>
-              {data.launchProgress.unreconciledHistory
-                ? "An earlier NFT advancement has no recorded launch XP allocation. Reconcile that historical step before treating this amount as unused or reserving it for High predictions."
-                : data.launchProgress.available >=
-                    launchPolicy.upgrade[
-                      data.token.tier as keyof typeof launchPolicy.upgrade
-                    ]
-                  ? "XP requirement met. Upgrade execution remains inactive."
-                  : "More unused progression XP is needed for eligibility."}
-            </p>
-            <p>Token burn: To finalize. No upgrade transaction is available.</p>
-          </>
-        ) : next ? (
-          <dl className="metrics">
-            <div>
-              <dt>XP threshold</dt>
-              <dd>
-                {launchPolicy.upgrade[
-                  data.token.tier as keyof typeof launchPolicy.upgrade
-                ].toLocaleString("en-US")}
-              </dd>
-            </div>
-            <div>
-              <dt>Live available progression</dt>
-              <dd>Temporarily unavailable</dd>
-            </div>
-          </dl>
-        ) : (
-          <p>Diamond is the final rank. No further rank is configured.</p>
-        )}
-        <p>
-          Published XP requirements are shown above. Upgrade execution is
-          inactive until burn parameters and transaction integration are
-          implemented.
-        </p>
-        <p>
-          Silver members can initiate a peer request for complementary
-          expertise.
-        </p>
-        <p className="muted">
-          Personal XP and delegated NFT progress are separate. No delegated
-          credit or current delegates are recorded for this account.
-        </p>
-        {profile?.is_demo && !data.launchAvailable ? (
-          <details>
-            <summary>Evaluation award policy</summary>
-            <p>
-              Existing illustrative policy: {data.policy.acceptance_xp} XP and{" "}
-              {data.policy.acceptance_points} seasonal points on the first
-              accepted version. Corrections, messages and reactions do not
-              duplicate this award. Production economics remain to finalize.
-            </p>
-          </details>
-        ) : (
+        <details>
+          <summary>Limits, points and NFT details</summary>
           <p>
-            Reviewed work and outcomes follow the recorded launch policy. XP is
-            not a token balance or claim.
+            Seasonal points: {c.points}.{" "}
+            {data.launchAllowance && (
+              <>
+                Ordinary XP left this week (UTC):{" "}
+                {data.launchAllowance.weeklyRemaining}.
+              </>
+            )}
           </p>
-        )}
-      </section>
-      <section className="section">
-        <h2>Claim $GRIND</h2>
-        <button className="button" disabled aria-describedby="claims-inactive">
-          Claim $GRIND
-        </button>
-        <p id="claims-inactive">Claims are not active yet.</p>
+          <p>
+            Current membership:{" "}
+            {profile?.is_demo
+              ? "isolated test membership"
+              : "live ownership verified"}
+            .
+          </p>
+          <div className="form-actions">
+            <a
+              className="inline-link"
+              href={`${explorer}/token/${data.token.contract}/instance/${data.token.id}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Token #{data.token.id}
+            </a>
+            <a
+              className="inline-link"
+              href={`${explorer}/address/${data.token.contract}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Membership contract
+            </a>
+            {data.token.mint && (
+              <a
+                className="inline-link"
+                href={`${explorer}/tx/${data.token.mint}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Mint transaction
+              </a>
+            )}
+          </div>
+          <p>
+            Robinhood Chain testnet. XP is not a token balance or claim.
+            Personal XP and delegated NFT progress are separate; no delegated
+            credit or current delegates are recorded for this account.
+          </p>
+        </details>
+        <div className="claim-inactive">
+          <div>
+            <h3>Claim $GRIND</h3>
+            <p id="claims-inactive">Claims are not active yet.</p>
+          </div>
+          <button
+            className="button"
+            disabled
+            aria-describedby="claims-inactive"
+          >
+            Claim $GRIND
+          </button>
+        </div>
       </section>
       <MemberActivity data={data} />
       <Watchlist data={data} />
@@ -1307,18 +1127,20 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           Personal XP includes your recorded lifetime credit. Other-rank records
           remain preserved but are not exposed in this space.
         </p>
-        {!own.length && (
-          <p>Your first contribution starts with an evidence gap.</p>
-        )}
-        {own.map((f) => (
-          <p key={f.id}>
-            <Status value={f.status} />{" "}
-            <Link className="inline-link" href={`/findings/${f.id}`}>
-              {data.versions.find((v) => v.id === f.current_version)?.claim}
-            </Link>
-          </p>
-        ))}
-        <Link className="button" href="/workbench">
+        {!own.length && <p>Share your first useful find, guide or analysis.</p>}
+        <ul className="contribution-history">
+          {own.map((f) => (
+            <li key={f.id}>
+              <Status value={f.status} />
+              <Link className="inline-link" href={`/findings/${f.id}`}>
+                {data.alphas?.find((a) => a.version_id === f.current_version)
+                  ?.subject ??
+                  data.versions.find((v) => v.id === f.current_version)?.claim}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link className="button secondary" href="/workbench">
           Return to Hub
           <ArrowRight size={16} />
         </Link>

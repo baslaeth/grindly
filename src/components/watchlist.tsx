@@ -151,6 +151,11 @@ export function Watchlist({ data }: { data: ResearchData }) {
         const latest = data.notifications?.find(
           (n) => n.follow_id === follow.id && n.kind === "material_change",
         );
+        const campaignLatest = data.airdropNotifications
+          ?.filter((n) => n.event.campaign_id === campaign?.campaign)
+          .sort((a, b) =>
+            b.event.detected_at.localeCompare(a.event.detected_at),
+          )[0];
         const confirmedLatest =
           coverage?.status === "change_queued" &&
           latest &&
@@ -186,7 +191,19 @@ export function Watchlist({ data }: { data: ResearchData }) {
                 ? ` Deadline ${when(follow.deadline)}.`
                 : " No deadline recorded."}
             </p>
-            <p>Latest material change: {latest?.detail ?? "None confirmed."}</p>
+            <p>
+              Latest material change:{" "}
+              {campaignLatest ? (
+                <a className="inline-link" href="#airdrop-updates">
+                  {campaignLatest.event.is_demo
+                    ? "Sample announcement replay"
+                    : "Confirmed campaign update"}{" "}
+                  · {when(campaignLatest.event.detected_at)}
+                </a>
+              ) : (
+                (latest?.detail ?? "None confirmed.")
+              )}
+            </p>
             <p>
               Source coverage:{" "}
               {campaign

@@ -77,6 +77,35 @@ it("never repurposes publication/retrieval/opening as closure or observed availa
   expect(facts.find((f) => f.kind === "closure")?.value).toBeNull();
   expect(facts.find((f) => f.kind === "availability")?.value).toBeNull();
 });
+
+it("withholds self-reported non-execution from both fresh and historical supported overviews", () => {
+  const context = wholeContext(wholeCases[0]!);
+  const card = {
+    assessmentVersion: "2026-10-06.3",
+    summary: "Retained experimental history",
+    claims: [
+      "No wallet actions were performed for this example.",
+      "Only signed submissions count.",
+    ].map((claim) => ({
+      claim,
+      status: "supported",
+      reason: "Official source",
+      sources: [],
+      evidenceLinks: [],
+    })),
+    missingEvidence: [],
+    riskQuestions: [],
+    priorWork: [],
+    nextCheck: "Inspect source",
+  } as ReviewCard;
+  expect(guideOverview(card)?.supported.map((c) => c.claim)).toEqual([
+    "Only signed submissions count.",
+  ]);
+  expect(card.claims[0]?.status).toBe("supported");
+  guardGuideCard(card, context);
+  expect(card.claims[0]?.status).toBe("unverified");
+  expect(card.claims[1]?.status).toBe("supported");
+});
 it("calculates calendar months only with an explicit timezone and rule", () => {
   expect(calendarDeadline("2024-02-20T12:00:00Z", 4)).toBe(
     "2024-06-20T12:00:00.000Z",

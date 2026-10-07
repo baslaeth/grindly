@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Users, ArrowRight, Fingerprint, Hash } from "lucide-react";
+import { Users, ArrowRight, ShieldCheck, Hash } from "lucide-react";
 import {
   credit,
   profileHistory,
@@ -201,7 +201,7 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
       </p>
       <section className="section">
         <h3>
-          <Fingerprint size={18} /> {example?.rank ?? member!.tier} NFT
+          <ShieldCheck size={18} /> {example?.rank ?? member!.tier} NFT
         </h3>
         {member ? (
           <a
