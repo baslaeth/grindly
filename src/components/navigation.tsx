@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   ArrowRightToLine,
-  Send,
+  Share2,
   LayoutDashboard,
   ListChecks,
   Menu,
@@ -18,7 +18,7 @@ import { clearChatDrafts } from "@/chat/drafts";
 const icons = {
   join: ArrowRightToLine,
   workbench: LayoutDashboard,
-  submit: Send,
+  submit: Share2,
   review: ListChecks,
 };
 
@@ -30,7 +30,6 @@ export function Navigation({
   reviewer?: boolean;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const logout = (event: StorageEvent) => {
@@ -81,24 +80,26 @@ export function Navigation({
           );
         })}
       </nav>
-      {signedIn && (
-        <button
-          type="button"
-          className="nav-signout"
-          onClick={async () => {
-            const response = await fetch("/api/auth/signout", {
-              method: "POST",
-            });
-            if (response.ok) {
-              clearChatDrafts();
-              router.push("/");
-              router.refresh();
-            }
-          }}
-        >
-          Sign out
-        </button>
-      )}
     </div>
+  );
+}
+
+export function SignOut() {
+  const router = useRouter();
+  return (
+    <button
+      type="button"
+      className="nav-signout"
+      onClick={async () => {
+        const response = await fetch("/api/auth/signout", { method: "POST" });
+        if (response.ok) {
+          clearChatDrafts();
+          router.push("/");
+          router.refresh();
+        }
+      }}
+    >
+      Sign out
+    </button>
   );
 }

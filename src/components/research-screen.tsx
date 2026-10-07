@@ -89,11 +89,12 @@ export async function ResearchScreen({
           </p>
         </section>
       )}
-      {data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
-        <p className="sample-label">
-          Sample account: isolated contributions and XP.
-        </p>
-      )}
+      {view !== "workbench" &&
+        data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
+          <p className="sample-label">
+            Sample account: isolated contributions and XP.
+          </p>
+        )}
       {!data ? (
         unavailable ? (
           <p className="notice" role="alert">

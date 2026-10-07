@@ -36,11 +36,14 @@ test("annotated shell has concise labels, profile shortcut and unchanged access 
   ).toBeVisible();
   await expect(
     page.getByText("Testnet assets have no monetary value."),
-  ).toBeVisible();
+  ).toHaveCount(0);
   const toggle = page.getByRole("button", { name: "Open navigation" });
   const mobile = await toggle.isVisible();
   if (mobile) await toggle.click();
   const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(
+    nav.locator('a[href="/findings/new"] .lucide-share-2'),
+  ).toHaveCount(1);
   for (const [label, href] of [
     ["Home", "/"],
     ["Sign in", "/join"],

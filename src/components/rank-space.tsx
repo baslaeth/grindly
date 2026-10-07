@@ -414,7 +414,6 @@ export function RankSpace({
     <>
       <header className="rank-space-heading">
         <div>
-          <p className="eyebrow">{data.token.tier} space</p>
           <h2>{data.question.category}</h2>
           <p className="member-count" aria-label="Current rank member count">
             {genuineCount} {genuineCount === 1 ? "member" : "members"}
@@ -451,9 +450,6 @@ export function RankSpace({
               </Link>
             ))}
           </nav>
-          <p className="muted">
-            Specialties do not restrict rooms within your rank.
-          </p>
         </aside>
         <div className="room-content">
           <RoomSelector rooms={data.rooms ?? []} selected={data.question.id} />

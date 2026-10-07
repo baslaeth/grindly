@@ -1,5 +1,11 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Hub annotations (2026-10-07)
+
+Removed the marked Hub labels and global footer, changed the sidebar submission
+icon, and placed sign-out beneath Robinhood Chain, including the expanded mobile
+menu. No permission or record changes. See [evidence](hub-annotations/README.md).
+
 ## Home annotations (2026-10-07)
 
 The owner's nine Home annotations remove the duplicate footer logo, intro and

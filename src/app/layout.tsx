@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CircleUserRound } from "lucide-react";
-import { Navigation } from "@/components/navigation";
+import { Navigation, SignOut } from "@/components/navigation";
 import { navigationContext } from "@/server/navigation";
 import "./globals.css";
 
@@ -52,6 +52,7 @@ export default async function RootLayout({
                   height={20}
                 />
               </a>
+              {navigation.signedIn && <SignOut />}
             </div>
           </aside>
           <div className="main-column">
@@ -68,7 +69,6 @@ export default async function RootLayout({
             <main id="main" tabIndex={-1}>
               {children}
             </main>
-            <footer>Testnet assets have no monetary value.</footer>
           </div>
         </div>
       </body>
