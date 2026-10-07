@@ -10,11 +10,11 @@ vi.mock("next/navigation", () => ({
 }));
 import RootLayout from "@/app/layout";
 
-it("places one signed-in logout after the network link and removes the global footer", async () => {
+it("places one signed-in logout before the network link and removes the global footer", async () => {
   session.signedIn = true;
   const html = renderToStaticMarkup(await RootLayout({ children: "Hub" }));
   expect(html.match(/Sign out/g)).toHaveLength(1);
-  expect(html.indexOf('class="nav-signout"')).toBeGreaterThan(
+  expect(html.indexOf('class="nav-signout"')).toBeLessThan(
     html.indexOf('alt="Robinhood Chain"'),
   );
   expect(html).not.toContain("<footer");

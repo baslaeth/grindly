@@ -469,22 +469,6 @@ export function FindingEditor({
             versionId={revise}
           />
         )}
-        <aside className="editor-aside">
-          <h3>From contribution to credit</h3>
-          <ol>
-            <li>A submitted version is a record, not accepted evidence.</li>
-            <li>
-              An assigned independent reviewer checks its scope and limitations.
-            </li>
-            <li>
-              Credit requires an approved award rule. Corrections retain the
-              earlier history.
-            </li>
-          </ol>
-          <Link className="inline-link" href="/workbench">
-            Return to Hub
-          </Link>
-        </aside>
       </div>
     </section>
   );
@@ -1014,18 +998,6 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
   return (
     <>
       <section className="section profile-intro">
-        <div className="section-heading">
-          <div>
-            <h2>{profile?.display_name ?? "Your profile"}</h2>
-            <p className="muted">
-              {primaryFocus(profile) ??
-                "Choose your primary focus in Edit profile."}
-            </p>
-          </div>
-          <Link className="button secondary" href="/findings/new">
-            <FilePlus2 size={16} /> Submit alpha
-          </Link>
-        </div>
         {profile?.bio && <p>{profile.bio}</p>}
         <details>
           <summary>Edit profile</summary>

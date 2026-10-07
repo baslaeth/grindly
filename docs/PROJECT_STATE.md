@@ -1,5 +1,11 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Member-page annotations (2026-10-07)
+
+Applied the submission, Intelligence, Review Desk and Profile cleanup. Sign out
+now sits above Robinhood Chain, superseding the previous annotation. Identity,
+sample metadata and accounting remain unchanged. See [evidence](member-annotations/README.md).
+
 ## Hub annotations (2026-10-07)
 
 Removed the marked Hub labels and global footer, changed the sidebar submission

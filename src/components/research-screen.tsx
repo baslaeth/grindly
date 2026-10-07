@@ -69,27 +69,19 @@ export async function ResearchScreen({
     }
   return (
     <Screen title={title}>
-      {view === "intelligence" && (
+      {view === "intelligence" && !data && (
         <section className="intelligence-intro">
-          {!data && (
-            <p>
-              Follow the evidence behind an alpha: checked sources, unanswered
-              questions, earlier contributions and later observations.
-            </p>
-          )}
           <p>
-            <strong>
-              {data?.localAIEnabled
-                ? "Local AI: preliminary, not independent verification."
-                : !data
-                  ? "AI analysis is not connected yet."
-                  : "Evidence, saved analysis and independent decisions."}
-            </strong>{" "}
+            Follow the evidence behind an alpha: checked sources, unanswered
+            questions, earlier contributions and later observations.
+          </p>
+          <p>
+            <strong>AI analysis is not connected yet.</strong>{" "}
             Retrieved sources do not by themselves prove a claim.
           </p>
         </section>
       )}
-      {view !== "workbench" &&
+      {view === "record" &&
         data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
           <p className="sample-label">
             Sample account: isolated contributions and XP.

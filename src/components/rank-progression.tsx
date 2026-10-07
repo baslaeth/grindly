@@ -28,9 +28,7 @@ export function RankBadges({ current }: { current?: string }) {
               <Icon size={28} strokeWidth={1.7} aria-hidden="true" />
             </span>
             <strong>{rank}</strong>
-            <span>
-              {rank === current ? "Your current rank" : "10 rank-only rooms"}
-            </span>
+            {rank === current && <span>Your current rank</span>}
           </li>
         );
       })}
@@ -103,11 +101,6 @@ export function RankProgression({ data }: { data: ResearchData }) {
         </p>
       )}
       <RankBadges current={rank} />
-      <p className="rank-utility">
-        Every rank includes its own ten rooms. Share in any category, inspect
-        permitted evidence and follow opportunities you qualify for. Silver
-        members can initiate scoped peer requests.
-      </p>
       <details>
         <summary>Progression accounting and membership rules</summary>
         {progress && (

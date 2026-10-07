@@ -39,6 +39,7 @@ export default async function RootLayout({
               className="network"
               aria-label="Grindly on Robinhood Chain testnet"
             >
+              {navigation.signedIn && <SignOut />}
               <a
                 href="https://docs.robinhood.com/chain/"
                 title="Robinhood Chain testnet"
@@ -52,7 +53,6 @@ export default async function RootLayout({
                   height={20}
                 />
               </a>
-              {navigation.signedIn && <SignOut />}
             </div>
           </aside>
           <div className="main-column">

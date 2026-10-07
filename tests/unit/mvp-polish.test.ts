@@ -31,6 +31,8 @@ it("shows five ranks, one current rank, the approved threshold and inactive exec
   expect(html).toContain("1,500 XP");
   expect(html).toContain("1,425 XP remaining");
   expect(html).toContain("Upgrade execution is inactive");
+  expect(html).not.toContain("10 rank-only rooms");
+  expect(html).not.toContain("Every rank includes its own ten rooms");
 });
 it("preserves signed losses and never invents a Diamond next tier", () => {
   const negative = renderToStaticMarkup(
