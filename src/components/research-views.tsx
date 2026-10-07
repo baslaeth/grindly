@@ -633,10 +633,17 @@ export function FindingRecord({
               value={v.id === current.id ? finding.status : "Superseded"}
             />
           </div>
-          <p>{v.claim}</p>
+          {v.claim !== v.addition && <p>{v.claim}</p>}
           <h3>Contributor&apos;s addition</h3>
           <p className="preserve-lines">{v.addition}</p>
-          <SourceLinks value={v.sources} />
+          {data.alphas?.some((a) => a.version_id === v.id) ? (
+            <details>
+              <summary>Original source references</summary>
+              <SourceLinks value={v.sources} />
+            </details>
+          ) : (
+            <SourceLinks value={v.sources} />
+          )}
           <p>
             <strong>Limitations:</strong> {v.limitations}
           </p>

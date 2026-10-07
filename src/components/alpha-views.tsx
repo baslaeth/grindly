@@ -22,21 +22,64 @@ export function AlphaDetails({
   const f = data.findings.find((f) => f.id === v?.finding_id);
   const terms = data.launchTerms?.find((t) => t.version_id === version);
   const watch = data.follows?.find((item) => item.finding_id === f?.id);
-  const workXp = data.launchXp?.filter((event) => event.finding_id === f?.id && ["work", "reversal"].includes(event.kind)).reduce((sum, event) => sum + event.xp, 0) ?? 0;
+  const workXp =
+    data.launchXp
+      ?.filter(
+        (event) =>
+          event.finding_id === f?.id &&
+          ["work", "reversal"].includes(event.kind),
+      )
+      .reduce((sum, event) => sum + event.xp, 0) ?? 0;
   return (
     <div className="alpha-detail">
       <p>
         <strong>{a.category}</strong> / {contributionTypes[a.contribution_type]}
       </p>
-      <p>{a.purpose}</p>
-      {terms && <>
-        <p><strong>{terms.opportunity}</strong> / {terms.useful_action}</p>
-        <p>Main cost or risk: {terms.cost_or_risk}</p>
-        <p>Reviewed work XP: {workXp}. {terms.prediction ? terms.prediction_validated ? "Prediction terms registered; outcome separate." : "Prediction unvalidated; no outcome XP until requirements are met." : "No prediction attached."}</p>
-        {f && <AlphaFollow finding={f.id} deadline={a.horizon} followed={!!watch} participated={watch?.participated ?? false} />}
-        {data.launchReviewable?.includes(version) && data.launchXp?.filter((event) => event.version_id === version && event.kind === "work" && event.xp > 0 && !data.launchXp?.some((reversal) => reversal.kind === "reversal" && reversal.basis_id === event.id)).map((event) =>
-          <ReverseWorkAward key={event.id} award={event.id} />)}
-      </>}
+      {a.purpose !== v?.claim && a.purpose !== v?.addition && (
+        <p>{a.purpose}</p>
+      )}
+      {terms && (
+        <>
+          {![v?.claim, v?.addition, a.purpose].includes(
+            terms.useful_action,
+          ) && <p>{terms.useful_action}</p>}
+          {terms.cost_or_risk !== v?.limitations && (
+            <p>Main cost or risk: {terms.cost_or_risk}</p>
+          )}
+          <p>
+            Reviewed work XP: {workXp}.{" "}
+            {terms.prediction
+              ? terms.prediction_validated
+                ? "Prediction terms registered; outcome separate."
+                : "Prediction unvalidated; no outcome XP until requirements are met."
+              : "No prediction attached."}
+          </p>
+          {f && (
+            <AlphaFollow
+              finding={f.id}
+              deadline={a.horizon}
+              followed={!!watch}
+              participated={watch?.participated ?? false}
+            />
+          )}
+          {data.launchReviewable?.includes(version) &&
+            data.launchXp
+              ?.filter(
+                (event) =>
+                  event.version_id === version &&
+                  event.kind === "work" &&
+                  event.xp > 0 &&
+                  !data.launchXp?.some(
+                    (reversal) =>
+                      reversal.kind === "reversal" &&
+                      reversal.basis_id === event.id,
+                  ),
+              )
+              .map((event) => (
+                <ReverseWorkAward key={event.id} award={event.id} />
+              ))}
+        </>
+      )}
       <h3>Evidence references</h3>
       <ul className="source-list">
         {a.evidence.map((e, i) => (
@@ -89,7 +132,7 @@ export function AlphaDetails({
             ))}
         </dl>
       </details>
-      <ReviewAssistant data={data} version={version} />
+      <ReviewAssistant data={data} version={version} questions />
       {data.creditStates?.some(
         (c) =>
           c.version_id === version && c.status === "blocked_no_approved_rule",
@@ -151,7 +194,9 @@ export function SharedAlpha({ data }: { data: ResearchData }) {
               : f.status.replaceAll("_", " ")}
           </span>{" "}
           <Link href={`/findings/${f.id}`}>
-            {data.versions.find((v) => v.id === f.current_version)?.claim}
+            {data.alphas?.find((a) => a.version_id === f.current_version)
+              ?.subject ??
+              data.versions.find((v) => v.id === f.current_version)?.claim}
           </Link>{" "}
           / {person(data, f.author_id)}
         </p>
