@@ -39,14 +39,6 @@ export default async function RootLayout({
               className="network"
               aria-label="Grindly on Robinhood Chain testnet"
             >
-              <Link href="/" title="Grindly">
-                <Image
-                  src="/brand/grindly/grindly-logo.svg"
-                  alt="Grindly"
-                  width={28}
-                  height={28}
-                />
-              </Link>
               <a
                 href="https://docs.robinhood.com/chain/"
                 title="Robinhood Chain testnet"

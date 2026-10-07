@@ -205,11 +205,9 @@ test("two isolated members exchange persistent chat, media, replies and reaction
     const peer = await b.context.newPage();
     diagnostics = observe(page);
     const token = `Sample exchange ${Date.now()}`;
-    await page.goto("/");
-    await page.getByRole("link", { name: "Enter Hub", exact: true }).click();
+    await page.goto("/workbench");
     await chooseRoom(page, "Traders");
-    await peer.goto("/");
-    await peer.getByRole("link", { name: "Enter Hub", exact: true }).click();
+    await peer.goto("/workbench");
     await chooseRoom(peer, "Traders");
     await expect(
       page.getByRole("navigation", { name: /Silver rooms/ }),
@@ -472,10 +470,7 @@ test("room routing, drafts, failed-send retry, edit/delete and sample opportunit
       "Message deleted",
       { timeout: 20000 },
     );
-    await page.goto("/");
-    await page
-      .getByRole("link", { name: "Explore sample opportunities" })
-      .click();
+    await page.goto("/?sample=1");
     const cards = page.locator(".opportunity-card");
     await expect(cards).toHaveCount(3, { timeout: 20000 });
     const roundtable = cards.filter({

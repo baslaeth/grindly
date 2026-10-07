@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FilePlus2, ScanLine, Bell } from "lucide-react";
+import { FilePlus2, ScanLine, PackageOpen } from "lucide-react";
 import { Screen } from "@/components/screen";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { OpportunityManager } from "@/components/opportunity-manager";
@@ -66,51 +66,17 @@ export default async function Home({
     ?.is_demo;
   return (
     <Screen title="Home">
-      {demo && (
-        <p className="sample-label">
-          Sample account: isolated contributions and XP.
-        </p>
-      )}
-      <section className="home-intro">
-        <h2>
-          Contribute where you have an edge.
-          <br />
-          Get help where you don&apos;t.
-        </h2>
-        <div className="form-actions">
-          <Link className="button" href={data ? "/workbench" : "/join"}>
-            {data ? "Enter Hub" : signedIn ? "Verify membership" : "Sign in"}
-          </Link>
-          <Link className="inline-link" href={sample ? "/" : "/?sample=1"}>
-            {sample ? "Back to Home" : "Explore sample opportunities"}
-          </Link>
-          {data && (
-            <Link className="inline-link" href="#following">
-              Following and updates
-            </Link>
-          )}
-        </div>
-      </section>
       <div className="home-journey" aria-label="Your contribution journey">
         <section className="section">
           <FilePlus2 size={22} aria-hidden="true" />
           <h2>Share useful work</h2>
-          <p>
-            Bring a find, guide or analysis. Independent review determines work
-            credit; predictions have separate later outcomes.
-          </p>
           <Link className="inline-link" href="/xp">
             How XP and ranks work
           </Link>
         </section>
         <section className="section">
-          <Bell size={22} aria-hidden="true" />
+          <PackageOpen size={22} aria-hidden="true" />
           <h2>Airdrop Hunters</h2>
-          <p>
-            Share a useful route, check official evidence, and follow important
-            campaign changes. Points, eligibility and an open claim are
-            different stages.
-          </p>
           <div className="form-actions">
             <Link
               className="button secondary"
@@ -127,11 +93,6 @@ export default async function Home({
         <section className="section">
           <ScanLine size={22} aria-hidden="true" />
           <h2>Grind Intelligence</h2>
-          <p>
-            Explore your alpha&apos;s checked sources, missing information,
-            earlier work and later outcomes. Source checks are not proof that a
-            claim is correct.
-          </p>
           <Link className="inline-link" href="/intelligence">
             Explore Grind Intelligence
           </Link>
@@ -147,11 +108,6 @@ export default async function Home({
         <div className="section-heading">
           <h2>{sample ? "Sample opportunities" : "Opportunities"}</h2>
         </div>
-        <p className="muted">
-          Opportunities arranged by Grindly have their own participation
-          requirements. Members receive opportunities, not an obligation to
-          perform business tasks.
-        </p>
         {unavailable ? (
           <p role="status">
             Opportunities are temporarily unavailable. Please retry.

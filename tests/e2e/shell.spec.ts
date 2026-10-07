@@ -52,9 +52,20 @@ test("Home is the public entry with protected community links", async ({
     page.locator(".topbar").getByRole("link", { name: "My profile" }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Review Desk" })).toHaveCount(0);
-  await page
-    .getByRole("link", { name: "Explore sample opportunities" })
-    .click();
+  await expect(page.locator(".home-intro")).toHaveCount(0);
+  await expect(page.locator("main > p.sample-label")).toHaveCount(0);
+  await expect(page.locator(".home-journey section > p")).toHaveCount(0);
+  await expect(page.locator(".home-journey .lucide-package-open")).toHaveCount(
+    1,
+  );
+  await expect(page.locator(".network img[alt='Grindly']")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Explore sample opportunities" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Opportunities arranged by Grindly", { exact: false }),
+  ).toHaveCount(0);
+  await page.goto("/?sample=1");
   await expect(
     page.getByText("Separate sample experience.", { exact: false }),
   ).toBeVisible();

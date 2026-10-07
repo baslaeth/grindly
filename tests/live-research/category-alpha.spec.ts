@@ -49,8 +49,7 @@ test("category alpha shares pending evidence, retries once, and records truthful
           requestId: r.headers()["x-request-id"] ?? null,
         });
     });
-    await page.goto("/");
-    await page.getByRole("link", { name: "Enter Hub", exact: true }).click();
+    await page.goto("/workbench");
     if (info.project.name === "mobile")
       await page
         .getByRole("combobox", { name: "Room", exact: true })

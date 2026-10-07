@@ -28,8 +28,7 @@ test("all nine category forms save, share pending alpha and preserve source fail
     ).toBe(true);
     const dir = `docs/evaluation-foundation/${info.project.name}`;
     await mkdir(dir, { recursive: true });
-    await page.goto("/");
-    await page.getByRole("link", { name: "Enter Hub", exact: true }).click();
+    await page.goto("/workbench");
     for (const category of alphaCategories) {
       stage = `submit:${category}`;
       await page

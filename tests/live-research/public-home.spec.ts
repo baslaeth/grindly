@@ -9,10 +9,7 @@ test("visitors can inspect fictional public cards without private opportunity da
     new URL(baseURL!).hostname !== "localhost",
     "Local executable review only",
   );
-  await page.goto("/");
-  await page
-    .getByRole("link", { name: "Explore sample opportunities" })
-    .click();
+  await page.goto("/?sample=1");
   await expect(page.locator(".opportunity-card")).toHaveCount(3, {
     timeout: 20000,
   });

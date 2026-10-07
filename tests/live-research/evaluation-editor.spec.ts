@@ -11,9 +11,8 @@ test("all nine editor contexts are immediately available without submitting as t
   const page = await a.context.newPage();
   let stage = "home";
   try {
-    await page.goto("/");
     stage = "open_hub";
-    await page.getByRole("link", { name: "Enter Hub", exact: true }).click();
+    await page.goto("/workbench");
     await expect(
       page.getByRole("heading", { name: /Bronze \/ .* chat/ }),
     ).toBeVisible({ timeout: 30000 });

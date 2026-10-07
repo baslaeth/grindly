@@ -1,5 +1,12 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Home annotations (2026-10-07)
+
+The owner's nine Home annotations remove the duplicate footer logo, intro and
+shortcut row, account banner and explanatory paragraphs, and replace the bell
+with a package-open icon. Navigation, per-record samples and permissions remain.
+See [annotation evidence](home-annotations/README.md) for checks and screenshots.
+
 ## Public MVP polish (2026-10-07)
 
 See [mvp-polish.md](mvp-polish.md) and its [before/after browser evidence](mvp-polish-evidence/README.md).
