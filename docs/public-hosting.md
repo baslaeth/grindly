@@ -1,7 +1,6 @@
 # Grindly public hosting
 
-Owner authorized deployment to their existing `grindly.io` domain on October 7,
-2026. This supersedes earlier handoff prohibitions on production deployment for
+Owner authorized deployment to their existing `grindly.io` domain on October 7, 2026. This supersedes earlier handoff prohibitions on production deployment for
 this release. Product economics, shared records and membership rules are unchanged.
 
 ## Hosting and authentication
@@ -60,5 +59,58 @@ secrets in Vercel; never pull them over the local development environment.
 
 ## Verification record
 
-Deployment identity, public browser evidence, monitoring results and CI will be
-recorded here after the hosted walkthrough completes.
+- Deployed source: `eb67d32bcf692bf2997e017b6d13575e79cd2808` on
+  `codex/category-alpha-review`; remote SHA verified. Deployment
+  `dpl_5Jfx3r3twTWWReLQQdLBQTXD8zPK` is Ready and owns both domain aliases.
+  Build URL: `https://grindly-qyrtwyfmk-basla1.vercel.app`.
+- HTTPS Home returned 200. `www.grindly.io/xp` redirects to the canonical origin.
+  The contract's existing `/api/metadata/46630/4` URL on the old Vercel alias
+  redirects successfully and returns the token metadata. No contract changed.
+- Desktop browser: fresh isolated email-code login, Bronze Hub, guide form,
+  save, receipt reload, Grind Intelligence source refresh, Follow, updates and
+  My Profile all completed on `grindly.io`. New sample alpha:
+  `8e7f6463-3cf2-479d-8ad6-c65c34e94945`, saved at 12:50:42 UTC on October 7.
+  Official Axis source retrieved at 12:50:48 and refreshed at 12:51:59 UTC.
+  Version 1 remains pending, no new award; Profile shows the same record and
+  two daily submissions remaining. Source retrieval is not claim verification.
+- Existing isolated accepted work, 75 lifetime sample XP and the clearly labeled
+  historical Starknet notification remained accessible. The notification was
+  already Done: this release did not generate a new live claim announcement.
+- One Profile request showed a transient protected research/ownership-check
+  failure. A reload succeeded. No permission or ownership check was bypassed.
+- Signed-out alpha fetch did not expose its title; anonymous monitor invocation
+  returned 401. An authenticated hosted invocation returned 200 and persisted
+  two due campaign retrievals (Starknet and Optimism), zero candidates/reminders.
+  Their `last_success_at` values are 12:48:28 and 12:48:29 UTC respectively.
+  Axis was not yet due; its separate guide source refresh succeeded.
+- Vercel API confirms cron enabled, attached to this deployment, `/api/monitor`
+  at `0 5 * * *`. The first automatic invocation of this new deployment has not
+  yet occurred. The UI's per-source next check is its eligibility/due time;
+  actual execution waits for the hosted daily invocation. No all-source or
+  immediate-alert coverage is claimed.
+- Localhost:3001 returned 200. Local Ollama was not listening during this release
+  check. Its existing adapter/model configuration was preserved, but no new local
+  inference was claimed. Hosted AI is explicitly disconnected, with no paid call.
+- `pnpm check`: lint, types, 247 unit, 309 database, type drift, 11 contract tests
+  and build passed. Foundation desktop/mobile E2E: 52 passed. These are separate
+  from the signed-in hosted walkthrough and do not prove live inbox delivery or
+  real founder research. [Deployed-source CI](https://github.com/baslaeth/grindly/actions/runs/37623195704)
+  succeeded. [Public browser captures](public-hosting-evidence/README.md).
+
+## Owner walkthrough and login
+
+Open Home -> Sign in -> Returning member. Use the original member email and the
+code delivered to that inbox, then open Hub -> Airdrop Hunters -> Submit alpha.
+Select Guide, enter the official link and clearly distinguish documented facts
+from personal testing. Save -> Inspect evidence in Grind Intelligence -> What
+sources were checked? -> Refresh sources. Return to the alpha and Follow it.
+My Profile (top-right) contains Following, Important airdrop updates, Activity and
+contribution history. Genuine unstaffed work stays Pending; the new hosted sample
+did not create a reviewer, award or forecast outcome.
+
+The Codex browser was signed into `grindly-qa-research-operations@example.test`,
+an isolated account without a real inbox, not an identified founder login. There
+is no Grindly password to reset. The owner was asked which personal email they
+want to use; do not infer it from unrelated service sessions or create a genuine
+session using the isolated helper. No personal email reply was received during
+this verification.

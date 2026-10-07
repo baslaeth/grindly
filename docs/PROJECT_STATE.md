@@ -1,5 +1,19 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Public domain release (2026-10-07)
+
+Owner-authorized public deployment is live at **https://grindly.io** on the
+existing Vercel project. Deployed source `eb67d32`, same feature branch; HTTPS,
+canonical redirects and Supabase origin configuration verified. Existing data,
+testnet membership and product rules preserved; no migrations or contract changes.
+See [public-hosting.md](public-hosting.md) for setup, publishing, evidence and limits.
+Desktop isolated login -> new guide -> receipt/reload -> source refresh -> Follow
+-> updates -> Profile passed. Public AI is disconnected: local Ollama is not
+reachable from hosting. Hosted authenticated monitoring persisted two source
+checks; daily cron is configured, but its first automatic invocation is unobserved.
+Claims/upgrades stay inactive. Localhost:3001 remains working. Historical entries
+below describe earlier checkpoints, not the current hosting state.
+
 ## Airdrop reliability completion (2026-10-06)
 
 Current handoff: [airdrop-reliability.md](airdrop-reliability.md); sanitized

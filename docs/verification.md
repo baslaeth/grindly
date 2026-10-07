@@ -1,5 +1,30 @@
 # Actual verification
 
+## Public domain and hosted member journey - 2026-10-07
+
+- Explicit owner deployment authorization; source `eb67d32bcf692bf2997e017b6d13575e79cd2808`
+  pushed and deployed to existing `basla1/grindly`, deployment
+  `dpl_5Jfx3r3twTWWReLQQdLBQTXD8zPK`. HTTPS apex, www redirect and historical
+  token metadata URL passed. Existing Porkbun mail records retained. Supabase
+  site URL/redirects updated, local origins retained. No migrations replayed.
+- Actual desktop public browser: isolated OTP login, own-rank Hub, new Axis
+  guide `8e7f6463-3cf2-479d-8ad6-c65c34e94945`, receipt/reload, saved source checks
+  and refresh, Follow, existing labeled replay notification, Profile/history.
+  Source publication remains Unknown; no AI interpretation, award or wallet
+  execution fabricated. One Profile ownership-check error recovered on reload.
+- Hosted monitor: authenticated 200, two registered historical campaign sources
+  retrieved and persisted, no new confirmed event. Anonymous 401. Cron enabled
+  at 05:00 UTC on this deployment. First automatic invocation not yet observed.
+  Axis was not yet due; its alpha evidence refreshed separately from the browser.
+- Localhost:3001 200. Ollama not listening; public AI deliberately disconnected.
+  Current browser email is an isolated `.test` identity, not the owner's personal
+  account. App uses email OTP, no password. Personal email identification pending
+  owner's reply; no genuine session manufactured or credentials committed.
+- `pnpm check` passed (247 unit / 309 database / 11 contract plus lint, types,
+  drift and build); 52 foundation desktop/mobile browser tests passed.
+  [Deployed-source CI](https://github.com/baslaeth/grindly/actions/runs/37623195704)
+  success. [Details](public-hosting.md), [sanitized captures](public-hosting-evidence/README.md).
+
 ## Whole-guide reliability and current campaign - 2026-10-06
 
 - Pushed implementation `7c7b6186f3c2e32942d84cad9297dcf694e36322` verified against
