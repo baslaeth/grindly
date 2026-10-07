@@ -53,7 +53,12 @@ test("annotated shell has concise labels, profile shortcut and unchanged access 
   await expect(nav.getByRole("link", { name: "Review Desk" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "History" })).toHaveCount(0);
   if (!mobile) {
-    for (const logo of ["Grindly", "Robinhood Chain"]) {
+    await expect(
+      page
+        .locator(".network")
+        .getByRole("img", { name: "Grindly", exact: true }),
+    ).toHaveCount(0);
+    for (const logo of ["Robinhood Chain"]) {
       const img = page
         .locator(".network")
         .getByRole("img", { name: logo, exact: true });
