@@ -597,6 +597,12 @@ export function FindingRecord({
             <Link className="inline-link" href={`#outcome-${current.id}`}>
               Outcome history
             </Link>
+            <Link
+              className="inline-link"
+              href={`/intelligence?alpha=${finding.id}`}
+            >
+              Grind Intelligence
+            </Link>
           </p>
         )}
         {own && finding.status !== "disputed" && (
@@ -854,21 +860,24 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
                   (v{v.version})
                 </Link>
               </h3>
-              <p className="decision-context">
-                <strong>Assigned scope:</strong> {a.scope}
-              </p>
-              <h3>What the contributor added</h3>
-              <p>{v.addition}</p>
-              <h3>Evidence</h3>
-              <SourceLinks value={v.sources} />
-              <p>Limitations: {v.limitations}</p>
-              <AlphaDetails data={data} version={v.id} />
-              <ResearchForm
-                kind="review"
-                data={data}
-                versionId={v.id}
-                assignmentId={a.id}
-              />
+              <details>
+                <summary>Review evidence and record a decision</summary>
+                <p className="decision-context">
+                  <strong>Assigned scope:</strong> {a.scope}
+                </p>
+                <h3>What the contributor added</h3>
+                <p>{v.addition}</p>
+                <h3>Evidence</h3>
+                <SourceLinks value={v.sources} />
+                <p>Limitations: {v.limitations}</p>
+                <AlphaDetails data={data} version={v.id} />
+                <ResearchForm
+                  kind="review"
+                  data={data}
+                  versionId={v.id}
+                  assignmentId={a.id}
+                />
+              </details>
             </article>
           );
         })}

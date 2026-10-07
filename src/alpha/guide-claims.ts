@@ -204,6 +204,8 @@ export function guideOverview(card: ReviewCard | null | undefined) {
       .filter(
         (c) =>
           c.status === "supported" &&
+          c.claim.trim().length >= 12 &&
+          !/^(?:read|follow) (?:the )?official\b/i.test(c.claim) &&
           !personalExecution(c.claim, c.field) &&
           !/Codex.authored|Controlled example|no personal execution is claimed/i.test(
             c.claim,
@@ -211,8 +213,12 @@ export function guideOverview(card: ReviewCard | null | undefined) {
       )
       .sort(
         (a, b) =>
-          Number(["finding", "personalAddition"].includes(a.field ?? "")) -
-          Number(["finding", "personalAddition"].includes(b.field ?? "")),
+          (["confirmed", "costs", "exclusions", "steps"].indexOf(
+            a.field ?? "",
+          ) + 1 || 5) -
+          (["confirmed", "costs", "exclusions", "steps"].indexOf(
+            b.field ?? "",
+          ) + 1 || 5),
       ),
     attention: card.claims.filter((c) => c.status !== "supported"),
     next: card.claims.some((c) => c.status !== "supported")

@@ -11,7 +11,7 @@ Baseline: `2fb6ce0`, branch `codex/category-alpha-review`.
 - [x] Improve shared typography, controls, status treatments and mobile layout.
 - [x] Separate saved model analysis from latest source checks; improve retries.
 - [x] Improve campaign monitoring clarity and compact Following / notifications.
-- [ ] Verify local changes, then the signed-in public contribution journey.
+- [x] Verify local changes, then the signed-in public contribution journey.
 - [ ] Run checks, preserve unrelated assets, push, deploy and verify CI.
 
 ## Boundaries
@@ -52,3 +52,48 @@ original model and timestamps. Fresh source checks are not fresh model analysis.
   Full checks: 254 unit, 309 database, type drift, 11 contract tests and build;
   foundation desktop/mobile suite: 52 passed. Final hosted verification follows
   deployment and is recorded separately below.
+
+## Hosted walkthrough, October 7
+
+- Public Home -> Bronze's ten rooms -> Airdrop Hunters -> category-prefilled
+  Guide -> receipt/reload -> Grind Intelligence -> official-source refresh ->
+  Follow passed. New isolated guide `3e2e025f-45f3-418c-872e-8666248a8062`,
+  original version `37b1da6c-617f-4d88-ac2e-f386d52081dc`, server save
+  14:27:52 UTC. Axis documentation is real; the guide is a Codex-authored sample,
+  not founder research or tested wallet activity.
+- Official source retrieved at 14:27:58 and explicitly refreshed at 14:29:55.
+  A third actual qwen3:4b run on this guide completed locally at 14:32:12; the
+  public website displays that saved result, not fresh hosted inference.
+  The overview now prioritizes published facts over generic instructions and
+  withholds short extraction fragments; full saved claims remain inspectable.
+- Existing isolated risk reviewer signed in through the normal public OTP UI,
+  inspected the guide and recorded an actionable-class acceptance at 14:34:32.
+  Exactly one 50-XP work event exists for this guide. Controlled separate-account
+  verification is not independent human research. No genuine reviewer appointed.
+- Signed-out access to the new alpha showed only Active membership required.
+  Sample isolation and exact-rank authorization code were not changed; existing
+  RLS/independence/duplicate-award tests pass. No manual NFT transfer was performed.
+- Hosted authenticated `/api/monitor` returned 200; no sources were due and no
+  event or notification was fabricated. The daily hosted schedule remains in
+  place. This pass does not prove the first automatic cron invocation, a new live
+  campaign announcement, or external delivery. Existing labeled historical
+  notification remains separate from live source retrieval.
+- The on-site audit also removed exact duplicate alpha text, made assigned
+  reviews expandable, and added a direct Intelligence link on saved alpha pages.
+  Distinct claims, original evidence, decision history and old analyses remain.
+
+## Practical limits and recording
+
+Public source checks work without local AI. Fresh free local inference requires
+this computer and its loopback Ollama service; Vercel cannot reach it. Do not
+expose the service or promise hosted AI. Model results remain preliminary, not a
+measured accuracy guarantee. Genuine reviewer staffing is still an owner action.
+Public opportunities are empty until real cards are published; samples are
+separate. Claims and upgrades are inactive; burn rules remain unresolved.
+
+Recording route: Home -> Open Airdrop Hunters -> Submit alpha -> Guide -> Save
+-> receipt -> Grind Intelligence -> source and claim details -> alpha review
+history -> Follow -> My Profile -> Following/updates -> rank progress. Use the
+linked sample for a repeatable reviewed record; genuine submissions must wait
+for a genuinely appointed independent reviewer. Never present the historical
+Starknet replay as a claim open today.
