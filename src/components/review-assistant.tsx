@@ -133,8 +133,54 @@ export function ReviewAssistant({
       : 0;
   const canRefresh =
     f.author_id === data.memberId || assigned?.reviewer_id === data.memberId;
-  const overview =
-    guide && old?.status === "complete" ? guideOverview(old.card) : null;
+  const overview = old?.status === "complete" ? guideOverview(old.card) : null;
+  const stages = (
+    <nav className="evidence-stages" aria-label="Evidence stages">
+      <a href={`#sources-${version}`}>
+        <Database size={21} />
+        <strong>Source checks</strong>
+        <span>
+          {sources.filter((s) => s.status === "retrieved").length} retrieved ·{" "}
+          {unknownSources} unavailable
+        </span>
+        <small>
+          {lastChecked ? alphaTime(lastChecked) : "No completed check"}
+          {runs[0]?.status === "failed" ? " · Latest check failed" : ""}
+        </small>
+      </a>
+      <a href={`#analysis-${version}`}>
+        <Sparkles size={21} />
+        <strong>AI analysis</strong>
+        <span>
+          {old?.status === "complete"
+            ? "Saved, experimental"
+            : "No completed analysis"}
+        </span>
+        <small>
+          {old?.status === "complete" && old.completed_at
+            ? `Saved ${alphaTime(old.completed_at)}`
+            : "Not a human decision"}
+        </small>
+      </a>
+      <a href={`#human-review-${version}`}>
+        <UserCheck size={21} />
+        <strong>Human review</strong>
+        <span>
+          {f.current_version && f.current_version !== version
+            ? "Earlier version"
+            : !f.status || f.status === "pending"
+              ? assigned
+                ? "Reviewer assigned"
+                : "Awaiting a reviewer"
+              : f.status.replaceAll("_", " ")}
+        </span>
+        <small>
+          {decisions.length} recorded{" "}
+          {decisions.length === 1 ? "decision" : "decisions"}
+        </small>
+      </a>
+    </nav>
+  );
   return (
     <section
       className="section review-assistant"
@@ -145,60 +191,26 @@ export function ReviewAssistant({
         <h3>Evidence at a glance</h3>
         <span className="status-label">Version {v.version}</span>
       </div>
-      <nav className="evidence-stages" aria-label="Evidence stages">
-        <a href={`#sources-${version}`}>
-          <Database size={21} />
-          <strong>Source checks</strong>
-          <span>
-            {sources.filter((s) => s.status === "retrieved").length} retrieved ·{" "}
-            {unknownSources} unavailable
-          </span>
-          <small>
-            {lastChecked ? alphaTime(lastChecked) : "No completed check"}
-            {runs[0]?.status === "failed" ? " · Latest check failed" : ""}
-          </small>
-        </a>
-        <a href={`#analysis-${version}`}>
-          <Sparkles size={21} />
-          <strong>AI analysis</strong>
-          <span>
-            {old?.status === "complete"
-              ? "Saved, experimental"
-              : "No completed analysis"}
-          </span>
-          <small>
-            {old?.status === "complete" && old.completed_at
-              ? `Saved ${alphaTime(old.completed_at)}`
-              : "Not a human decision"}
-          </small>
-        </a>
-        <a href={`#human-review-${version}`}>
-          <UserCheck size={21} />
-          <strong>Human review</strong>
-          <span>
-            {f.current_version && f.current_version !== version
-              ? "Earlier version"
-              : !f.status || f.status === "pending"
-                ? assigned
-                  ? "Reviewer assigned"
-                  : "Awaiting a reviewer"
-                : f.status.replaceAll("_", " ")}
-          </span>
-          <small>
-            {decisions.length} recorded{" "}
-            {decisions.length === 1 ? "decision" : "decisions"}
-          </small>
-        </a>
-      </nav>
+      {guide?.stage === "Closed or historical" && (
+        <p className="notice">
+          Historical guide. Past eligibility and opening announcements do not
+          establish a claim open today.
+        </p>
+      )}
       {terms && (
         <div
           className="intelligence-overview"
           aria-label="Current evidence overview"
         >
-          <p>
-            <strong>What the saved analysis suggests:</strong>{" "}
+          <h4>Saved analysis highlights</h4>
+          {old?.status === "complete" && old.completed_at && (
+            <p className="muted">
+              Saved {alphaTime(old.completed_at)}. Not a fresh analysis.
+            </p>
+          )}
+          <p className="muted">
             {overview?.supported.length
-              ? "Check the linked passages before relying on these preliminary findings."
+              ? "Experimental AI interpretation, not a human decision. Check the linked passages before relying on it."
               : "No assessed facts are ready yet. Retrieved sources alone do not prove a claim."}
           </p>
           {!!overview?.supported.length && (
@@ -210,37 +222,39 @@ export function ReviewAssistant({
               ))}
             </ul>
           )}
-          <p>
-            <strong>What needs attention:</strong> {gaps.length} category
-            answers Unknown or missing; {unknownSources} sources unavailable.{" "}
-            {contradictions
-              ? `${contradictions} model-noted contradictions require reviewer confirmation.`
-              : ""}
-          </p>
-          {old?.status === "complete" && old.card && (
-            <ul>
-              {old.card.claims
-                .filter((c) => c.status !== "supported")
-                .slice(0, 3)
-                .map((c, i) => (
-                  <li key={i}>
-                    <strong>
-                      {c.status === "unverified"
-                        ? "Unknown"
-                        : "Possible conflict"}{" "}
-                      (preliminary):
-                    </strong>{" "}
-                    {c.claim}
-                  </li>
-                ))}
-            </ul>
+          <div className="intelligence-attention">
+            <h4>Uncertainty and missing context</h4>
+            <p>
+              {gaps.length} category answers Unknown or missing;{" "}
+              {unknownSources} sources unavailable.{" "}
+              {contradictions
+                ? `${contradictions} model-noted contradictions require reviewer confirmation.`
+                : ""}
+            </p>
+            {old?.status === "complete" && old.card && (
+              <ul>
+                {old.card.claims
+                  .filter((c) => c.status !== "supported")
+                  .slice(0, 3)
+                  .map((c, i) => (
+                    <li key={i}>
+                      <strong>
+                        {c.status === "unverified"
+                          ? "Unknown"
+                          : "Possible conflict"}{" "}
+                        (preliminary):
+                      </strong>{" "}
+                      {c.claim}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+          {!!old?.card?.claims.length && (
+            <a className="inline-link" href={`#analysis-${version}`}>
+              All {old.card.claims.length} claims and source quotations
+            </a>
           )}
-          <p>
-            <strong>What to do next:</strong>{" "}
-            {overview
-              ? overview.next
-              : "Check the official evidence and any missing context."}
-          </p>
           <p>
             <strong>Review next step:</strong>{" "}
             {f.status === "needs_correction" &&
@@ -260,13 +274,9 @@ export function ReviewAssistant({
               "Review the dated evidence and feedback."
             )}
           </p>
-          <p>
-            <strong>Last source check:</strong>{" "}
-            {lastChecked ? alphaTime(lastChecked) : "Not checked yet"}.{" "}
-            {terms.prediction && !terms.prediction_validated
-              ? "Prediction is unvalidated and cannot earn outcome XP."
-              : ""}
-          </p>
+          {terms.prediction && !terms.prediction_validated && (
+            <p>Prediction is unvalidated and cannot earn outcome XP.</p>
+          )}
           {!!specificIssues.length && (
             <ul>
               {specificIssues.map((issue) => (
@@ -274,74 +284,83 @@ export function ReviewAssistant({
               ))}
             </ul>
           )}
-          {guide && (
-            <>
-              <p>
-                <strong>Author-declared stage:</strong> {guide.stage}. This is
-                not an independently established campaign state.
-              </p>
-              {guide.stage === "Closed or historical" && (
-                <p className="notice">
-                  Historical guide. Past eligibility and opening announcements
-                  do not establish a claim open today.
+          <details className="intelligence-question">
+            <summary>Supporting context and model reasoning</summary>
+            {guide && (
+              <>
+                <p>
+                  <strong>Author-declared stage:</strong> {guide.stage}. This is
+                  not an independently established campaign state.
                 </p>
-              )}
-              <details>
-                <summary>Original airdrop guide context</summary>
-                <dl>
-                  {Object.entries(guide)
-                    .filter(([key]) => key !== "version")
-                    .map(([key, value]) => (
-                      <div key={key}>
-                        <dt>{key}</dt>
-                        <dd>{value}</dd>
-                      </div>
-                    ))}
-                </dl>
-              </details>
-            </>
-          )}
-          {old?.status === "complete" && old.card && (
-            <details>
-              <summary>Experimental model reasoning and suggestions</summary>
-              <p>
-                <strong>Experimental model interpretation:</strong>{" "}
-                {old.card.summary}
-              </p>
-              <p className="muted">
-                The local model can misread dates or overstate support. Check
-                the quoted evidence before relying on its interpretation.
-              </p>
-              <p>
-                <strong>Suggested check:</strong> {old.card.nextCheck}
-              </p>
-            </details>
-          )}
-          {guide && (
-            <details>
-              <summary>Campaign dates and their provenance</summary>
-              {sources.map((s) => (
-                <div key={s.id}>
-                  <strong>{s.label}</strong>
+                <details>
+                  <summary>Original airdrop guide context</summary>
                   <dl>
-                    {campaignDates(s).map((fact) => (
-                      <div key={fact.kind}>
-                        <dt>{fact.kind}</dt>
-                        <dd>
-                          {fact.value ?? "Unknown"}. {fact.limitation}
-                          {fact.passage && (
-                            <blockquote>{fact.passage}</blockquote>
-                          )}
-                        </dd>
-                      </div>
-                    ))}
+                    {Object.entries(guide)
+                      .filter(([key]) => key !== "version")
+                      .map(([key, value]) => (
+                        <div key={key}>
+                          <dt>{key}</dt>
+                          <dd>{value}</dd>
+                        </div>
+                      ))}
                   </dl>
-                </div>
-              ))}
-            </details>
-          )}
+                </details>
+              </>
+            )}
+            {old?.status === "complete" && old.card && (
+              <details>
+                <summary>Experimental model reasoning and suggestions</summary>
+                <p>
+                  <strong>Experimental model interpretation:</strong>{" "}
+                  {old.card.summary}
+                </p>
+                <p className="muted">
+                  The local model can misread dates or overstate support. Check
+                  the quoted evidence before relying on its interpretation.
+                </p>
+                <p>
+                  <strong>Suggested check:</strong> {old.card.nextCheck}
+                </p>
+              </details>
+            )}
+            {guide && (
+              <details>
+                <summary>Campaign dates and their provenance</summary>
+                {sources.map((s) => (
+                  <div key={s.id}>
+                    <strong>{s.label}</strong>
+                    <dl>
+                      {campaignDates(s).map((fact) => (
+                        <div key={fact.kind}>
+                          <dt>{fact.kind}</dt>
+                          <dd>
+                            {fact.value ?? "Unknown"}. {fact.limitation}
+                            {fact.passage && (
+                              <blockquote>{fact.passage}</blockquote>
+                            )}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </details>
+            )}
+          </details>
         </div>
       )}
+      <div className="intelligence-next-action">
+        <strong>Next action</strong>
+        <p>
+          {overview
+            ? overview.next
+            : "Compare the official sources with the alpha's claims and unresolved questions."}
+        </p>
+        <a className="inline-link" href={`#sources-${version}`}>
+          Inspect the sources
+        </a>
+      </div>
+      {stages}
       {!questions && (
         <Link href={`/intelligence?alpha=${f.id}`} className="inline-link">
           Explore in Grind Intelligence

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FilePlus2, ScanLine, PackageOpen } from "lucide-react";
+import { HomeActions, HomeEcosystem } from "@/components/home-ecosystem";
 import { Screen } from "@/components/screen";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { OpportunityManager } from "@/components/opportunity-manager";
@@ -66,38 +66,22 @@ export default async function Home({
     ?.is_demo;
   return (
     <Screen title="Home">
-      <div className="home-journey" aria-label="Your contribution journey">
-        <section className="section">
-          <FilePlus2 size={22} aria-hidden="true" />
-          <h2>Share useful work</h2>
-          <Link className="button" href="/findings/new">
-            <FilePlus2 size={16} /> Submit alpha
-          </Link>
-        </section>
-        <section className="section">
-          <PackageOpen size={22} aria-hidden="true" />
-          <h2>Airdrop Hunters</h2>
-          <div className="form-actions">
-            <Link
-              className="button secondary"
-              href={
-                data?.rooms?.find((r) => r.category === "Airdrop Hunters")
-                  ? `/workbench?room=${data.rooms.find((r) => r.category === "Airdrop Hunters")!.id}`
-                  : "/join"
-              }
-            >
-              Open Airdrop Hunters
-            </Link>
-          </div>
-        </section>
-        <section className="section">
-          <ScanLine size={22} aria-hidden="true" />
-          <h2>Grind Intelligence</h2>
-          <Link className="inline-link" href="/intelligence">
-            Explore Grind Intelligence
-          </Link>
-        </section>
-      </div>
+      <section className="home-intro" aria-label="About Grindly">
+        <h2>Grindly</h2>
+        <p>
+          A gamified community for crypto specialists. Share useful research,
+          help each other and build reputation through reviewed contributions.
+        </p>
+        <HomeActions member={!!data} signedIn={signedIn} />
+      </section>
+      {data ? (
+        <details className="home-explainer">
+          <summary>Membership and the Grindly journey</summary>
+          <HomeEcosystem rooms={data.rooms} rank={data.token.tier} />
+        </details>
+      ) : (
+        <HomeEcosystem />
+      )}
       {data && (
         <section className="section">
           <div className="section-heading">

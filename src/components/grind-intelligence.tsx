@@ -61,12 +61,10 @@ export function GrindIntelligence({
             <h2>{alpha.subject}</h2>
             {data.profiles.find((p) => p.member_id === finding.author_id)
               ?.is_demo && <span className="sample-label">Sample</span>}
-            <p>
+            <p className="muted intelligence-byline">
               {alpha.category} / {person(data, finding.author_id)} / version{" "}
               {version.version}
-            </p>
-            <p>
-              Submitted {alphaTime(version.submitted_at)} /{" "}
+              {" / "}
               <strong>
                 {finding.status === "pending"
                   ? "Pending review"
@@ -77,7 +75,10 @@ export function GrindIntelligence({
               Read the full alpha
             </Link>
             <details>
-              <summary>Original action or claim</summary>
+              <summary>Original claim and submission details</summary>
+              <p className="muted">
+                Submitted {alphaTime(version.submitted_at)}
+              </p>
               <p>{version.claim}</p>
             </details>
           </section>

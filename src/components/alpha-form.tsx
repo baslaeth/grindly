@@ -61,6 +61,32 @@ function CategoryField({
                 </option>
               ))}
             </select>
+          ) : !field.kind &&
+            ![
+              "project",
+              "network",
+              "chain",
+              "identifier",
+              "asset",
+              "venue",
+              "collection",
+              "official",
+              "stage",
+              "theme",
+              "projects",
+              "cost",
+              "supply",
+            ].includes(field.key) ? (
+            <textarea
+              key={mode}
+              name={`${prefix}-${field.key}`}
+              required
+              rows={3}
+              maxLength={1000}
+              defaultValue={
+                /^(unknown|not applicable)$/i.test(value) ? "" : value
+              }
+            />
           ) : (
             <input
               key={mode}
@@ -113,7 +139,8 @@ function Field({
   value = "",
   required = false,
   type = "text",
-  rows = 2,
+  rows = 3,
+  compact = false,
   max = 1000,
 }: {
   label: string;
@@ -122,6 +149,7 @@ function Field({
   required?: boolean;
   type?: string;
   rows?: number;
+  compact?: boolean;
   max?: number;
 }) {
   return (
@@ -130,7 +158,7 @@ function Field({
         {label}
         {required ? " *" : ""}
       </span>
-      {type === "text" ? (
+      {type === "text" && !compact ? (
         <textarea
           name={name}
           defaultValue={value}
@@ -147,6 +175,7 @@ function Field({
           type={type}
           defaultValue={value}
           required={required}
+          maxLength={max}
         />
       )}
     </label>
@@ -489,43 +518,46 @@ export function AlphaForm({
       )}
       <fieldset disabled={busy}>
         <legend>1. Your alpha</legend>
-        <label className="field">
-          Contribution category
-          <select
-            aria-label="Contribution category"
-            required
-            value={category}
-            disabled={!!av}
-            onChange={(e) => setCategory(e.target.value as AlphaCategory)}
-          >
-            <option value="" disabled>
-              Choose a category
-            </option>
-            {alphaCategories.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          Contribution type
-          <select
-            aria-label="Contribution type"
-            value={kind}
-            onChange={(e) =>
-              setKind(e.target.value as keyof typeof contributionTypes)
-            }
-          >
-            {submissionTypes(!!version).map((key) => (
-              <option key={key} value={key}>
-                {key === "find"
-                  ? "Finding or analysis"
-                  : contributionTypes[key]}
+        <div className="form-selection">
+          <label className="field">
+            Contribution category
+            <select
+              aria-label="Contribution category"
+              required
+              value={category}
+              disabled={!!av}
+              onChange={(e) => setCategory(e.target.value as AlphaCategory)}
+            >
+              <option value="" disabled>
+                Choose a category
               </option>
-            ))}
-          </select>
-        </label>
+              {alphaCategories.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            Contribution type
+            <select
+              aria-label="Contribution type"
+              value={kind}
+              onChange={(e) =>
+                setKind(e.target.value as keyof typeof contributionTypes)
+              }
+            >
+              {submissionTypes(!!version).map((key) => (
+                <option key={key} value={key}>
+                  {key === "find"
+                    ? "Finding or analysis"
+                    : contributionTypes[key]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <Field
           label="Subject or project"
+          compact
           name="subject"
           value={av?.subject}
           required
@@ -551,6 +583,7 @@ export function AlphaForm({
                     </label>
                     <Field
                       label="Official campaign or documentation link (Unknown allowed)"
+                      compact
                       name="airdrop-official"
                       required
                       value={airdropGuide?.official}
@@ -564,6 +597,7 @@ export function AlphaForm({
                     />
                     <Field
                       label="Short steps to follow"
+                      rows={4}
                       name="airdrop-steps"
                       required
                       value={airdropGuide?.steps}
@@ -656,6 +690,7 @@ export function AlphaForm({
                 <>
                   <Field
                     label="Chain or network"
+                    compact
                     name="chain"
                     value={av?.chain}
                     required
@@ -663,6 +698,7 @@ export function AlphaForm({
                   />
                   <Field
                     label="Asset or contract identifier"
+                    compact
                     name="contract"
                     value={av?.contract}
                     required={["Degens", "NFT Specialists"].includes(category)}
@@ -983,12 +1019,14 @@ export function AlphaForm({
               <>
                 <Field
                   label="Chain or network (optional)"
+                  compact
                   name="chain"
                   value={av?.chain}
                   max={40}
                 />
                 <Field
                   label="Asset or contract identifier (optional)"
+                  compact
                   name="contract"
                   value={av?.contract}
                   max={160}

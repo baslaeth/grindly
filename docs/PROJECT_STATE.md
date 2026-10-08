@@ -1,5 +1,15 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Final pilot product pass (2026-10-08)
+
+The owner's final brief restores a visual Home ecosystem, superseding the earlier
+Home-removal annotations. Visitors get the true invitation-led entry; members
+get direct work shortcuts. Saved Intelligence findings now lead, and short form
+answers use compact inputs. [Final product handoff](final-product.md) includes
+the exact unsubmitted Axis guide and current recording route. No schema,
+membership, review authority, XP or economics changes. Release must follow final
+checks and push, with live `sourceCommit` verified against that same final HEAD.
+
 ## Member-page annotations (2026-10-07)
 
 Applied the submission, Intelligence, Review Desk and Profile cleanup. Sign out

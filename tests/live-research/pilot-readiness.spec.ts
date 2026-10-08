@@ -7,6 +7,22 @@ const expect = baseExpect.configure({ timeout: 60000 });
 test.use({ actionTimeout: 60000, navigationTimeout: 90000 });
 test.setTimeout(900000);
 
+async function openResearch(page: Page, path: string) {
+  await page.goto(path);
+  await expect(page.locator("main h1")).toBeVisible();
+  const retry = page.getByRole("button", {
+    name: "Refresh research",
+    exact: true,
+  });
+  if (await retry.isVisible()) {
+    console.info(
+      `Observed protected-read failure at ${path}; exercising the visible retry once.`,
+    );
+    await retry.click();
+    await expect(retry).toHaveCount(0);
+  }
+}
+
 async function expand(page: Page) {
   for (const details of await page.locator("main details").all()) {
     if (
@@ -95,7 +111,8 @@ test("pilot pages, ten rooms, all categories and new-post types retain usable la
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await mkdir("docs/pilot-evidence", { recursive: true });
+  const evidenceDir = process.env.GRINDLY_EVIDENCE_DIR ?? "docs/pilot-evidence";
+  await mkdir(evidenceDir, { recursive: true });
   try {
     for (const route of [
       "/",
@@ -105,16 +122,27 @@ test("pilot pages, ten rooms, all categories and new-post types retain usable la
       "/xp",
       "/join",
     ]) {
-      await page.goto(route);
+      await openResearch(page, route);
       await expect(page.locator("main h1")).toBeVisible();
       await fit(page);
+      if (route === "/") {
+        await expect(
+          page.getByRole("link", { name: "Open your Hub", exact: true }),
+        ).toBeVisible();
+        await page
+          .getByText("Membership and the Grindly journey", { exact: true })
+          .click();
+        await expect(page.locator(".member-journey > li")).toHaveCount(6);
+        await expect(page.locator(".specialty-grid > li")).toHaveCount(9);
+        await fit(page);
+      }
       if (["/", "/membership", "/following", "/review"].includes(route))
         await page.screenshot({
-          path: `docs/pilot-evidence/${info.project.name}-${route === "/" ? "home" : route.slice(1)}.png`,
+          path: `${evidenceDir}/${info.project.name}-${route === "/" ? "home" : route.slice(1)}.png`,
         });
     }
     for (const room of data.rooms ?? []) {
-      await page.goto(`/workbench?room=${room.id}`);
+      await openResearch(page, `/workbench?room=${room.id}`);
       await expect(
         page.getByRole("tab", { name: "Alphas", exact: true }),
       ).toHaveAttribute("aria-selected", "true");
@@ -135,16 +163,16 @@ test("pilot pages, ten rooms, all categories and new-post types retain usable la
     const finding = data.versions.find(
       (v) => v.id === reviewed!.version_id,
     )!.finding_id;
-    await page.goto(`/findings/${finding}`);
+    await openResearch(page, `/findings/${finding}`);
     await expect(
       page.getByRole("heading", { name: "Risks and unknowns", exact: true }),
     ).toBeVisible();
     await page.screenshot({
-      path: `docs/pilot-evidence/${info.project.name}-alpha.png`,
+      path: `${evidenceDir}/${info.project.name}-alpha.png`,
     });
     await expand(page);
     await fit(page);
-    await page.goto(`/intelligence?alpha=${finding}`);
+    await openResearch(page, `/intelligence?alpha=${finding}`);
     await expect(
       page.getByRole("navigation", { name: "Evidence stages" }),
     ).toBeVisible();
@@ -153,7 +181,7 @@ test("pilot pages, ten rooms, all categories and new-post types retain usable la
         page.getByText("Fresh AI analysis is not connected", { exact: false }),
       ).toBeVisible();
     await page.screenshot({
-      path: `docs/pilot-evidence/${info.project.name}-intelligence.png`,
+      path: `${evidenceDir}/${info.project.name}-intelligence.png`,
     });
     await page
       .getByText("Claim-by-claim model evidence", { exact: true })
@@ -172,9 +200,37 @@ test("pilot pages, ten rooms, all categories and new-post types retain usable la
         }),
       });
     });
-    await page.goto("/findings/new");
+    await openResearch(page, "/findings/new");
+    await expect(
+      page
+        .locator('input[name="subject"]')
+        .or(
+          page.getByRole("button", { name: "Refresh research", exact: true }),
+        ),
+    ).toBeVisible();
+    if (
+      await page
+        .getByRole("button", { name: "Refresh research", exact: true })
+        .isVisible()
+    ) {
+      await page
+        .getByRole("button", { name: "Refresh research", exact: true })
+        .click();
+    }
+    await expect(page.locator('input[name="subject"]')).toBeVisible();
     for (const category of alphaCategories) {
       await prepare(page, category);
+      if (category === "Airdrop Hunters") {
+        await expect(
+          page.locator('input[name="airdrop-official"]'),
+        ).toBeVisible();
+        await expect(
+          page.locator('textarea[name="airdrop-steps"]'),
+        ).toBeVisible();
+        await page.screenshot({
+          path: `${evidenceDir}/${info.project.name}-submission.png`,
+        });
+      }
       const options = await page
         .getByRole("combobox", { name: "Contribution type", exact: true })
         .locator("option")
@@ -238,6 +294,13 @@ test("one isolated pilot alpha persists, follows and retains XP without AI or re
     record = JSON.parse(await readFile(journal, "utf8"));
   } catch {}
   try {
+    if (process.env.GRINDLY_PILOT_READ_ONLY === "1") {
+      expect(
+        record,
+        "Read-only verification requires the existing fixture journal",
+      ).toBeTruthy();
+      expect(data.follows?.some((f) => f.finding_id === record!.id)).toBe(true);
+    }
     if (!record) {
       expect(data.launchAllowance?.dailyRemaining).toBeGreaterThan(0);
       await page.goto("/findings/new");

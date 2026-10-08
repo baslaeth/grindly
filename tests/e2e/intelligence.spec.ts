@@ -4,8 +4,10 @@ test("public intelligence introduction never exposes an alpha selector or source
   page,
 }) => {
   await page.goto("/");
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  if (await menu.isVisible()) await menu.click();
   await page
-    .getByRole("link", { name: "Explore Grind Intelligence", exact: true })
+    .getByRole("link", { name: "Grind Intelligence", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Grind Intelligence", exact: true }),

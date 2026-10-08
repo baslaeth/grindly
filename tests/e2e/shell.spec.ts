@@ -52,12 +52,22 @@ test("Home is the public entry with protected community links", async ({
     page.locator(".topbar").getByRole("link", { name: "My profile" }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Review Desk" })).toHaveCount(0);
-  await expect(page.locator(".home-intro")).toHaveCount(0);
+  await expect(page.locator(".home-intro")).toBeVisible();
   await expect(page.locator("main > p.sample-label")).toHaveCount(0);
-  await expect(page.locator(".home-journey section > p")).toHaveCount(0);
-  await expect(page.locator(".home-journey .lucide-package-open")).toHaveCount(
-    1,
+  await expect(page.locator(".member-journey > li")).toHaveCount(6);
+  await expect(page.locator(".specialty-grid > li")).toHaveCount(9);
+  await expect(
+    page.getByRole("list", { name: "Membership ranks" }).getByRole("listitem"),
+  ).toHaveCount(5);
+  await expect(
+    page.getByRole("link", { name: "Get started", exact: true }),
+  ).toHaveAttribute("href", "/join");
+  await expect(page.locator(".future-conversion")).toContainText(
+    "Planned separately",
   );
+  for (const link of await page.locator(".specialty-grid a").all()) {
+    await expect(link).toHaveAttribute("href", "/join");
+  }
   await expect(page.locator(".network img[alt='Grindly']")).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: "Explore sample opportunities" }),

@@ -44,6 +44,9 @@ function fixture(): ResearchData {
 }
 it("renders useful empty answers without inventing checks or AI results", () => {
   const html = renderToStaticMarkup(GrindIntelligence({ data: fixture() }));
+  expect(html.indexOf("Next action")).toBeLessThan(
+    html.indexOf('aria-label="Evidence stages"'),
+  );
   for (const text of [
     "Source checks",
     "What information is missing?",
