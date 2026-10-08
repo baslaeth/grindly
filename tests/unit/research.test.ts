@@ -7,8 +7,8 @@ const mocks = vi.hoisted(() => ({
   tier: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
-vi.mock("@/server/membership/access", () => ({
-  requireActiveMembership: mocks.access,
+vi.mock("@/server/membership/research-access", () => ({
+  requireResearchMembership: mocks.access,
 }));
 vi.mock("@/server/membership/metadata", () => ({ tokenTier: mocks.tier }));
 vi.mock("@/server/supabase", () => ({

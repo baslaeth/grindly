@@ -1,7 +1,7 @@
 import "server-only";
 import { createDataClient } from "../supabase";
 import { ServiceError } from "../errors";
-import { requireActiveMembership } from "../membership/access";
+import { requireResearchMembership as requireActiveMembership } from "../membership/research-access";
 import type { chatInput, ChatSnapshot } from "@/chat/model";
 import type { z } from "zod";
 

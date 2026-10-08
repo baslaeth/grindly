@@ -151,6 +151,57 @@ it.each(categories)(
   },
 );
 
+it.each(categories)(
+  "a demo visitor can save %s without any NFT binding",
+  async (category) => {
+    const code = randomUUID(),
+      access = randomUUID();
+    await db.query(
+      "insert into public.demo_codes(id,token_hash) values($1,$2)",
+      [code, "d".repeat(64)],
+    );
+    await db.query(
+      "insert into public.demo_access(id,member_id,code_id) values($1,$2,$3)",
+      [access, member, code],
+    );
+    await db.query(
+      "update public.membership_bindings set revoked_at=now() where member_id=$1",
+      [member],
+    );
+    const input = alphaSubmission.parse(sample(category));
+    const saved = (
+      await db.query<{ v: { id: string; version: string } }>(
+        "select public.launch_submit($1,$2,$3,$4::jsonb) v",
+        [member, access, input.request, JSON.stringify(input)],
+      )
+    ).rows[0]!.v;
+    expect(
+      (
+        await db.query<{ status: string }>(
+          "select status from public.findings where id=$1",
+          [saved.id],
+        )
+      ).rows[0]!.status,
+    ).toBe("pending");
+    expect(
+      (
+        await db.query("select * from public.award_ledger where member_id=$1", [
+          member,
+        ])
+      ).rows,
+    ).toHaveLength(0);
+    const snapshot = (
+      await db.query<{ v: { alphas: { version_id: string }[] } }>(
+        "select public.alpha_snapshot($1,$2,null) v",
+        [member, access],
+      )
+    ).rows[0]!.v;
+    expect(snapshot.alphas.some((a) => a.version_id === saved.version)).toBe(
+      true,
+    );
+  },
+);
+
 it("rejects omitted or malformed category context on both validation boundaries", async () => {
   const missing = sample("Traders");
   delete (missing.launch.context as Record<string, string>).asset;

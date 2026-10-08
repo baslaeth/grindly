@@ -14,6 +14,18 @@ export const invitationCode = z
 export const otpRequest = z.discriminatedUnion("mode", [
   z
     .object({
+      mode: z.literal("demo"),
+      email: normalizedEmail,
+      invitation: z
+        .string()
+        .trim()
+        .min(8)
+        .max(80)
+        .regex(/^[A-Za-z0-9-]+$/),
+    })
+    .strict(),
+  z
+    .object({
       mode: z.literal("join"),
       email: normalizedEmail,
       invitation: invitationCode,
@@ -27,6 +39,7 @@ export const otpVerification = z
 export const intentSchema = z
   .object({
     email: normalizedEmail,
+    demo: z.boolean().optional(),
     invitationHash: z
       .string()
       .regex(/^[0-9a-f]{64}$/)

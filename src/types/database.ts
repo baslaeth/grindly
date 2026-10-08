@@ -1177,6 +1177,98 @@ export type Database = {
           },
         ];
       };
+      demo_access: {
+        Row: {
+          id: string;
+          member_id: string;
+          code_id: string;
+          created_at: string;
+          revoked_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          code_id: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          code_id?: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "demo_access_code_id_fkey";
+            columns: ["code_id"];
+            isOneToOne: false;
+            referencedRelation: "demo_codes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "demo_access_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: true;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      demo_codes: {
+        Row: {
+          id: string;
+          token_hash: string;
+          revoked_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          token_hash: string;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          token_hash?: string;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      demo_otp_requests: {
+        Row: {
+          code_id: string;
+          email: string;
+          window_started_at: string;
+          last_requested_at: string;
+          requests: number;
+        };
+        Insert: {
+          code_id: string;
+          email: string;
+          window_started_at?: string;
+          last_requested_at?: string;
+          requests?: number;
+        };
+        Update: {
+          code_id?: string;
+          email?: string;
+          window_started_at?: string;
+          last_requested_at?: string;
+          requests?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "demo_otp_requests_code_id_fkey";
+            columns: ["code_id"];
+            isOneToOne: false;
+            referencedRelation: "demo_codes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       discussion_messages: {
         Row: {
           id: string;
@@ -3889,6 +3981,13 @@ export type Database = {
         };
         Returns: string;
       };
+      has_demo_access: {
+        Args: {
+          p_member: string;
+          p_access?: string;
+        };
+        Returns: boolean;
+      };
       issue_wallet_challenge: {
         Args: {
           p_id: string;
@@ -4121,6 +4220,13 @@ export type Database = {
         };
         Returns: string;
       };
+      redeem_demo: {
+        Args: {
+          p_token_hash: string;
+          p_auth_user_id: string;
+        };
+        Returns: string;
+      };
       redeem_invitation: {
         Args: {
           p_token_hash: string;
@@ -4250,6 +4356,13 @@ export type Database = {
       research_use_qualifies: {
         Args: {
           p_use: string;
+        };
+        Returns: boolean;
+      };
+      reserve_demo_otp: {
+        Args: {
+          p_token_hash: string;
+          p_email: string;
         };
         Returns: boolean;
       };

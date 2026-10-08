@@ -81,7 +81,13 @@ export type ResearchData = Snapshot & {
   memberEmail?: string;
   monitoringSchedule?: "hosted-daily" | "local";
   tiers: Record<string, string>;
-  token: { id: string; contract: string; tier: string; mint: string | null };
+  token: {
+    id: string;
+    contract: string;
+    tier: string;
+    mint: string | null;
+    demo?: boolean;
+  };
 };
 export type Source = { url: string; label: string };
 export function sources(value: unknown): Source[] {

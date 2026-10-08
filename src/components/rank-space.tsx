@@ -53,7 +53,10 @@ export function MemberDirectory({ data }: { data: ResearchData }) {
                 <span>{recordedSpecialty(data, p.id, p.specialty)}</span>
               </span>
             </Link>
-            <span className="rank-label">{p.tier} NFT</span>
+            <span className="rank-label">
+              {p.tier}
+              {p.token ? " NFT" : " demo"}
+            </span>
             {p.is_demo && <span className="sample-label">Isolated sample</span>}
           </li>
         ))}
@@ -197,9 +200,10 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
       </p>
       <section className="section">
         <h3>
-          <ShieldCheck size={18} /> {example?.rank ?? member!.tier} NFT
+          <ShieldCheck size={18} /> {example?.rank ?? member!.tier}{" "}
+          {member && !member.token ? "demo access" : "NFT"}
         </h3>
-        {member ? (
+        {member?.token ? (
           <a
             className="inline-link"
             href={`https://explorer.testnet.chain.robinhood.com/token/${member.contract}/instance/${member.token}`}
@@ -208,6 +212,8 @@ function Profile({ data, id }: { data: ResearchData; id: string }) {
           >
             Inspect NFT #{member.token}
           </a>
+        ) : member ? (
+          <p>No NFT is issued for demo access.</p>
         ) : (
           <p>Illustrative NFT owned by {name}; not an on-chain token.</p>
         )}

@@ -1,8 +1,8 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ access: vi.fn(), rpc: vi.fn() }));
 vi.mock("server-only", () => ({}));
-vi.mock("@/server/membership/access", () => ({
-  requireActiveMembership: mocks.access,
+vi.mock("@/server/membership/research-access", () => ({
+  requireResearchMembership: mocks.access,
 }));
 vi.mock("@/server/supabase", () => ({
   createDataClient: () => ({ rpc: mocks.rpc }),

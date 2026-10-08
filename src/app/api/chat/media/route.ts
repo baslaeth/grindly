@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { roomId } from "@/chat/model";
-import { requireActiveMembership } from "@/server/membership/access";
+import { requireResearchMembership as requireActiveMembership } from "@/server/membership/research-access";
 import { privateResult } from "@/server/chat/service";
 import { readImageBody, validateImage } from "@/server/chat/media";
 import { createDataClient } from "@/server/supabase";

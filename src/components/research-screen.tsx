@@ -84,6 +84,7 @@ export async function ResearchScreen({
   )?.subject;
   return (
     <Screen title={recordTitle && !saved ? recordTitle : title}>
+      {data?.token.demo && <p className="sample-label">Demo</p>}
       {view === "intelligence" && !data && (
         <section className="intelligence-intro">
           <p>

@@ -15,8 +15,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/server/environment", () => ({
   getEnvironment: () => ({ GRINDLY_STAGE: "membership" }),
 }));
-vi.mock("@/server/membership/access", () => ({
-  requireActiveMembership: mocks.access,
+vi.mock("@/server/membership/research-access", () => ({
+  requireResearchMembership: mocks.access,
 }));
 vi.mock("@/server/membership/metadata", () => ({ tokenTier: mocks.tier }));
 vi.mock("@/server/membership/chain", () => ({ readOwnership: mocks.peer }));

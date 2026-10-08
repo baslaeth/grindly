@@ -1,5 +1,15 @@
 # Grindly: Member Journey and Evaluation Foundation
 
+## Public demo entry (2026-10-09)
+
+Owner-authorized reusable demo invitation: see [public-demo.md](public-demo.md).
+Migration 034 is shared-applied with existing-table digest preservation, forced
+RLS and denied browser RPC assertions. Do not edit or replay 001-034. New demo
+access uses separate email-verified sample accounts and Bronze access grants,
+without NFT issuance or reviewer roles. Fresh AI inference is disabled for these
+visitors; saved analysis and source checks remain available. Real membership
+still requires the existing wallet/NFT flow.
+
 ## Final pilot product pass (2026-10-08)
 
 The owner's final brief restores a visual Home ecosystem, superseding the earlier

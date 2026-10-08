@@ -3,6 +3,9 @@ import { createTestDatabase } from "./database";
 
 let db: Awaited<ReturnType<typeof createTestDatabase>>;
 const tables = [
+  "demo_codes",
+  "demo_otp_requests",
+  "demo_access",
   "airdrop_guides",
   "airdrop_campaigns",
   "airdrop_monitor_runs",

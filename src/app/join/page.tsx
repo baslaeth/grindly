@@ -9,11 +9,18 @@ import { WalletProof } from "@/components/wallet-proof";
 import { MembershipActions } from "@/components/membership-actions";
 import { IllustrativeScenario } from "@/components/research-views";
 import { CoreLoop } from "@/components/core-loop";
+import Link from "next/link";
+import { demoAccess } from "@/server/membership/research-access";
 
 export const metadata: Metadata = { title: "Login" };
 export const dynamic = "force-dynamic";
 
-export default async function JoinPage() {
+export default async function JoinPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const demoMode = (await searchParams).mode === "demo";
   let available = getEnvironment().GRINDLY_STAGE !== "foundation";
   let member: Awaited<ReturnType<typeof getCurrentMember>> = null;
   if (available) {
@@ -24,6 +31,20 @@ export default async function JoinPage() {
     }
   }
   const intent = await readOtpIntent();
+  let demo: Awaited<ReturnType<typeof demoAccess>> = null;
+  try {
+    demo = member ? await demoAccess(member.id) : null;
+  } catch {
+    return (
+      <Screen title="Login">
+        <p className="notice" role="alert">
+          Account access is unavailable. Please retry or contact the person who
+          invited you.
+        </p>
+        <SignOutButton />
+      </Screen>
+    );
+  }
   let wallet: string | null = null;
   let walletUnavailable = false;
   if (member) {
@@ -41,36 +62,58 @@ export default async function JoinPage() {
       <section className="section access-section" id="invitation">
         <div className="access-context">
           <h2>
-            {member ? "Continue to your membership" : "Welcome to Grindly"}
+            {demo || demoMode
+              ? "Explore Grindly"
+              : member
+                ? "Continue to your membership"
+                : "Welcome to Grindly"}
           </h2>
           <p>
-            Verify your email and wallet, then mint or bind a testnet membership
-            NFT. Membership provides access and displays current progression; it
-            does not purchase expertise or review authority.
+            {demo || demoMode ? (
+              "Use your email and the shared demo code to explore Bronze rooms, submit sample alphas and follow updates. No wallet is needed."
+            ) : (
+              <>
+                Verify your email and wallet, then mint or bind a testnet
+                membership NFT. Membership provides access and displays current
+                progression; it does not purchase expertise or review authority.
+              </>
+            )}
           </p>
-          <ol className="entry-steps">
-            <li>Invitation and email</li>
-            <li>Wallet ownership</li>
-            <li>Membership access</li>
-          </ol>
+          {!demo && !demoMode && (
+            <ol className="entry-steps">
+              <li>Invitation and email</li>
+              <li>Wallet ownership</li>
+              <li>Membership access</li>
+            </ol>
+          )}
         </div>
         <div className="auth-tool">
-          <h2>Invitation access</h2>
+          <h2>{demo || demoMode ? "Try the demo" : "Invitation access"}</h2>
           {member ? (
             <div className="account-state">
               <p className="email-target">{member.email}</p>
               <p className="notice">
-                Email verified. Wallet verification and active NFT membership
-                are required for research access.
+                {demo
+                  ? "Your demo account is ready."
+                  : "Email verified. Wallet verification and active NFT membership are required for research access."}
               </p>
+              {demo && (
+                <Link className="button" href="/workbench">
+                  Open your demo Hub
+                </Link>
+              )}
               <SignOutButton />
             </div>
           ) : (
-            <JoinForm available={available} pendingEmail={intent?.email} />
+            <JoinForm
+              available={available}
+              pendingEmail={intent?.email}
+              initialMode={intent?.demo || demoMode ? "demo" : "join"}
+            />
           )}
         </div>
       </section>
-      {member && (
+      {member && !demo && (
         <section className="section">
           <h2>Wallet ownership</h2>
           {walletUnavailable ? (

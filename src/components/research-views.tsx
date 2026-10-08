@@ -1105,39 +1105,43 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           </p>
           <p>
             Current membership:{" "}
-            {profile?.is_demo
-              ? "isolated test membership"
-              : "live ownership verified"}
+            {data.token.demo
+              ? "demo access (no NFT issued)"
+              : profile?.is_demo
+                ? "isolated test membership"
+                : "live ownership verified"}
             .
           </p>
-          <div className="form-actions">
-            <a
-              className="inline-link"
-              href={`${explorer}/token/${data.token.contract}/instance/${data.token.id}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Token #{data.token.id}
-            </a>
-            <a
-              className="inline-link"
-              href={`${explorer}/address/${data.token.contract}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Membership contract
-            </a>
-            {data.token.mint && (
+          {!data.token.demo && (
+            <div className="form-actions">
               <a
                 className="inline-link"
-                href={`${explorer}/tx/${data.token.mint}`}
+                href={`${explorer}/token/${data.token.contract}/instance/${data.token.id}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Mint transaction
+                Token #{data.token.id}
               </a>
-            )}
-          </div>
+              <a
+                className="inline-link"
+                href={`${explorer}/address/${data.token.contract}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Membership contract
+              </a>
+              {data.token.mint && (
+                <a
+                  className="inline-link"
+                  href={`${explorer}/tx/${data.token.mint}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Mint transaction
+                </a>
+              )}
+            </div>
+          )}
           <p>
             Robinhood Chain testnet. XP is not a token balance or claim.
             Personal XP and delegated NFT progress are separate; no delegated

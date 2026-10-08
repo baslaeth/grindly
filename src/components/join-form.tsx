@@ -21,12 +21,14 @@ async function post(url: string, body?: unknown) {
 export function JoinForm({
   available,
   pendingEmail,
+  initialMode = "join",
 }: {
   available: boolean;
   pendingEmail?: string;
+  initialMode?: "demo" | "join" | "returning";
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"join" | "returning">("join");
+  const [mode, setMode] = useState<"demo" | "join" | "returning">(initialMode);
   const [sentTo, setSentTo] = useState(pendingEmail ?? "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -42,6 +44,7 @@ export function JoinForm({
     try {
       if (sentTo) {
         await post("/api/auth/verify", { code: data.get("code") });
+        if (mode === "demo") router.push("/workbench");
         router.refresh();
       } else {
         const email = String(data.get("email") ?? "")
@@ -50,7 +53,7 @@ export function JoinForm({
         const result = await post("/api/auth/otp", {
           mode,
           email,
-          ...(mode === "join"
+          ...(mode !== "returning"
             ? { invitation: String(data.get("invitation") ?? "").trim() }
             : {}),
         });
@@ -78,6 +81,15 @@ export function JoinForm({
       {!sentTo && (
         <fieldset className="mode-control" disabled={busy || !available}>
           <legend className="sr-only">Account access</legend>
+          <label>
+            <input
+              type="radio"
+              name="mode"
+              checked={mode === "demo"}
+              onChange={() => setMode("demo")}
+            />
+            <span>Try the demo</span>
+          </label>
           <label>
             <input
               type="radio"
@@ -129,16 +141,16 @@ export function JoinForm({
                 disabled={busy || !available}
               />
             </label>
-            {mode === "join" && (
+            {mode !== "returning" && (
               <label className="field">
-                Invitation code
+                {mode === "demo" ? "Demo invitation code" : "Invitation code"}
                 <input
                   name="invitation"
                   autoComplete="off"
                   spellCheck={false}
-                  pattern="[0-9a-f]{64}"
-                  minLength={64}
-                  maxLength={64}
+                  pattern={mode === "demo" ? "[A-Za-z0-9-]+" : "[0-9a-f]{64}"}
+                  minLength={mode === "demo" ? 8 : 64}
+                  maxLength={mode === "demo" ? 80 : 64}
                   required
                   disabled={busy || !available}
                 />

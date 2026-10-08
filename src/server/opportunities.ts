@@ -2,7 +2,7 @@ import "server-only";
 import { createDataClient } from "./supabase";
 import { getEnvironment } from "./environment";
 import { privateResult } from "./chat/service";
-import { requireActiveMembership } from "./membership/access";
+import { requireResearchMembership as requireActiveMembership } from "./membership/research-access";
 import type { z } from "zod";
 import type { Opportunity, opportunityInput } from "@/opportunities/model";
 export async function publicOpportunities(sample: boolean) {

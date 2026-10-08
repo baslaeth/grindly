@@ -26,15 +26,27 @@ export async function readOtpIntent() {
 export async function requestOtp(input: z.infer<typeof otpRequest>) {
   const env = getAuthEnvironment();
   const invitationHash =
-    input.mode === "join" ? hashInvitation(input.invitation) : undefined;
+    input.mode !== "returning"
+      ? hashInvitation(
+          input.mode === "demo"
+            ? input.invitation.toUpperCase()
+            : input.invitation,
+        )
+      : undefined;
   if (invitationHash) {
     const db = createDataClient();
-    const result = await db.rpc("reserve_invitation_otp", {
-      p_token_hash: invitationHash,
-      p_email: input.email,
-      p_cooldown_seconds: env.OTP_COOLDOWN_SECONDS,
-      p_max_requests: env.INVITATION_MAX_OTP_REQUESTS,
-    });
+    const result =
+      input.mode === "demo"
+        ? await db.rpc("reserve_demo_otp", {
+            p_token_hash: invitationHash,
+            p_email: input.email,
+          })
+        : await db.rpc("reserve_invitation_otp", {
+            p_token_hash: invitationHash,
+            p_email: input.email,
+            p_cooldown_seconds: env.OTP_COOLDOWN_SECONDS,
+            p_max_requests: env.INVITATION_MAX_OTP_REQUESTS,
+          });
     if (result.error)
       throw new ServiceError(
         "DATABASE_UNAVAILABLE",
@@ -50,11 +62,11 @@ export async function requestOtp(input: z.infer<typeof otpRequest>) {
       );
   }
 
-  if (input.mode === "join") {
+  if (input.mode !== "returning") {
     const auth = await createAuthClient();
     const { error } = await auth.auth.signInWithOtp({
       email: input.email,
-      options: { shouldCreateUser: input.mode === "join" },
+      options: { shouldCreateUser: true },
     });
     if (error)
       throw new ServiceError(
@@ -81,7 +93,11 @@ export async function requestOtp(input: z.infer<typeof otpRequest>) {
 
   (await cookies()).set(
     intentCookie,
-    JSON.stringify({ email: input.email, invitationHash }),
+    JSON.stringify({
+      email: input.email,
+      invitationHash,
+      ...(input.mode === "demo" ? { demo: true } : {}),
+    }),
     {
       httpOnly: true,
       secure: new URL(env.APP_URL).protocol === "https:",
@@ -139,10 +155,13 @@ export async function verifyOtp(code: string) {
     }
     const db = createDataClient();
     if (intent.invitationHash) {
-      const redemption = await db.rpc("redeem_invitation", {
-        p_token_hash: intent.invitationHash,
-        p_auth_user_id: user.id,
-      });
+      const redemption = await db.rpc(
+        intent.demo ? "redeem_demo" : "redeem_invitation",
+        {
+          p_token_hash: intent.invitationHash,
+          p_auth_user_id: user.id,
+        },
+      );
       if (redemption.error) {
         if (redemption.error.code === "P0001")
           throw new ServiceError(

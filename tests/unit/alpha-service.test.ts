@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("@/server/alpha/sources", () => ({ collectSources: mocks.sources }));
 vi.mock("@/server/alpha/provider", () => ({ modelReview: mocks.model }));
-vi.mock("@/server/membership/access", () => ({
-  requireActiveMembership: mocks.access,
+vi.mock("@/server/membership/research-access", () => ({
+  requireResearchMembership: mocks.access,
 }));
 vi.mock("@/server/supabase", () => ({
   createDataClient: () => ({
@@ -74,6 +74,19 @@ it("source refresh persists checks without invoking a model or award code", asyn
     p_status: "complete",
     p_hints: [],
   });
+});
+
+it("public demo access cannot start fresh local inference", async () => {
+  mocks.access.mockResolvedValue({
+    member: { id: "visitor" },
+    binding: { id: "demo" },
+    demo: true,
+  });
+  await expect(preparePreliminary("version", true)).rejects.toMatchObject({
+    code: "AI_UNAVAILABLE",
+  });
+  expect(mocks.rpc).not.toHaveBeenCalled();
+  expect(mocks.model).not.toHaveBeenCalled();
 });
 it("a source exception records a failed refresh without losing or evaluating the submitted record", async () => {
   mocks.sources.mockRejectedValue(new Error("private upstream error"));

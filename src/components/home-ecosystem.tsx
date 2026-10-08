@@ -121,7 +121,9 @@ export function HomeEcosystem({
           <Network size={30} aria-hidden="true" />
           <div>
             <h2 id="specialties-title">Nine specialties. Shared knowledge.</h2>
-            <p>Contribute your expertise. Build on someone else&apos;s research.</p>
+            <p>
+              Contribute your expertise. Build on someone else&apos;s research.
+            </p>
           </div>
         </div>
         <div className="collaboration-boundary">
@@ -179,9 +181,9 @@ export function HomeEcosystem({
               <BadgeCheck size={19} aria-hidden="true" /> Available in the pilot
             </h3>
             <p>
-              Your NFT verifies membership and determines your rank&apos;s rooms.
-              Share research, collaborate, follow updates and keep a reviewed
-              contribution history.
+              Your NFT verifies membership and determines your rank&apos;s
+              rooms. Share research, collaborate, follow updates and keep a
+              reviewed contribution history.
             </p>
             <p>
               New memberships start at Bronze. XP and reputation belong to you,
@@ -238,9 +240,9 @@ export function HomeActions({
           </Link>
         </>
       ) : (
-        <span className="muted">
-          Invitation access on Robinhood Chain testnet
-        </span>
+        <Link className="inline-link" href="/join?mode=demo">
+          Try the demo <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       )}
     </div>
   );

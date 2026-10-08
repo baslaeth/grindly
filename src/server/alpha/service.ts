@@ -8,7 +8,7 @@ import {
   type AlphaVersion,
 } from "@/alpha/model";
 import { deterministicChecks, type ReviewContext } from "@/alpha/checks";
-import { requireActiveMembership } from "../membership/access";
+import { requireResearchMembership as requireActiveMembership } from "../membership/research-access";
 import { createDataClient } from "../supabase";
 import { privateResult } from "../chat/service";
 import { type Json } from "@/types/database";
@@ -177,6 +177,12 @@ export const alphaAction = z.union([
 ]);
 export async function preparePreliminary(version: string, local = false) {
   const active = await requireActiveMembership(true);
+  if (local && active.demo)
+    throw new ServiceError(
+      "AI_UNAVAILABLE",
+      "Fresh AI analysis is not available in the demo. You can inspect saved analysis and check sources.",
+      409,
+    );
   const db = createDataClient();
   const finding = privateResult(
     await db.rpc("alpha_version_guard", {

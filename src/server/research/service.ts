@@ -1,5 +1,5 @@
 import "server-only";
-import { requireActiveMembership } from "../membership/access";
+import { requireResearchMembership as requireActiveMembership } from "../membership/research-access";
 import { tokenTier } from "../membership/metadata";
 import { readOwnership } from "../membership/chain";
 import { createDataClient } from "../supabase";
@@ -49,7 +49,9 @@ export async function readResearch(
       true,
     );
   const snapshot = result.data as unknown as Snapshot;
-  const tier = await tokenTier(active.binding.token_id, active.ownership);
+  const tier = active.demo
+    ? "Bronze"
+    : await tokenTier(active.binding.token_id, active.ownership);
   if (snapshot.question?.rank && snapshot.question.rank !== tier)
     throw new ServiceError(
       "RANK_CHANGED",
@@ -102,13 +104,15 @@ export async function readResearch(
   // Directory labels use recorded bindings, not decorative per-profile RPCs.
   const tiers: Record<string, string> = { [active.member.id]: tier };
   for (const member of snapshot.directory ?? []) tiers[member.id] = member.tier;
-  const mint = await db
-    .from("chain_operations")
-    .select("transaction_hash")
-    .eq("contract_address", active.binding.contract_address)
-    .eq("token_id", active.binding.token_id)
-    .eq("status", "confirmed")
-    .maybeSingle();
+  const mint = active.demo
+    ? { data: null, error: null }
+    : await db
+        .from("chain_operations")
+        .select("transaction_hash")
+        .eq("contract_address", active.binding.contract_address)
+        .eq("token_id", active.binding.token_id)
+        .eq("status", "confirmed")
+        .maybeSingle();
   if (mint.error) throw mint.error;
   let localAIEnabled = false;
   try {
@@ -116,7 +120,7 @@ export async function readResearch(
       snapshot.profiles.find((p) => p.member_id === active.member.id)
         ?.is_demo === true,
     );
-    localAIEnabled = true;
+    localAIEnabled = !active.demo;
   } catch {
     /* Optional local inference stays disconnected. */
   }
@@ -133,6 +137,7 @@ export async function readResearch(
         : "local",
     tiers,
     token: {
+      demo: active.demo,
       id: active.binding.token_id,
       contract: active.binding.contract_address,
       tier,
@@ -166,7 +171,8 @@ export async function mutateResearch(input: ResearchInput) {
   }
   if (
     input.action === "peerRequest" &&
-    (await tokenTier(active.binding.token_id, active.ownership)) !== "Silver"
+    (active.demo ||
+      (await tokenTier(active.binding.token_id, active.ownership)) !== "Silver")
   )
     throw new ServiceError(
       "SILVER_REQUIRED",
