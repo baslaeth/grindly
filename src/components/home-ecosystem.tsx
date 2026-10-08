@@ -78,7 +78,6 @@ export function HomeEcosystem({
       <section className="section" aria-labelledby="member-journey-title">
         <div className="section-heading">
           <h2 id="member-journey-title">From membership to reputation</h2>
-          <span className="status-label">Testnet pilot</span>
         </div>
         <ol className="member-journey" aria-label="Member journey">
           {steps.map(({ icon: Icon, title, text }, index) => (
