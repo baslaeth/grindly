@@ -35,11 +35,11 @@ export default async function RootLayout({
               <span>Grindly</span>
             </Link>
             <Navigation {...navigation} />
+            {navigation.signedIn && <SignOut />}
             <div
               className="network"
               aria-label="Grindly on Robinhood Chain testnet"
             >
-              {navigation.signedIn && <SignOut />}
               <a
                 href="https://docs.robinhood.com/chain/"
                 title="Robinhood Chain testnet"

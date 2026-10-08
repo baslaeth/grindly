@@ -147,7 +147,7 @@ p {
   flex-direction: column;
   gap: 18px;
   align-items: flex-start;
-  margin-top: auto;
+  margin-top: 8px;
   padding: 14px 12px;
   font-size: 10px;
   color: #b7b9bb;
@@ -200,7 +200,8 @@ p {
   background: transparent;
   border: 0;
   color: #d9dbdd;
-  padding: 8px 0;
+  padding: 8px 12px;
+  margin-top: auto;
   min-height: 40px;
   font-size: 14px;
   text-align: left;
@@ -210,7 +211,7 @@ p {
   padding: 12px 0 28px;
   border-bottom: 1px solid var(--line);
 }
-.home-intro h2 {
+.home-intro h1 {
   font-size: 28px;
   line-height: 1.3;
   max-width: 720px;
@@ -1425,6 +1426,14 @@ dd,
   }
   .network {
     display: none;
+  }
+  .sidebar > .nav-signout {
+    display: none;
+  }
+  .sidebar:has(nav[data-open="true"]) > .nav-signout {
+    display: block;
+    margin-top: 12px;
+    padding: 8px 7px;
   }
   .sidebar:has(nav[data-open="true"]) .network {
     display: flex;

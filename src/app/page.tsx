@@ -65,9 +65,9 @@ export default async function Home({
   const demo = !!data?.profiles.find((p) => p.member_id === data?.memberId)
     ?.is_demo;
   return (
-    <Screen title="Home">
+    <Screen title="Home" hideHeading>
       <section className="home-intro" aria-label="About Grindly">
-        <h2>Grindly</h2>
+        <h1>Grindly</h1>
         <p>
           A gamified community for crypto specialists. Share useful research,
           help each other and build reputation through reviewed contributions.

@@ -41,7 +41,7 @@ const steps = [
   {
     icon: ShieldCheck,
     title: "Independent evaluation",
-    text: "An authorized reviewer checks your work. Posting alone earns no XP.",
+    text: "An authorized reviewer checks your work.",
   },
   {
     icon: BadgeCheck,

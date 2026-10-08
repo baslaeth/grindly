@@ -45,8 +45,9 @@ test("Home is the public entry with protected community links", async ({
 }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Home", exact: true }),
+    page.getByRole("heading", { name: "Grindly", exact: true }),
   ).toBeVisible();
+  await expect(page.locator("main .page-heading")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Enter Hub" })).toHaveCount(0);
   await expect(
     page.locator(".topbar").getByRole("link", { name: "My profile" }),

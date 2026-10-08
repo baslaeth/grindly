@@ -5,15 +5,19 @@ import Link from "next/link";
 export function Screen({
   title,
   children,
+  hideHeading = false,
 }: {
   title: string;
   children: ReactNode;
+  hideHeading?: boolean;
 }) {
   return (
     <>
-      <header className="page-heading">
-        <h1>{title}</h1>
-      </header>
+      {!hideHeading && (
+        <header className="page-heading">
+          <h1>{title}</h1>
+        </header>
+      )}
       {children}
     </>
   );

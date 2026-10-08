@@ -88,7 +88,7 @@ export function RankProgression({ data }: { data: ResearchData }) {
               )}{" "}
               XP remaining
             </strong>{" "}
-            for {next}. Applied XP and High reservations are already excluded.
+            for {next}.
           </p>
         </div>
       ) : (

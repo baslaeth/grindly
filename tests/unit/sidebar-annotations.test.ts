@@ -17,6 +17,9 @@ it("places one signed-in logout before the network link and removes the global f
   expect(html.indexOf('class="nav-signout"')).toBeLessThan(
     html.indexOf('alt="Robinhood Chain"'),
   );
+  expect(html.indexOf('class="nav-signout"')).toBeLessThan(
+    html.indexOf('class="network"'),
+  );
   expect(html).not.toContain("<footer");
   expect(html).toContain("lucide-share-2");
 });
