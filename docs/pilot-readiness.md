@@ -97,3 +97,37 @@ evidence, costs/risks and sharing permission. Existing evaluation contracts stay
 Release uses `scripts/deploy-public.ps1`: committed source archive, existing
 `basla1/grindly` project, existing environment and canonical `https://grindly.io`.
 See the post-deployment entry for the deployed SHA, public checks and screenshots.
+
+### Public verification
+
+- Deployed `e23ab56810d2c7db6f44aa7fdcceee8bd3617c4a` using the existing release
+  script. Vercel deployment `dpl_CZuKChr8Z1DkU9WNDuKL2FBXtbmN` is Ready;
+  `https://grindly.io`, www and the existing Vercel aliases point to it. No
+  production configuration or database changes were made.
+- [Deployed-source CI](https://github.com/baslaeth/grindly/actions/runs/37773538597)
+  completed successfully, including the foundation browser tests.
+- HTTPS Home returned 200. A signed-out request to the new sample record did not
+  expose its title and retained the membership boundary.
+- Existing authenticated public session: Home -> Airdrop Hunters -> alpha search
+  and status filter (including zero results) -> reviewed alpha -> Intelligence ->
+  Profile -> Following/alerts -> Review Desk -> new Guide form all rendered.
+  No new public save or review was submitted during this read-only release check.
+- Profile displayed the unchanged 125 lifetime/progression sample XP, all five
+  ranks, the new pending record and earlier accepted records. Review Desk showed
+  pending/assigned and accepted states, with operator tools collapsed separately.
+- Existing analysis remains saved at 2026-10-07 14:55:00 UTC; source-check run
+  remains 14:29:55 UTC; independent sample decision remains 14:34:32 UTC. Expanded
+  signing evidence retained its official quotation and its own source timestamp.
+  Public fresh AI is disconnected, visibly and truthfully. No inference ran.
+- Following retained the new guide. Its unconfigured monitoring status is explicit;
+  following alone does not promise monitoring of arbitrary pages. Registered Axis
+  monitoring showed last success 2026-10-08 05:32 UTC and hosted daily checks.
+  The Starknet notification remains explicitly a historical 2024 sample replay.
+- Public desktop captures were inspected for hierarchy and readable layouts.
+  Mobile at 390x844 retained usable form controls without horizontal overflow;
+  the final Home mobile layout and navigation were also checked.
+- No public error state occurred in this walkthrough. Earlier local upstream
+  latency is a residual reliability risk to observe during the small pilot, not
+  evidence of a waived ownership check or guaranteed availability.
+- [Screenshot gallery](pilot-evidence/README.md). All signed-in captures show
+  isolated sample data, not genuine activity, independent human research or traction.
