@@ -47,7 +47,7 @@ export function RankProgression({ data }: { data: ResearchData }) {
   return (
     <section className="rank-progression" aria-label="Your NFT progression">
       <div className="section-heading">
-        <h2>Your NFT progression</h2>
+        <h2>Rank progress</h2>
         <Link className="inline-link" href="/xp">
           How XP and ranks work
         </Link>

@@ -73,12 +73,13 @@ test("Home is the public entry with protected community links", async ({
 
 test("public sample is explicitly illustrative", async ({ page }) => {
   await page.goto("/join");
+  await page.getByText("About Grindly and membership", { exact: true }).click();
   await expect(
     page.getByText("Illustrative scenario: fictional people and outcomes"),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Contribute where you have an edge. Get help where you don't.",
+      name: "Welcome to Grindly",
     }),
   ).toBeVisible();
 });

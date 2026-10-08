@@ -106,10 +106,10 @@ it.each(["hang", "failure"])(
     const html = renderToStaticMarkup(
       await ResearchScreen({ view: "new", revise: "version" }),
     );
-    expect(html).toContain("Correct version 1");
+    expect(html).toContain("Updating version 1");
     expect(html).toContain('name="correction"');
     expect(html).toContain("Submit corrected version");
-    expect(html).toContain("Launch submissions are unavailable");
+    expect(html).toContain("Submissions are temporarily unavailable");
     expect(html).toMatch(/<button[^>]*\bdisabled\b/);
     expect(mocks.access).toHaveBeenCalledWith(false);
     expect(mocks.peer).not.toHaveBeenCalled();
@@ -133,7 +133,7 @@ it("shows the author's correction next action instead of awaiting a reviewer", a
     error: null,
   });
   const html = renderToStaticMarkup(await ResearchScreen({ view: "review" }));
-  expect(html).toContain("The author must submit a corrected version.");
+  expect(html).toContain("Your correction is needed");
   expect(html).toContain("/findings/new?revise=version");
   expect(html).not.toContain("Awaiting an available scoped reviewer");
 });

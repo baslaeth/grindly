@@ -18,6 +18,7 @@ export function Watchlist({ data }: { data: ResearchData }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [saved, setSaved] = useState("");
   const [reminders, setReminders] = useState(
     data.watchPreferences?.reminders ?? true,
   );
@@ -27,6 +28,7 @@ export function Watchlist({ data }: { data: ResearchData }) {
   async function mutate(payload: Record<string, unknown>, id: string) {
     setBusy(id);
     setNotice("");
+    setSaved("");
     try {
       const response = await fetch("/api/alpha", {
         method: "POST",
@@ -37,13 +39,20 @@ export function Watchlist({ data }: { data: ResearchData }) {
       if (!response.ok)
         throw new Error(body.error?.message ?? "Could not save.");
       router.refresh();
+      setSaved(id === "preferences" ? "Preferences saved." : "Update saved.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Could not save.");
     } finally {
       setBusy(null);
     }
   }
-  if (!data.launchAvailable) return null;
+  if (!data.launchAvailable)
+    return (
+      <p role="status">
+        Following is temporarily unavailable. Your saved alphas are still in
+        your profile.
+      </p>
+    );
   type Notification = NonNullable<ResearchData["notifications"]>[number];
   const groups: { key: string; batch: string | null; items: Notification[] }[] =
     [];
@@ -130,11 +139,30 @@ export function Watchlist({ data }: { data: ResearchData }) {
   return (
     <section className="section" aria-label="Your watchlist" id="following">
       <div className="section-heading">
-        <h2>Following</h2>
+        <h2>Your followed alphas</h2>
         <Bell size={18} aria-hidden="true" />
       </div>
-      {!data.follows?.length && <p>No opportunities or alpha followed yet.</p>}
-      <AirdropFollowing data={data} />
+      {!!data.airdropFollowing?.length && (
+        <nav
+          className="form-actions following-shortcuts"
+          aria-label="Following sections"
+        >
+          <a className="inline-link" href="#airdrop-alerts">
+            Monitoring
+          </a>
+          {!!data.airdropNotifications?.length && (
+            <a className="inline-link" href="#airdrop-updates">
+              Important updates
+            </a>
+          )}
+        </nav>
+      )}
+      {!data.follows?.length && (
+        <p className="empty-state">
+          Nothing followed yet. <Link href="/workbench">Browse alphas</Link> to
+          find one worth following.
+        </p>
+      )}
       {data.follows?.map((follow) => {
         const campaign = data.airdropFollowing?.find(
           (c) => c.followId === follow.id,
@@ -204,26 +232,25 @@ export function Watchlist({ data }: { data: ResearchData }) {
                 (latest?.detail ?? "None confirmed.")
               )}
             </p>
-            <p>
-              Source coverage:{" "}
-              {campaign
-                ? "Official campaign monitoring (alert settings above)"
-                : confirmedLatest
+            {!campaign && (
+              <p>
+                Source coverage:{" "}
+                {confirmedLatest
                   ? "Latest detected change confirmed"
                   : coverage
                     ? (coverageLabel[coverage.status] ?? "Unknown")
                     : "Not configured"}
-              . Last successful check:{" "}
-              {campaign?.lastSuccessAt
-                ? when(campaign.lastSuccessAt)
-                : coverage?.lastSuccessAt
+                . Last successful check:{" "}
+                {coverage?.lastSuccessAt
                   ? when(coverage.lastSuccessAt)
                   : "None"}
-              .
-            </p>
+                .
+              </p>
+            )}
           </article>
         );
       })}
+      <AirdropFollowing data={data} />
       {!!groups.length && (
         <div className="watch-notifications">
           <h3>Notifications</h3>
@@ -276,6 +303,11 @@ export function Watchlist({ data }: { data: ResearchData }) {
         </div>
       </details>
       {notice && <p role="alert">{notice}</p>}
+      {saved && (
+        <p className="success-notice" role="status">
+          {saved}
+        </p>
+      )}
     </section>
   );
 }

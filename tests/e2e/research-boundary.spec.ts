@@ -45,6 +45,7 @@ test("public illustration is distinct from real people, credit and reward promis
   page,
 }) => {
   await page.goto("/join");
+  await page.getByText("About Grindly and membership", { exact: true }).click();
   await expect(
     page.getByText("Illustrative scenario: fictional people and outcomes"),
   ).toBeVisible();

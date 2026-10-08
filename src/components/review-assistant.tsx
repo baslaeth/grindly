@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Database, Sparkles, UserCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { type ResearchData, person } from "@/research/model";
 import {
@@ -141,52 +142,64 @@ export function ReviewAssistant({
       aria-label={`Review Assistant version ${v.version}`}
     >
       <div className="section-heading">
-        <h3>Review Assistant</h3>
+        <h3>Evidence at a glance</h3>
         <span className="status-label">Version {v.version}</span>
       </div>
-      <p>
-        Evidence checks help you and an independent reviewer assess this alpha.
-        Retrieving a source does not establish that the claim is supported.
-      </p>
-      <div className="analysis-freshness" role="status">
-        <strong>
-          {old?.status === "complete"
-            ? "Saved preliminary analysis"
-            : "No completed AI analysis for this version"}
-        </strong>
-        <span>
-          {old?.status === "complete" && old.completed_at
-            ? `Saved ${alphaTime(old.completed_at)}. `
-            : ""}
-          {data.localAIEnabled
-            ? "Local analysis is configured on this machine."
-            : "AI analysis is not connected yet."}
-        </span>
-        {old?.status === "complete" && (
+      <nav className="evidence-stages" aria-label="Evidence stages">
+        <a href={`#sources-${version}`}>
+          <Database size={21} />
+          <strong>Source checks</strong>
           <span>
-            Source refresh does not rerun this analysis.
-            {lastChecked && old.completed_at && lastChecked > old.completed_at
-              ? " Newer source checks are available below; the saved findings have not assessed them."
-              : ""}
+            {sources.filter((s) => s.status === "retrieved").length} retrieved ·{" "}
+            {unknownSources} unavailable
           </span>
-        )}
-        {runs[0]?.status === "failed" && (
+          <small>
+            {lastChecked ? alphaTime(lastChecked) : "No completed check"}
+            {runs[0]?.status === "failed" ? " · Latest check failed" : ""}
+          </small>
+        </a>
+        <a href={`#analysis-${version}`}>
+          <Sparkles size={21} />
+          <strong>AI analysis</strong>
           <span>
-            The latest source refresh failed. Your alpha and earlier checks are
-            preserved.
+            {old?.status === "complete"
+              ? "Saved, experimental"
+              : "No completed analysis"}
           </span>
-        )}
-      </div>
+          <small>
+            {old?.status === "complete" && old.completed_at
+              ? `Saved ${alphaTime(old.completed_at)}`
+              : "Not a human decision"}
+          </small>
+        </a>
+        <a href={`#human-review-${version}`}>
+          <UserCheck size={21} />
+          <strong>Human review</strong>
+          <span>
+            {f.current_version && f.current_version !== version
+              ? "Earlier version"
+              : !f.status || f.status === "pending"
+                ? assigned
+                  ? "Reviewer assigned"
+                  : "Awaiting a reviewer"
+                : f.status.replaceAll("_", " ")}
+          </span>
+          <small>
+            {decisions.length} recorded{" "}
+            {decisions.length === 1 ? "decision" : "decisions"}
+          </small>
+        </a>
+      </nav>
       {terms && (
         <div
           className="intelligence-overview"
           aria-label="Current evidence overview"
         >
           <p>
-            <strong>What checks out:</strong>{" "}
+            <strong>What the saved analysis suggests:</strong>{" "}
             {overview?.supported.length
-              ? "The following claims have preliminary source support."
-              : "No assessed facts are ready to show yet. Source retrieval alone is not support."}
+              ? "Check the linked passages before relying on these preliminary findings."
+              : "No assessed facts are ready yet. Retrieved sources alone do not prove a claim."}
           </p>
           {!!overview?.supported.length && (
             <ul>
@@ -202,7 +215,7 @@ export function ReviewAssistant({
             answers Unknown or missing; {unknownSources} sources unavailable.{" "}
             {contradictions
               ? `${contradictions} model-noted contradictions require reviewer confirmation.`
-              : "No contradiction is independently established by retrieval alone."}
+              : ""}
           </p>
           {old?.status === "complete" && old.card && (
             <ul>
@@ -368,8 +381,14 @@ export function ReviewAssistant({
           </ul>
         </details>
       </details>
-      <Question enabled={questions} title="What sources were checked?">
-        <h4>Retrieved evidence</h4>
+      <section className="evidence-stage" id={`sources-${version}`}>
+        <h3>
+          <Database size={18} /> Source checks
+        </h3>
+        <p className="muted">
+          Retrieved pages and recorded observations, not proof that a claim is
+          true.
+        </p>
         {!sources.length ? (
           <p>
             {runs[0]?.status === "running"
@@ -406,7 +425,7 @@ export function ReviewAssistant({
             is updated. Existing observations are preserved.
           </p>
         )}
-      </Question>
+      </section>
       <Question enabled={questions} title="What information is missing?">
         <h4>Missing information and assessment questions</h4>
         {gaps.length ? (
@@ -439,8 +458,8 @@ export function ReviewAssistant({
         <h4>Related prior work</h4>
         {!hints.length ? (
           <p>
-            No visible prior-work hints are recorded. This is not proof of
-            originality or a semantic originality determination.
+            No related earlier alpha found in the accessible records. This does
+            not prove originality.
           </p>
         ) : (
           hints.map((h) => {
@@ -463,138 +482,157 @@ export function ReviewAssistant({
           })
         )}
       </Question>
-      <h4>AI analysis</h4>
-      {latest?.status === "running" && (
-        <div className="analysis-freshness" role="status">
-          <strong>Analysis is running</strong>
-          <span>
-            Your alpha is saved. Check for the result when the local model
-            finishes.
-          </span>
-          <RefreshResearch label="Check analysis result" />
-        </div>
-      )}
-      {latest && latest.id !== old?.id && latest.status !== "running" && (
-        <p className="notice">
-          The latest analysis did not complete. Your alpha and the earlier saved
-          result are preserved; no new conclusion was added.
-        </p>
-      )}
-      {a.category === "Airdrop Hunters" && data.localAIEnabled && (
-        <p className="notice">
-          Experimental local analysis can misread dates, overstate support and
-          confuse historical announcements with current availability. Inspect
-          the source passages; a model label is not verification.
-        </p>
-      )}
-      <p>
-        {data.localAIEnabled
-          ? "Optional local AI analysis is configured. Results require independent assessment."
-          : "AI analysis is not connected yet."}
-      </p>
-      {data.localAIEnabled &&
-        latest?.status !== "running" &&
-        (f.author_id === data.memberId ||
-          assigned?.reviewer_id === data.memberId) && (
-          <AlphaAction
-            version={version}
-            action="localReview"
-            label={
-              old?.status === "complete"
-                ? "Run fresh local analysis"
-                : "Run local preliminary analysis"
-            }
-          />
+      <section className="evidence-stage" id={`analysis-${version}`}>
+        <h3>
+          <Sparkles size={18} /> AI analysis
+        </h3>
+        {latest?.status === "running" && (
+          <div className="analysis-freshness" role="status">
+            <strong>Analysis is running</strong>
+            <span>
+              Your alpha is saved. Check for the result when the local model
+              finishes.
+            </span>
+            <RefreshResearch label="Check analysis result" />
+          </div>
         )}
-      {old?.provider === "ollama-local" && (
-        <div>
-          <p>
-            Local model: {old.model}.{" "}
-            {old.status === "complete"
-              ? `Preliminary analysis saved${old.completed_at ? ` ${alphaTime(old.completed_at)}` : ""}; retained for this version`
-              : old.status === "running"
-                ? "Analysis pending"
-                : "Analysis unavailable or failed validation; no conclusion saved"}
-            .
+        {latest && latest.id !== old?.id && latest.status !== "running" && (
+          <p className="notice">
+            The latest analysis did not complete. Your alpha and the earlier
+            saved result are preserved; no new conclusion was added.
           </p>
-          {old.status === "complete" && old.card && (
-            <details>
-              <summary>Claim-by-claim model evidence</summary>
-              {!terms && <p>{old.card.summary}</p>}
-              {old.card.claims.map((c, i) => (
-                <details key={i}>
-                  <summary>
-                    {c.status === "unverified" ? "Unknown" : c.status} /{" "}
-                    {c.claim}
-                  </summary>
-                  <p>{c.reason}</p>
-                  {c.field && (
-                    <p className="muted">
-                      Field: {c.field}. Campaign: {c.campaign}. Assessed{" "}
-                      {c.assessedAt ? alphaTime(c.assessedAt) : "Unknown"}.
-                    </p>
-                  )}
-                  {c.original && (
-                    <details>
-                      <summary>Original field text</summary>
-                      <p>{c.original}</p>
-                    </details>
-                  )}
-                  {c.evidenceLinks.map((link, j) => {
-                    const s = old.sources.find((s) => s.id === link.source);
-                    return (
-                      <div key={j}>
-                        <blockquote>{link.excerpt}</blockquote>
-                        <p>{link.relationship}</p>
-                        {s && (
-                          <ul>
-                            <CheckedEvidence source={s} />
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })}
-                </details>
-              ))}
-              <p>
-                Missing evidence:{" "}
-                {old.card.missingEvidence.join("; ") ||
-                  "No additional gaps identified by this model; not proof of completeness."}
-              </p>
-              <ul>
-                {old.card.riskQuestions.map((q, i) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ul>
-              <p>Suggested next check (not scheduled): {old.card.nextCheck}</p>
-            </details>
+        )}
+        {a.category === "Airdrop Hunters" && data.localAIEnabled && (
+          <p className="notice">
+            Experimental local analysis can misread dates, overstate support and
+            confuse historical announcements with current availability. Inspect
+            the source passages; a model label is not verification.
+          </p>
+        )}
+        <p>
+          {data.localAIEnabled
+            ? "Optional local AI analysis is configured. Results require independent assessment."
+            : "Fresh AI analysis is not connected. Any result below is a saved experimental analysis."}
+        </p>
+        {data.localAIEnabled &&
+          latest?.status !== "running" &&
+          (f.author_id === data.memberId ||
+            assigned?.reviewer_id === data.memberId) && (
+            <AlphaAction
+              version={version}
+              action="localReview"
+              label={
+                old?.status === "complete"
+                  ? "Run fresh local analysis"
+                  : "Run local preliminary analysis"
+              }
+            />
           )}
-        </div>
-      )}
-      <p className="muted">
-        Source and submission checks are not AI interpretation. Local model
-        output, when explicitly requested, is preliminary and cannot approve
-        work or award XP. No quality score is implied.
-      </p>
-      <details>
-        <summary>Earlier saved analyses and source snapshots</summary>
-        {data.preliminary
-          ?.filter((r) => r.version_id === version && r.id !== old?.id)
-          .map((r) => (
+        {old?.provider === "ollama-local" && (
+          <div>
+            <p>
+              Local model: {old.model}.{" "}
+              {old.status === "complete"
+                ? `Preliminary analysis saved${old.completed_at ? ` ${alphaTime(old.completed_at)}` : ""}; retained for this version`
+                : old.status === "running"
+                  ? "Analysis pending"
+                  : "Analysis unavailable or failed validation; no conclusion saved"}
+              .
+            </p>
+            {old.status === "complete" && old.card && (
+              <details>
+                <summary>Claim-by-claim model evidence</summary>
+                {!terms && <p>{old.card.summary}</p>}
+                {old.card.claims.map((c, i) => (
+                  <details key={i}>
+                    <summary>
+                      {c.status === "unverified" ? "Unknown" : c.status} /{" "}
+                      {c.claim}
+                    </summary>
+                    <p>{c.reason}</p>
+                    {c.field && (
+                      <p className="muted">
+                        Field: {c.field}. Campaign: {c.campaign}. Assessed{" "}
+                        {c.assessedAt ? alphaTime(c.assessedAt) : "Unknown"}.
+                      </p>
+                    )}
+                    {c.original && (
+                      <details>
+                        <summary>Original field text</summary>
+                        <p>{c.original}</p>
+                      </details>
+                    )}
+                    {c.evidenceLinks.map((link, j) => {
+                      const s = old.sources.find((s) => s.id === link.source);
+                      return (
+                        <div key={j}>
+                          <blockquote>{link.excerpt}</blockquote>
+                          <p>{link.relationship}</p>
+                          {s && (
+                            <ul>
+                              <CheckedEvidence source={s} />
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </details>
+                ))}
+                <p>
+                  Missing evidence:{" "}
+                  {old.card.missingEvidence.join("; ") ||
+                    "No additional gaps identified by this model; not proof of completeness."}
+                </p>
+                <ul>
+                  {old.card.riskQuestions.map((q, i) => (
+                    <li key={i}>{q}</li>
+                  ))}
+                </ul>
+                <p>
+                  Suggested next check (not scheduled): {old.card.nextCheck}
+                </p>
+              </details>
+            )}
+          </div>
+        )}
+        <p className="muted">
+          Source refresh does not rerun AI analysis. Model output cannot approve
+          work or award XP.
+          {lastChecked && old?.completed_at && lastChecked > old.completed_at
+            ? " Newer source checks have not been assessed by this saved analysis."
+            : ""}
+        </p>
+        <details>
+          <summary>Earlier saved analyses and source snapshots</summary>
+          {data.preliminary
+            ?.filter((r) => r.version_id === version && r.id !== old?.id)
+            .map((r) => (
+              <details key={r.id}>
+                <summary>
+                  {alphaTime(r.created_at)} / {r.model ?? "Model unavailable"} /{" "}
+                  {r.status}
+                </summary>
+                <p>
+                  Historical preliminary output, not the current assessment.
+                  Earlier mistakes remain recorded.
+                </p>
+                {r.card?.claims.map((c, i) => (
+                  <p key={i}>
+                    {c.status}: {c.claim} / {c.reason}
+                  </p>
+                ))}
+                <ul>
+                  {r.sources.map((s) => (
+                    <CheckedEvidence key={s.id} source={s} />
+                  ))}
+                </ul>
+              </details>
+            ))}
+          {runs.slice(1).map((r) => (
             <details key={r.id}>
               <summary>
-                {alphaTime(r.created_at)} / {r.model ?? "Model unavailable"} /{" "}
-                {r.status}
+                Source check {alphaTime(r.created_at)} / {r.status}
               </summary>
-              <p>
-                Historical preliminary output, not the current assessment.
-                Earlier mistakes remain recorded.
-              </p>
-              {r.card?.claims.map((c, i) => (
-                <p key={i}>
-                  {c.status}: {c.claim} / {c.reason}
-                </p>
-              ))}
               <ul>
                 {r.sources.map((s) => (
                   <CheckedEvidence key={s.id} source={s} />
@@ -602,61 +640,54 @@ export function ReviewAssistant({
               </ul>
             </details>
           ))}
-        {runs.slice(1).map((r) => (
-          <details key={r.id}>
-            <summary>
-              Source check {alphaTime(r.created_at)} / {r.status}
-            </summary>
-            <ul>
-              {r.sources.map((s) => (
-                <CheckedEvidence key={s.id} source={s} />
-              ))}
-            </ul>
-          </details>
-        ))}
-      </details>
-      <h4>Independent review</h4>
-      {decisions.length ? (
-        decisions.map((d) => (
-          <p key={d.id}>
-            {d.decision === "accept"
-              ? "Accepted within the recorded scope"
-              : d.decision === "reject"
-                ? "Rejected with feedback"
-                : "Correction requested"}{" "}
-            by {person(data, d.reviewer_id)}, {alphaTime(d.created_at)}.{" "}
-            {d.reason}
+        </details>
+      </section>
+      <section className="evidence-stage" id={`human-review-${version}`}>
+        <h3>
+          <UserCheck size={18} /> Independent review
+        </h3>
+        {decisions.length ? (
+          decisions.map((d) => (
+            <p key={d.id}>
+              {d.decision === "accept"
+                ? "Accepted within the recorded scope"
+                : d.decision === "reject"
+                  ? "Rejected with feedback"
+                  : "Correction requested"}{" "}
+              by {person(data, d.reviewer_id)}, {alphaTime(d.created_at)}.{" "}
+              {d.reason}
+            </p>
+          ))
+        ) : (
+          <p>
+            {assigned
+              ? "Pending review by an assigned independent reviewer."
+              : "Waiting for an authorized independent reviewer. Add evidence or invite sourced feedback while this remains pending."}
           </p>
-        ))
-      ) : (
+        )}
         <p>
-          {assigned
-            ? "Pending review by an assigned independent reviewer."
-            : "Waiting for an authorized independent reviewer. Add evidence or invite sourced feedback while this remains pending."}
+          Review, XP and later outcomes are separate. A useful accepted
+          contribution is not necessarily a successful forecast.
         </p>
-      )}
-      <p>
-        Review, XP and later outcomes are separate. A useful accepted
-        contribution is not necessarily a successful forecast.
-      </p>
-      {data.reviewAssessments
-        ?.filter((r) => decisions.some((d) => d.id === r.decision_id))
-        .map((r) => (
-          <details key={r.decision_id}>
-            <summary>Recorded reviewer assessment / {r.checklist}</summary>
-            <dl>
-              {assessmentFields.map((f) => (
-                <div key={f.key}>
-                  <dt>{f.label}</dt>
-                  <dd>{r.assessment[f.key]}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-        ))}
-      <Link className="inline-link" href={`#outcome-${version}`}>
-        Later outcome and observations
-      </Link>
+        {data.reviewAssessments
+          ?.filter((r) => decisions.some((d) => d.id === r.decision_id))
+          .map((r) => (
+            <details key={r.decision_id}>
+              <summary>Recorded reviewer assessment / {r.checklist}</summary>
+              <dl>
+                {assessmentFields.map((f) => (
+                  <div key={f.key}>
+                    <dt>{f.label}</dt>
+                    <dd>{r.assessment[f.key]}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          ))}
+        <Link className="inline-link" href={`#outcome-${version}`}>
+          Later outcome and observations
+        </Link>
+      </section>
     </section>
   );
 }

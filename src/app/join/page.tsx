@@ -9,7 +9,6 @@ import { WalletProof } from "@/components/wallet-proof";
 import { MembershipActions } from "@/components/membership-actions";
 import { IllustrativeScenario } from "@/components/research-views";
 import { CoreLoop } from "@/components/core-loop";
-import { ArrowDown, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = { title: "Login" };
 export const dynamic = "force-dynamic";
@@ -39,26 +38,11 @@ export default async function JoinPage() {
   }
   return (
     <Screen title="Login">
-      <section
-        className="join-intro"
-        aria-label="Specialist exchange introduction"
-      >
-        <h2>
-          Contribute where you have an edge. Get help where you don&apos;t.
-        </h2>
-        <div className="form-actions">
-          <a className="button" href="#invitation">
-            {member ? "Continue your membership" : "Join with invitation"}
-            <ArrowRight size={16} />
-          </a>
-          <a className="inline-link" href="#public-example">
-            See a specialist exchange <ArrowDown size={16} />
-          </a>
-        </div>
-      </section>
       <section className="section access-section" id="invitation">
         <div className="access-context">
-          <h2>Membership opens the door. Your work builds the history.</h2>
+          <h2>
+            {member ? "Continue to your membership" : "Welcome to Grindly"}
+          </h2>
           <p>
             Verify your email and wallet, then mint or bind a testnet membership
             NFT. Membership provides access and displays current progression; it
@@ -104,14 +88,15 @@ export default async function JoinPage() {
           <MembershipActions />
         </section>
       )}
-      <CoreLoop />
-      <section
+      <details
         className="section sample"
         id="public-example"
         aria-label="Public sample"
       >
+        <summary>About Grindly and membership</summary>
+        <CoreLoop />
         <IllustrativeScenario />
-      </section>
+      </details>
     </Screen>
   );
 }

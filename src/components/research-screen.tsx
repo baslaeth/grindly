@@ -6,6 +6,7 @@ import { reportFailure } from "@/server/diagnostics";
 import Link from "next/link";
 import { RefreshResearch } from "./research-forms";
 import { GrindIntelligence } from "./grind-intelligence";
+import { Watchlist } from "./watchlist";
 import {
   Workbench,
   FindingEditor,
@@ -24,7 +25,13 @@ export async function ResearchScreen({
   saved,
 }: {
   view:
-    "workbench" | "new" | "record" | "review" | "membership" | "intelligence";
+    | "workbench"
+    | "new"
+    | "record"
+    | "review"
+    | "membership"
+    | "intelligence"
+    | "following";
   id?: string;
   message?: string;
   revise?: string;
@@ -40,6 +47,7 @@ export async function ResearchScreen({
     review: "Review Desk",
     membership: "My profile",
     intelligence: "Grind Intelligence",
+    following: "Following",
   }[view];
   let data;
   let denied = false;
@@ -67,8 +75,15 @@ export async function ResearchScreen({
       denied =
         error instanceof ServiceError && [401, 403, 404].includes(error.status);
     }
+  const record =
+    view === "record"
+      ? data?.findings.find((f) => id === "latest" || f.id === id)
+      : undefined;
+  const recordTitle = data?.alphas?.find(
+    (a) => a.version_id === record?.current_version,
+  )?.subject;
   return (
-    <Screen title={title}>
+    <Screen title={recordTitle && !saved ? recordTitle : title}>
       {view === "intelligence" && !data && (
         <section className="intelligence-intro">
           <p>
@@ -76,17 +91,11 @@ export async function ResearchScreen({
             questions, earlier contributions and later observations.
           </p>
           <p>
-            <strong>AI analysis is not connected yet.</strong>{" "}
-            Retrieved sources do not by themselves prove a claim.
+            <strong>AI analysis is not connected yet.</strong> Retrieved sources
+            do not by themselves prove a claim.
           </p>
         </section>
       )}
-      {view === "record" &&
-        data?.profiles.find((p) => p.member_id === data.memberId)?.is_demo && (
-          <p className="sample-label">
-            Sample account: isolated contributions and XP.
-          </p>
-        )}
       {!data ? (
         unavailable ? (
           <p className="notice" role="alert">
@@ -101,16 +110,8 @@ export async function ResearchScreen({
             <RefreshResearch />
           </div>
         )
-      ) : view === "review" &&
-        !data.roles.includes("reviewer") &&
-        !data.roles.includes("steward") ? (
-        <p className="notice">
-          Review authority required.{" "}
-          <Link href="/membership">
-            View your evaluation results in My profile
-          </Link>
-          .
-        </p>
+      ) : view === "following" ? (
+        <Watchlist data={data} />
       ) : view === "intelligence" ? (
         <GrindIntelligence data={data} id={id} />
       ) : view === "workbench" ? (

@@ -1,7 +1,12 @@
 export default function Loading() {
   return (
-    <p role="status" className="notice">
-      Loading...
-    </p>
+    <div role="status" className="workspace-loading">
+      <p>Loading your workspace...</p>
+      <div aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
   );
 }

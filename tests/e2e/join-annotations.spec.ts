@@ -31,6 +31,7 @@ test("annotated shell has concise labels, profile shortcut and unchanged access 
     page.getByRole("button", { name: "Open Next.js Dev Tools" }),
   ).toHaveCount(0);
   // The removed duplicate labels do not make the fictional example look genuine.
+  await page.getByText("About Grindly and membership", { exact: true }).click();
   await expect(
     page.getByText("Illustrative scenario: fictional people and outcomes"),
   ).toBeVisible();

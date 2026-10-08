@@ -17,6 +17,7 @@ import {
   checklistVersion,
 } from "@/alpha/checklists";
 import { launchFields, legacyDetails } from "@/launch/forms";
+import { formAliases, submissionTypes } from "@/launch/form-aliases";
 import { launchPolicy } from "@/launch/policy";
 import { airdropGuideVersion, airdropStages } from "@/alpha/airdrop";
 
@@ -190,6 +191,14 @@ export function AlphaForm({
   const [kind, setKind] = useState<keyof typeof contributionTypes>(
     version ? "correction" : "find",
   );
+  const aliases = category
+    ? formAliases(category, launchTerm?.context, {
+        subject: av?.subject ?? "",
+        usefulAction: launchTerm?.useful_action ?? version?.claim ?? "",
+        purpose: av?.purpose ?? "",
+        costOrRisk: launchTerm?.cost_or_risk ?? version?.limitations ?? "",
+      })
+    : {};
   const [includePrediction, setIncludePrediction] = useState(
     !!launchTerm?.prediction,
   );
@@ -275,6 +284,16 @@ export function AlphaForm({
           value: get("airdrop-official"),
           label: "Official campaign documentation",
         });
+      for (const field of launchContextFields.filter(
+        (f) => f.kind === "url" || f.key === "official",
+      )) {
+        const value = get(`launch-${field.key}`);
+        if (
+          value.startsWith("https://") &&
+          !evidence.some((e) => e.value === value)
+        )
+          evidence.push({ kind: "link", value, label: field.label });
+      }
       evidence.push(
         ...files.map((f) => ({
           kind: "attachment" as const,
@@ -324,6 +343,8 @@ export function AlphaForm({
               : get(`launch-${f.key}`) || "Unknown",
         ]),
       );
+      for (const [key, field] of Object.entries(aliases))
+        launchContext[key] = get(field) || "Unknown";
       if (category === "Airdrop Hunters") {
         launchContext.project = get("subject");
         launchContext.status = "Unknown";
@@ -357,7 +378,7 @@ export function AlphaForm({
         limitations: launchActive ? get("costOrRisk") : get("limitations"),
         subject: get("subject"),
         chain: launchActive
-          ? (launchContext.chain ?? launchContext.network ?? "")
+          ? (launchContext.chain ?? launchContext.network ?? get("chain"))
           : get("chain"),
         contract: launchActive
           ? ["Degens", "NFT Specialists"].includes(category)
@@ -366,7 +387,7 @@ export function AlphaForm({
               !launchContext.official.startsWith("https://")
                 ? launchContext.official
                 : "Unknown"))
-            : ""
+            : get("contract")
           : get("contract"),
         details,
         ...(launchActive && category === "Airdrop Hunters"
@@ -454,9 +475,6 @@ export function AlphaForm({
   }
   return (
     <form onSubmit={submit} className="research-form" aria-busy={busy}>
-      <Link className="inline-link" href="/xp">
-        How XP and ranks work
-      </Link>
       {data.launchAllowance && (
         <p className="muted">
           {data.launchAllowance.dailyRemaining} new alphas remaining today
@@ -465,11 +483,12 @@ export function AlphaForm({
       )}
       {(!data.evaluationAvailable || !launchActive) && (
         <p className="notice" role="status">
-          Launch submissions are unavailable until the approved policy database
-          update is active. Existing records remain available.
+          Submissions are temporarily unavailable. Your draft and existing
+          records remain available.
         </p>
       )}
       <fieldset disabled={busy}>
+        <legend>1. Your alpha</legend>
         <label className="field">
           Contribution category
           <select
@@ -487,10 +506,6 @@ export function AlphaForm({
             ))}
           </select>
         </label>
-        <p className="muted">
-          Your profile focus is separate. You may contribute in any category
-          within {data.token.tier}.
-        </p>
         <label className="field">
           Contribution type
           <select
@@ -500,13 +515,13 @@ export function AlphaForm({
               setKind(e.target.value as keyof typeof contributionTypes)
             }
           >
-            {Object.entries(contributionTypes)
-              .filter(([key]) => key !== "followup")
-              .map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
+            {submissionTypes(!!version).map((key) => (
+              <option key={key} value={key}>
+                {key === "find"
+                  ? "Finding or analysis"
+                  : contributionTypes[key]}
+              </option>
+            ))}
           </select>
         </label>
         <Field
@@ -585,6 +600,7 @@ export function AlphaForm({
                     (f) =>
                       f.core &&
                       !f.fromPrediction &&
+                      !aliases[f.key] &&
                       !(
                         category === "Airdrop Hunters" &&
                         ["project", "status", "testedSteps"].includes(f.key)
@@ -608,6 +624,7 @@ export function AlphaForm({
                         (f) =>
                           !f.core &&
                           !f.fromPrediction &&
+                          !aliases[f.key] &&
                           !(
                             category === "Airdrop Hunters" && f.key === "costs"
                           ),
@@ -845,7 +862,7 @@ export function AlphaForm({
           </div>
         )}
         <div className="form-step">
-          <h3>Evidence</h3>
+          <h3>2. Evidence and your work</h3>
           <details open={category !== "Airdrop Hunters"}>
             <summary>Additional links, screenshots or linked messages</summary>
             <Field
@@ -958,7 +975,7 @@ export function AlphaForm({
           )}
         </div>
         <details>
-          <summary>Additional provenance</summary>
+          <summary>Identifiers and dates (optional)</summary>
           <div className="form-step">
             {!["Degens", "NFT Specialists", "Airdrop Hunters"].includes(
               category,
@@ -991,7 +1008,7 @@ export function AlphaForm({
           </div>
         </details>
         <details>
-          <summary>Attribution and sensitive-material permissions</summary>
+          <summary>Audience and related work</summary>
           <label className="field">
             Related contribution
             <select
@@ -1004,10 +1021,11 @@ export function AlphaForm({
                 .filter((f) => f.id !== finding?.id)
                 .map((f) => (
                   <option key={f.id} value={f.current_version ?? ""}>
-                    {
+                    {data.alphas?.find(
+                      (a) => a.version_id === f.current_version,
+                    )?.subject ??
                       data.versions.find((v) => v.id === f.current_version)
-                        ?.claim
-                    }
+                        ?.claim}
                   </option>
                 ))}
             </select>
@@ -1032,7 +1050,11 @@ export function AlphaForm({
         </details>
         {version && (
           <Field
-            label="What this correction changes"
+            label={
+              kind === "update"
+                ? "What changed since the previous version"
+                : "What this correction changes"
+            }
             name="correction"
             required
           />
@@ -1041,12 +1063,12 @@ export function AlphaForm({
           <input required type="checkbox" /> I have permission to share this
           evidence and have identified my own contribution.
         </label>
-        <aside className="notice" aria-label="XP before submission">
-          <strong>
-            {kind === "prediction"
-              ? "Outcome credit, not a posting reward"
-              : "Potential work credit after independent review"}
-          </strong>
+        <details
+          className="notice"
+          aria-label="XP before submission"
+          open={showPrediction}
+        >
+          <summary>Independent review is required for XP</summary>
           <p>
             {kind === "prediction"
               ? "A raw prediction earns no work XP merely for being posted. Standard outcomes: Normal +50 / -10 XP; High +150 / -50 XP with a 50 XP reserve."
@@ -1063,11 +1085,10 @@ export function AlphaForm({
                   : "A baseline, measurable target, failure condition and future horizon are needed for outcome eligibility. Incomplete terms remain unvalidated."}
             </p>
           )}
-          <p>
-            Saving preserves the record even if a source or model is
-            unavailable.
-          </p>
-        </aside>
+          <Link className="inline-link" href="/xp">
+            XP rules and limits
+          </Link>
+        </details>
         <button
           className="button"
           type="submit"
@@ -1077,7 +1098,9 @@ export function AlphaForm({
           {busy
             ? "Saving..."
             : version
-              ? "Submit corrected version"
+              ? kind === "update"
+                ? "Submit updated version"
+                : "Submit corrected version"
               : "Submit for review"}
         </button>
       </fieldset>

@@ -10,4 +10,5 @@ export const screens = [
     icon: "contribution",
   },
   { href: "/membership", title: "My profile", icon: "membership" },
+  { href: "/following", title: "Following", icon: "following" },
 ] as const;

@@ -18,9 +18,11 @@ export function AirdropFollowing({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   async function save(payload: object) {
     setBusy(true);
     setError("");
+    setSaved(false);
     try {
       const r = await fetch("/api/alpha", {
         method: "POST",
@@ -29,6 +31,7 @@ export function AirdropFollowing({
       });
       if (!r.ok) throw Error("Could not save. Your selection is retained.");
       router.refresh();
+      setSaved(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unavailable");
     } finally {
@@ -53,10 +56,11 @@ export function AirdropFollowing({
           aria-label="Airdrop alerts"
         >
           <h3>
-            <Bell size={18} /> Airdrop alerts
+            <Bell size={18} /> Campaign monitoring
           </h3>
           <p>
-            Registered official pages only; changes need operator confirmation.{" "}
+            Updates from registered official pages, checked before an alert is
+            sent.{" "}
             {data.monitoringSchedule === "hosted-daily"
               ? "Hosted checks run daily. Check times can vary; alerts are not immediate."
               : "Local checks need this computer and scheduler running."}
@@ -73,7 +77,7 @@ export function AirdropFollowing({
                     : (labels[f.status] ?? f.status)}
                 </p>
                 <p>
-                  Last successful check: {when(f.lastSuccessAt)}. Source due:{" "}
+                  Last successful check: {when(f.lastSuccessAt)}. Next due:{" "}
                   {when(f.nextDue)}.
                 </p>
                 <a href={f.url} target="_blank" rel="noreferrer">
@@ -297,6 +301,11 @@ export function AirdropFollowing({
         </section>
       )}
       {error && <p role="alert">{error}</p>}
+      {saved && (
+        <p className="success-notice" role="status">
+          Saved.
+        </p>
+      )}
     </>
   );
 }

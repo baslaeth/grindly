@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScanSearch } from "lucide-react";
 import { type ResearchData, person } from "@/research/model";
 import { ReviewAssistant, alphaTime } from "./review-assistant";
 import { AlphaOutcomes } from "./alpha-outcomes";
@@ -42,7 +43,7 @@ export function GrindIntelligence({
           ))}
         </select>
         <button className="button" disabled={!available.length}>
-          Open alpha
+          <ScanSearch size={16} /> Inspect
         </button>
       </form>
       {!finding || !version || !alpha ? (
@@ -58,6 +59,8 @@ export function GrindIntelligence({
             aria-label="Selected alpha"
           >
             <h2>{alpha.subject}</h2>
+            {data.profiles.find((p) => p.member_id === finding.author_id)
+              ?.is_demo && <span className="sample-label">Sample</span>}
             <p>
               {alpha.category} / {person(data, finding.author_id)} / version{" "}
               {version.version}
@@ -70,11 +73,8 @@ export function GrindIntelligence({
                   : finding.status.replaceAll("_", " ")}
               </strong>
             </p>
-            <Link
-              href={`/findings/${finding.id}#review-assistant-${version.id}`}
-              className="inline-link"
-            >
-              Open alpha and Review Assistant
+            <Link href={`/findings/${finding.id}`} className="inline-link">
+              Read the full alpha
             </Link>
             <details>
               <summary>Original action or claim</summary>

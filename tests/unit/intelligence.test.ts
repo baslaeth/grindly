@@ -45,11 +45,11 @@ function fixture(): ResearchData {
 it("renders useful empty answers without inventing checks or AI results", () => {
   const html = renderToStaticMarkup(GrindIntelligence({ data: fixture() }));
   for (const text of [
-    "What sources were checked?",
+    "Source checks",
     "What information is missing?",
     "Is there related earlier alpha?",
     "What happened after the declared horizon?",
-    "AI analysis is not connected yet.",
+    "Fresh AI analysis is not connected.",
     "No source observations saved yet",
     "Source refresh is temporarily unavailable",
     "No time-bound outcome declared",
@@ -77,7 +77,7 @@ it("shows failed refresh honestly and omits inaccessible prior-work identifiers"
   expect(html).toContain("The latest source check could not finish");
   expect(html).not.toContain("hidden-version-identifier");
   expect(html).not.toContain("hidden-source");
-  expect(html).toContain("No visible prior-work hints are recorded.");
+  expect(html).toContain("No related earlier alpha found");
 });
 it("an empty permitted snapshot has no actionable selector or fabricated example", () => {
   const data = fixture();
@@ -126,11 +126,11 @@ it("keeps saved analysis dated separately from newer source checks and a failed 
     },
   ] as unknown as ResearchData["preliminary"];
   const html = renderToStaticMarkup(GrindIntelligence({ data }));
-  expect(html).toContain("Saved preliminary analysis");
+  expect(html).toContain("Saved, experimental");
   expect(html).toContain("Saved 2026-10-01 12:00:01 UTC");
-  expect(html).toContain("Newer source checks are available below");
-  expect(html).toContain("The latest source refresh failed");
-  expect(html).toContain("AI analysis is not connected yet");
+  expect(html).toContain("Newer source checks have not been assessed");
+  expect(html).toContain("Latest check failed");
+  expect(html).toContain("Fresh AI analysis is not connected");
 });
 
 it.each(["running", "failed"])(

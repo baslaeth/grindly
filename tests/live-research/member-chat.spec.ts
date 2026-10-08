@@ -21,6 +21,10 @@ async function chooseRoom(page: Page, category: string) {
       .getByRole("link", { name: new RegExp(`^${category}(\\s|$)`) })
       .click();
   await expect(
+    page.getByRole("tab", { name: "Chat", exact: true }),
+  ).toBeVisible({ timeout: 60000 });
+  await page.getByRole("tab", { name: "Chat", exact: true }).click();
+  await expect(
     page.getByRole("heading", {
       name: `Bronze / ${category} chat`,
       exact: true,

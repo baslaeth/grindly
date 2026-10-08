@@ -8,6 +8,9 @@ test("narrow and wide explainer scenes keep captions clear of controls", async (
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/join");
     await page
+      .getByText("About Grindly and membership", { exact: true })
+      .click();
+    await page
       .getByRole("button", { name: "Play the core loop", exact: true })
       .click();
     for (let frame = 0; frame < 6; frame++) {
@@ -33,6 +36,7 @@ test("explainer loads on demand, pauses, replays and finishes without looping", 
   page,
 }) => {
   await page.goto("/join");
+  await page.getByText("About Grindly and membership", { exact: true }).click();
   await expect(page.locator(".loop-player")).toHaveCount(0);
   await page
     .getByRole("button", { name: "Play the core loop", exact: true })
@@ -74,6 +78,7 @@ test("reduced motion stays static with keyboard-operable scene controls", async 
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/join");
+  await page.getByText("About Grindly and membership", { exact: true }).click();
   await page
     .getByRole("button", { name: "Play the core loop", exact: true })
     .click();
@@ -129,7 +134,7 @@ test("keyboard skip link and high contrast brand remain usable", async ({
       "body",
       ".brand",
       ".profile-shortcut",
-      ".join-intro .button",
+      ".auth-tool .button",
       ".sample-label",
       ".muted",
       ...(getComputedStyle(document.querySelector(".nav-toggle")!).display !==

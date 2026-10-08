@@ -12,6 +12,7 @@ import {
   X,
   House,
   ScanSearch,
+  Bell,
 } from "lucide-react";
 import { clearChatDrafts } from "@/chat/drafts";
 
@@ -24,7 +25,6 @@ const icons = {
 
 export function Navigation({
   signedIn = false,
-  reviewer = false,
 }: {
   signedIn?: boolean;
   reviewer?: boolean;
@@ -44,8 +44,11 @@ export function Navigation({
     { href: "/workbench", title: "Hub", icon: icons.workbench },
     { href: "/findings/new", title: "Submit alpha", icon: icons.submit },
     { href: "/intelligence", title: "Grind Intelligence", icon: ScanSearch },
-    ...(reviewer
+    ...(signedIn
       ? [{ href: "/review", title: "Review Desk", icon: icons.review }]
+      : []),
+    ...(signedIn
+      ? [{ href: "/following", title: "Following", icon: Bell }]
       : []),
     ...(!signedIn
       ? [{ href: "/join", title: "Sign in", icon: icons.join }]
@@ -86,20 +89,36 @@ export function Navigation({
 
 export function SignOut() {
   const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   return (
-    <button
-      type="button"
-      className="nav-signout"
-      onClick={async () => {
-        const response = await fetch("/api/auth/signout", { method: "POST" });
-        if (response.ok) {
-          clearChatDrafts();
-          router.push("/");
-          router.refresh();
-        }
-      }}
-    >
-      Sign out
-    </button>
+    <>
+      <button
+        type="button"
+        className="nav-signout"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          setError("");
+          try {
+            const response = await fetch("/api/auth/signout", {
+              method: "POST",
+            });
+            if (response.ok) {
+              clearChatDrafts();
+              router.push("/");
+              router.refresh();
+            } else setError("Could not sign out. Please retry.");
+          } catch {
+            setError("Connection unavailable. Please retry.");
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? "Signing out..." : "Sign out"}
+      </button>
+      {error && <p role="alert">{error}</p>}
+    </>
   );
 }

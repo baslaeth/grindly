@@ -1,11 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Users, ArrowRight, ShieldCheck, Hash } from "lucide-react";
-import {
-  credit,
-  profileHistory,
-  type ResearchData,
-} from "@/research/model";
+import { credit, profileHistory, type ResearchData } from "@/research/model";
 import { acquisitionLabel } from "@/research/spaces";
 import { ProfileDrawer, RoomSelector, RoomUnread } from "./space-controls";
 import { CategoryHistory } from "./alpha-views";
@@ -15,7 +11,7 @@ export const profileHref = (room: string, id: string) =>
   `/workbench?room=${encodeURIComponent(room)}&profile=${encodeURIComponent(id)}`;
 function recordedSpecialty(data: ResearchData, id: string, fallback: string) {
   const profile = data.profiles.find((p) => p.member_id === id);
-  return profile ? primaryFocus(profile) ?? "Focus not selected" : fallback;
+  return profile ? (primaryFocus(profile) ?? "Focus not selected") : fallback;
 }
 function Avatar({ name }: { name: string }) {
   return (
@@ -440,7 +436,7 @@ export function RankSpace({
             {data.rooms?.map((r) => (
               <Link
                 key={r.id}
-                href={`/workbench?room=${r.id}#discussion`}
+                href={`/workbench?room=${r.id}#alphas`}
                 prefetch={false}
                 aria-current={r.id === data.question.id ? "page" : undefined}
               >

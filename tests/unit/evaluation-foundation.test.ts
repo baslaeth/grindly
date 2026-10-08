@@ -208,7 +208,7 @@ it("separates real source retrieval from inactive AI and unstaffed review", () =
     ],
   } as unknown as ResearchData;
   const html = renderToStaticMarkup(ReviewAssistant({ data, version: "v" }));
-  expect(html).toContain("AI analysis is not connected yet.");
+  expect(html).toContain("Fresh AI analysis is not connected.");
   expect(html).toContain("Refresh sources");
   expect(html).toContain("Waiting for an authorized independent reviewer");
   expect(html).not.toContain("Retry preliminary review");

@@ -7,14 +7,18 @@ import { ReviewAssistant, alphaTime } from "./review-assistant";
 import { AlphaOutcomes } from "./alpha-outcomes";
 import { AlphaFollow } from "./alpha-follow";
 import { ReverseWorkAward } from "./reverse-work-award";
+import { AlphaSummary } from "./alpha-summary";
+import { AlphaFeed } from "./alpha-feed";
 export { CategoryHistory } from "./category-history";
 
 export function AlphaDetails({
   data,
   version,
+  showFollow = true,
 }: {
   data: ResearchData;
   version: string;
+  showFollow?: boolean;
 }) {
   const a = data.alphas?.find((a) => a.version_id === version);
   if (!a) return null;
@@ -54,7 +58,7 @@ export function AlphaDetails({
                 : "Prediction unvalidated; no outcome XP until requirements are met."
               : "No prediction attached."}
           </p>
-          {f && (
+          {showFollow && f?.current_version === version && (
             <AlphaFollow
               finding={f.id}
               deadline={a.horizon}
@@ -132,7 +136,10 @@ export function AlphaDetails({
             ))}
         </dl>
       </details>
-      <ReviewAssistant data={data} version={version} questions />
+      <details className="review-disclosure">
+        <summary>Source checks, AI analysis and human review</summary>
+        <ReviewAssistant data={data} version={version} questions />
+      </details>
       {data.creditStates?.some(
         (c) =>
           c.version_id === version && c.status === "blocked_no_approved_rule",
@@ -177,30 +184,34 @@ export function AlphaDetails({
   );
 }
 export function SharedAlpha({ data }: { data: ResearchData }) {
-  const records = data.findings.filter(
-    (f) =>
-      f.visibility === "members" &&
-      data.alphas?.some((a) => a.version_id === f.current_version),
-  );
-  if (!records.length) return null;
+  const records = data.findings
+    .filter((f) => f.visibility === "members" || f.author_id === data.memberId)
+    .sort((a, b) =>
+      (
+        data.versions.find((v) => v.id === b.current_version)?.submitted_at ??
+        ""
+      ).localeCompare(
+        data.versions.find((v) => v.id === a.current_version)?.submitted_at ??
+          "",
+      ),
+    );
+  if (!records.length)
+    return (
+      <p className="empty-state">
+        No shared alphas in this room yet.{" "}
+        <Link href="/findings/new">Share the first finding</Link>.
+      </p>
+    );
   return (
-    <details className="room-question">
-      <summary>Shared alpha ({records.length})</summary>
-      {records.map((f) => (
-        <p key={f.id}>
-          <span className="status-label">
-            {f.status === "pending"
-              ? "Pending review"
-              : f.status.replaceAll("_", " ")}
-          </span>{" "}
-          <Link href={`/findings/${f.id}`}>
-            {data.alphas?.find((a) => a.version_id === f.current_version)
-              ?.subject ??
-              data.versions.find((v) => v.id === f.current_version)?.claim}
-          </Link>{" "}
-          / {person(data, f.author_id)}
-        </p>
-      ))}
-    </details>
+    <AlphaFeed
+      entries={records.map((f) => ({
+        id: f.id,
+        status: f.status,
+        search: `${data.alphas?.find((a) => a.version_id === f.current_version)?.subject ?? ""} ${data.versions.find((v) => v.id === f.current_version)?.claim ?? ""} ${person(data, f.author_id)}`,
+        content: (
+          <AlphaSummary data={data} version={f.current_version!} preview />
+        ),
+      }))}
+    />
   );
 }

@@ -40,12 +40,10 @@ export function RoomSelector({
         aria-label="Room"
         value=""
         onChange={(event) => {
-          // Next preserves this component for the current room; native hash
-          // navigation also restores Chat when returning from another panel.
-          if (event.target.value === selected)
-            window.location.hash = "#discussion";
+          // Re-selecting the current room also restores its alpha feed.
+          if (event.target.value === selected) window.location.hash = "#alphas";
           router.push(
-            `/workbench?room=${encodeURIComponent(event.target.value)}#discussion`,
+            `/workbench?room=${encodeURIComponent(event.target.value)}#alphas`,
           );
         }}
       >

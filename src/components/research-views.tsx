@@ -14,6 +14,8 @@ import {
 import { WorkbenchSections } from "./workbench-sections";
 import { RoomChat } from "./room-chat";
 import { AlphaForm } from "./alpha-form";
+import { AlphaSummary } from "./alpha-summary";
+import { AlphaFollow } from "./alpha-follow";
 import { AlphaDetails, CategoryHistory, SharedAlpha } from "./alpha-views";
 import { primaryFocus } from "@/alpha/checklists";
 import { DueOutcomes } from "./alpha-outcomes";
@@ -32,7 +34,6 @@ import {
 } from "@/research/model";
 import { illustration } from "@/research/illustration";
 import { ReviewerAppointments } from "./reviewer-appointments";
-import { Watchlist } from "./watchlist";
 import { MonitorQueue } from "./monitor-queue";
 
 const date = (value: string) =>
@@ -103,7 +104,7 @@ function Status({ value }: { value: string }) {
       <Icon size={13} aria-hidden="true" />
       {(
         {
-          pending: "Pending evaluation",
+          pending: "Pending review",
           needs_correction: "Needs correction",
           accepted: "Accepted",
           rejected: "Rejected with feedback",
@@ -165,12 +166,9 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
   return (
     <>
       <div className="room-tools">
-        <Link href="/xp" className="inline-link">
-          How XP and ranks work
-        </Link>
         <Link
           href={`/findings/new?room=${data.question.id}`}
-          className="inline-link"
+          className="button"
         >
           <FilePlus2 size={16} />
           Submit alpha
@@ -243,7 +241,6 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
         }
         discussion={
           <>
-            <SharedAlpha data={data} />
             <RoomChat
               key={`${data.memberId}:${data.question.id}`}
               room={data.question.id}
@@ -373,23 +370,9 @@ function RoomWorkbench({ data }: { data: ResearchData }) {
           </section>
         }
         record={
-          <section className="section">
-            <h2>Contribution record</h2>
-            {data.findings.length ? (
-              data.findings.map((f) => (
-                <p key={f.id}>
-                  <Status value={f.status} />{" "}
-                  <Link className="inline-link" href={`/findings/${f.id}`}>
-                    {
-                      data.versions.find((v) => v.id === f.current_version)
-                        ?.claim
-                    }
-                  </Link>
-                </p>
-              ))
-            ) : (
-              <p>No submitted contributions yet.</p>
-            )}
+          <section className="section" id="alphas">
+            <h2>Alphas</h2>
+            <SharedAlpha data={data} />
           </section>
         }
         opportunities={
@@ -431,14 +414,12 @@ export function FindingEditor({
     );
   return (
     <section className="section">
-      <h2>
-        {version ? `Correct version ${version.version}` : "Share useful alpha"}
-      </h2>
-      <p className="muted">
-        {version
-          ? "A correction creates a new linked version. Earlier claims, sources and review decisions remain in the record."
-          : "Choose any category in your rank. Explain what you found, what supports it and what you added."}
-      </p>
+      {version && (
+        <p className="notice">
+          Updating version {version.version}. Earlier sources, attribution and
+          review decisions remain in the history.
+        </p>
+      )}
       {message && data.alphaSchemaAvailable === false && (
         <blockquote>
           Discussion by {person(data, message.author_id)}: {message.body}
@@ -534,21 +515,16 @@ export function FindingRecord({
         {!receipt && (
           <>
             <Status value={finding.status} />
-            <h2 className="record-title">
-              {data.alphas?.find((a) => a.version_id === current.id)?.subject ??
-                current.claim}
-            </h2>
+            {!data.alphas?.some((a) => a.version_id === current.id) && (
+              <h2 className="record-title">{current.claim}</h2>
+            )}
           </>
         )}
-        <details>
-          <summary>Original action or claim</summary>
-          <p>{current.claim}</p>
-        </details>
-        <p className="notice">
+        <p className="muted review-next-step">
           {finding.status === "needs_correction"
             ? "Next: the author submits a corrected version for independent review."
             : finding.status === "accepted"
-              ? "Accepted within the recorded review scope. Use the sources, note the limitations, and document how this helps your specialty."
+              ? "Accepted within the recorded review scope; limitations still apply."
               : finding.status === "disputed"
                 ? "Next: an independent authorized reviewer assesses the dispute. This work is not currently accepted evidence."
                 : finding.status === "rejected"
@@ -556,45 +532,60 @@ export function FindingRecord({
                   : data.assignments.some(
                         (a) => a.version_id === current.id && !a.completed_at,
                       )
-                    ? "Next: your assigned independent reviewer assesses this exact version. No XP is confirmed yet."
-                    : "Pending review: an authorized independent reviewer is not available yet. Your alpha is saved; you can check sources and receive sourced feedback."}
+                    ? "An independent reviewer is assigned. No XP is confirmed yet."
+                    : "Saved and waiting for an independent reviewer. No XP is confirmed yet."}
         </p>
         <Identity
           data={data}
           id={finding.author_id}
           specialty={current.specialty}
         />
+        <AlphaSummary data={data} version={current.id} />
+        <div className="alpha-record-actions">
+          {data.launchTerms?.some((t) => t.version_id === current.id) && (
+            <AlphaFollow
+              finding={finding.id}
+              deadline={
+                data.alphas?.find((a) => a.version_id === current.id)
+                  ?.horizon ?? null
+              }
+              followed={
+                !!data.follows?.some((f) => f.finding_id === finding.id)
+              }
+              participated={
+                data.follows?.find((f) => f.finding_id === finding.id)
+                  ?.participated ?? false
+              }
+            />
+          )}
+          {data.alphas?.some((a) => a.version_id === current.id) && (
+            <p className="action-row">
+              <Link
+                className="button secondary"
+                href={`/intelligence?alpha=${finding.id}`}
+              >
+                Check evidence and review
+              </Link>
+              <Link className="inline-link" href={`#outcome-${current.id}`}>
+                Outcome history
+              </Link>
+            </p>
+          )}
+          {own && finding.status !== "disputed" && (
+            <Link
+              className="button"
+              href={`/findings/new?revise=${current.id}`}
+            >
+              <FilePlus2 size={16} />
+              Update or correct alpha
+            </Link>
+          )}
+        </div>
         <p className="muted">
-          Permissions:{" "}
           {finding.visibility === "members"
-            ? "Permitted members in this exact rank"
-            : "Author + scoped review team"}
+            ? "Shared with members in this rank"
+            : "Private to the author and scoped review team"}
         </p>
-        {data.alphas?.some((a) => a.version_id === current.id) && (
-          <p className="action-row">
-            <Link
-              className="button secondary"
-              href={`#review-assistant-${current.id}`}
-            >
-              Review Assistant
-            </Link>
-            <Link className="inline-link" href={`#outcome-${current.id}`}>
-              Outcome history
-            </Link>
-            <Link
-              className="inline-link"
-              href={`/intelligence?alpha=${finding.id}`}
-            >
-              Grind Intelligence
-            </Link>
-          </p>
-        )}
-        {own && finding.status !== "disputed" && (
-          <Link className="button" href={`/findings/new?revise=${current.id}`}>
-            <FilePlus2 size={16} />
-            Submit a correction
-          </Link>
-        )}
         {!own && finding.status === "accepted" && (
           <details>
             <summary>Record cross-specialty usefulness</summary>
@@ -610,22 +601,27 @@ export function FindingRecord({
           )}
       </section>
       <div className="section-heading">
-        <h2>Evidence and version history</h2>
-        <span className="muted">
-          Current version first. Earlier records remain intact.
-        </span>
+        <h2>Sources and history</h2>
       </div>
       {versions.map((v) => (
-        <section className="section" key={v.id} id={`version-${v.id}`}>
+        <details
+          className="section version-history"
+          key={v.id}
+          id={`version-${v.id}`}
+          open={v.id === current.id}
+        >
+          <summary>
+            Version {v.version}
+            {v.id === current.id ? " · Current" : " · Earlier record"} ·{" "}
+            {date(v.submitted_at)}
+          </summary>
           <div className="section-heading">
             <h2>Version {v.version}</h2>
             <Status
               value={v.id === current.id ? finding.status : "Superseded"}
             />
           </div>
-          {v.claim !== v.addition && <p>{v.claim}</p>}
-          <h3>Contributor&apos;s addition</h3>
-          <p className="preserve-lines">{v.addition}</p>
+          {v.id !== current.id && <AlphaSummary data={data} version={v.id} />}
           {data.alphas?.some((a) => a.version_id === v.id) ? (
             <details>
               <summary>Original source references</summary>
@@ -634,11 +630,8 @@ export function FindingRecord({
           ) : (
             <SourceLinks value={v.sources} />
           )}
-          <p>
-            <strong>Limitations:</strong> {v.limitations}
-          </p>
           <p className="muted">
-            Submitted by server {date(v.submitted_at)}
+            Submitted {date(v.submitted_at)}
             {!data.alphas?.some((a) => a.version_id === v.id) &&
               `; observed ${date(v.observed_at)} (self-reported)`}
           </p>
@@ -735,8 +728,8 @@ export function FindingRecord({
                 )}
               </p>
             ))}
-          <AlphaDetails data={data} version={v.id} />
-        </section>
+          <AlphaDetails data={data} version={v.id} showFollow={false} />
+        </details>
       ))}
       {own && (
         <section className="section">
@@ -794,6 +787,58 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
   );
   return (
     <>
+      <section className="section">
+        <div className="section-heading">
+          <h2>Your submissions</h2>
+          <Link className="inline-link" href="/findings/new">
+            Submit alpha <ArrowRight size={15} />
+          </Link>
+        </div>
+        <p className="muted">
+          Track feedback and independent review. Posting alone does not earn XP.
+        </p>
+        {!data.findings.some((f) => f.author_id === data.memberId) && (
+          <p className="empty-state">
+            No submissions yet. Share a finding when you have evidence to
+            contribute.
+          </p>
+        )}
+        <ul className="contribution-history">
+          {data.findings
+            .filter((f) => f.author_id === data.memberId)
+            .map((f) => (
+              <li key={f.id}>
+                <Status value={f.status} />
+                <Link href={`/findings/${f.id}`}>
+                  {data.alphas?.find((a) => a.version_id === f.current_version)
+                    ?.subject ??
+                    data.versions.find((v) => v.id === f.current_version)
+                      ?.claim}
+                </Link>
+                <span className="muted">
+                  {f.status === "pending"
+                    ? data.assignments.some(
+                        (a) =>
+                          a.version_id === f.current_version && !a.completed_at,
+                      )
+                      ? "Reviewer assigned"
+                      : "Waiting for a reviewer"
+                    : f.status === "needs_correction"
+                      ? "Your correction is needed"
+                      : "View decision and history"}
+                </span>
+                {f.status === "needs_correction" && (
+                  <Link
+                    className="inline-link"
+                    href={`/findings/new?revise=${f.current_version}`}
+                  >
+                    Submit a correction
+                  </Link>
+                )}
+              </li>
+            ))}
+        </ul>
+      </section>
       {data.launchAvailable && data.roles.includes("steward") && (
         <details className="operator-tools">
           <summary>Operator tools: reviewers and monitoring</summary>
@@ -811,102 +856,109 @@ export function ReviewDesk({ data }: { data: ResearchData }) {
           <ResearchForm kind="promote" data={data} />
         </section>
       )}
-      <section className="section">
-        <h2>Your assigned reviews</h2>
-        <p className="muted">
-          Assess the exact claim and its evidence within your assigned scope.
-          Request a correction when an important gap remains.
-        </p>
-        {!pending.length && (
-          <p>
-            No assigned reviews. A specialty or Silver tier alone does not grant
-            review authority.
+      {(data.roles.includes("reviewer") || pending.length > 0) && (
+        <section className="section">
+          <h2>Your assigned reviews</h2>
+          <p className="muted">
+            Assess the exact claim and its evidence within your assigned scope.
+            Request a correction when an important gap remains.
           </p>
-        )}
-        {pending.map((a) => {
-          const v = data.versions.find((v) => v.id === a.version_id)!;
-          return (
-            <article className="record" key={a.id}>
-              <Status
-                value={
-                  a.kind === "dispute"
-                    ? "Independent dispute review"
-                    : "Assigned review"
-                }
-              />
-              <h3>
-                <Link
-                  className="inline-link"
-                  href={`/findings/${v.finding_id}`}
-                >
-                  {data.alphas?.find((alpha) => alpha.version_id === v.id)
-                    ?.subject ?? v.claim}{" "}
-                  (v{v.version})
-                </Link>
-              </h3>
-              <details>
-                <summary>Review evidence and record a decision</summary>
-                <p className="decision-context">
-                  <strong>Assigned scope:</strong> {a.scope}
-                </p>
-                <h3>What the contributor added</h3>
-                <p>{v.addition}</p>
-                <h3>Evidence</h3>
-                <SourceLinks value={v.sources} />
-                <p>Limitations: {v.limitations}</p>
-                <AlphaDetails data={data} version={v.id} />
-                <ResearchForm
-                  kind="review"
-                  data={data}
-                  versionId={v.id}
-                  assignmentId={a.id}
+          {!pending.length && <p>No reviews assigned to you right now.</p>}
+          {pending.map((a) => {
+            const v = data.versions.find((v) => v.id === a.version_id)!;
+            return (
+              <article className="record" key={a.id}>
+                <Status
+                  value={
+                    a.kind === "dispute"
+                      ? "Independent dispute review"
+                      : "Assigned review"
+                  }
                 />
-              </details>
-            </article>
-          );
-        })}
-      </section>
-      <section className="section">
-        <h2>Review queue</h2>
-        {data.findings
-          .filter((f) =>
-            ["pending", "disputed", "needs_correction"].includes(f.status),
-          )
-          .map((f) => (
-            <article className="record" key={f.id}>
-              <Status value={f.status} />
-              <p>
-                <Link href={`/findings/${f.id}`} className="inline-link">
-                  {data.versions.find((v) => v.id === f.current_version)?.claim}
-                </Link>
-              </p>
-              <p className="muted">
-                {f.status === "needs_correction"
-                  ? "The author must submit a corrected version."
-                  : data.assignments.some(
-                        (a) =>
-                          a.version_id === f.current_version && !a.completed_at,
-                      )
-                    ? "Assigned to an authorized independent reviewer."
-                    : "Awaiting an available scoped reviewer."}
-              </p>
-              {f.status === "needs_correction" &&
-                f.author_id === data.memberId && (
+                <h3>
                   <Link
                     className="inline-link"
-                    href={`/findings/new?revise=${f.current_version}`}
+                    href={`/findings/${v.finding_id}`}
                   >
-                    Submit a correction
+                    {data.alphas?.find((alpha) => alpha.version_id === v.id)
+                      ?.subject ?? v.claim}{" "}
+                    (v{v.version})
                   </Link>
-                )}
-              {data.roles.includes("steward") &&
-                ["pending", "disputed"].includes(f.status) && (
-                  <ResearchForm kind="assign" versionId={f.current_version!} />
-                )}
-            </article>
-          ))}
-      </section>
-      <DueOutcomes data={data} />
+                </h3>
+                <details>
+                  <summary>Review evidence and record a decision</summary>
+                  <p className="decision-context">
+                    <strong>Assigned scope:</strong> {a.scope}
+                  </p>
+                  <h3>What the contributor added</h3>
+                  <p>{v.addition}</p>
+                  <h3>Evidence</h3>
+                  <SourceLinks value={v.sources} />
+                  <p>Limitations: {v.limitations}</p>
+                  <AlphaDetails data={data} version={v.id} />
+                  <ResearchForm
+                    kind="review"
+                    data={data}
+                    versionId={v.id}
+                    assignmentId={a.id}
+                  />
+                </details>
+              </article>
+            );
+          })}
+        </section>
+      )}
+      {data.roles.includes("steward") && (
+        <details className="section operator-tools">
+          <summary>Manage the review queue</summary>
+          {data.findings
+            .filter((f) =>
+              ["pending", "disputed", "needs_correction"].includes(f.status),
+            )
+            .map((f) => (
+              <article className="record" key={f.id}>
+                <Status value={f.status} />
+                <p>
+                  <Link href={`/findings/${f.id}`} className="inline-link">
+                    {data.alphas?.find(
+                      (a) => a.version_id === f.current_version,
+                    )?.subject ??
+                      data.versions.find((v) => v.id === f.current_version)
+                        ?.claim}
+                  </Link>
+                </p>
+                <p className="muted">
+                  {f.status === "needs_correction"
+                    ? "The author must submit a corrected version."
+                    : data.assignments.some(
+                          (a) =>
+                            a.version_id === f.current_version &&
+                            !a.completed_at,
+                        )
+                      ? "Assigned to an authorized independent reviewer."
+                      : "Awaiting an available scoped reviewer."}
+                </p>
+                {f.status === "needs_correction" &&
+                  f.author_id === data.memberId && (
+                    <Link
+                      className="inline-link"
+                      href={`/findings/new?revise=${f.current_version}`}
+                    >
+                      Submit a correction
+                    </Link>
+                  )}
+                {data.roles.includes("steward") &&
+                  ["pending", "disputed"].includes(f.status) && (
+                    <ResearchForm
+                      kind="assign"
+                      versionId={f.current_version!}
+                    />
+                  )}
+              </article>
+            ))}
+        </details>
+      )}
+      {data.roles.includes("reviewer") && <DueOutcomes data={data} />}
     </>
   );
 }
@@ -1020,7 +1072,7 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
       <section className="section" aria-label="Your contribution credit">
         <div className="section-heading">
           <h2>Your contribution credit</h2>
-          <a className="inline-link" href="#following">
+          <a id="following" className="inline-link" href="/following">
             Following and updates
           </a>
         </div>
@@ -1092,25 +1144,25 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
             credit or current delegates are recorded for this account.
           </p>
         </details>
-        <div className="claim-inactive">
-          <div>
-            <h3>Claim $GRIND</h3>
-            <p id="claims-inactive">Claims are not active yet.</p>
+        <details>
+          <summary>Token claims</summary>
+          <div className="claim-inactive">
+            <div>
+              <h3>Claim $GRIND</h3>
+              <p id="claims-inactive">Claims are not active yet.</p>
+            </div>
+            <button
+              className="button"
+              disabled
+              aria-describedby="claims-inactive"
+            >
+              Claim $GRIND
+            </button>
           </div>
-          <button
-            className="button"
-            disabled
-            aria-describedby="claims-inactive"
-          >
-            Claim $GRIND
-          </button>
-        </div>
+        </details>
       </section>
-      <MemberActivity data={data} />
-      <Watchlist data={data} />
-      <CategoryHistory data={data} member={data.memberId} />
       <section className="section">
-        <h2>Your contribution history in this rank</h2>
+        <h2>Your contributions</h2>
         <p className="muted">
           Personal XP includes your recorded lifetime credit. Other-rank records
           remain preserved but are not exposed in this space.
@@ -1133,7 +1185,11 @@ export function MembershipProgress({ data }: { data: ResearchData }) {
           <ArrowRight size={16} />
         </Link>
       </section>
-      <PeerRequests data={data} />
+      <details className="section">
+        <summary>Credit history and category breakdown</summary>
+        <CategoryHistory data={data} member={data.memberId} />
+        <MemberActivity data={data} />
+      </details>
     </>
   );
 }

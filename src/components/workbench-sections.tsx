@@ -9,19 +9,20 @@ import {
 } from "lucide-react";
 
 const sections = [
+  { id: "record", label: "Alphas", icon: History },
   { id: "discussion", label: "Chat", icon: MessageSquare },
   { id: "evidence", label: "Evidence brief", icon: BookOpen },
   { id: "opportunities", label: "Peer requests", icon: ArrowUpRight },
-  { id: "record", label: "Contribution record", icon: History },
   { id: "participants", label: "Members", icon: Users },
 ] as const;
 type Section = (typeof sections)[number]["id"];
 
 export function WorkbenchSections(props: Record<Section, ReactNode>) {
-  const [active, setActive] = useState<Section>("discussion");
+  const [active, setActive] = useState<Section>("record");
   const [targetHash, setTargetHash] = useState("");
   useEffect(() => {
     const follow = (hash: string) => {
+      if (hash === "#alphas") setActive("record");
       if (hash === "#evidence-brief") setActive("evidence");
       if (hash === "#space-members") setActive("participants");
       if (hash.startsWith("#message-") || hash === "#discussion")
@@ -37,6 +38,7 @@ export function WorkbenchSections(props: Record<Section, ReactNode>) {
       const hash = href ? new URL(href, window.location.href).hash : "";
       if (
         hash === "#evidence-brief" ||
+        hash === "#alphas" ||
         hash === "#space-members" ||
         hash === "#discussion" ||
         hash.startsWith("#message-")

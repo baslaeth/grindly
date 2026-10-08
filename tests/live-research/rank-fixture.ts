@@ -65,16 +65,21 @@ export async function rankFixture(
       break;
     }
     stage = "protected_snapshot";
-    const response = await context.request.get("/api/research");
+    const response = await context.request.get("/api/research", {
+      timeout: 90000,
+    });
     if (!response.ok()) {
       const body = await response.json().catch(() => ({}));
       const code = String(body.error?.code ?? "UNKNOWN");
       safeFailure = ` HTTP ${response.status()} ${/^[A-Z_]{1,60}$/.test(code) ? code : "UNKNOWN"}`;
     }
     expect(response.ok(), `Snapshot status ${response.status()}`).toBe(true);
+    stage = "snapshot_json";
     const data = (await response.json()) as ResearchData;
+    stage = "snapshot_identity";
     expect(data.memberId).toBe(fixture.member);
     expect(data.token.tier).toBe("Bronze");
+    stage = "sample_isolation";
     const demo = new Set(
       data.profiles.filter((p) => p.is_demo).map((p) => p.member_id),
     );

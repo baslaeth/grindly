@@ -102,7 +102,7 @@ it("groups shared campaign monitoring without merging per-guide alert preference
   expect(html.match(/<strong>One campaign<\/strong>/g)).toHaveLength(1);
   expect(html.match(/Save alert preferences/g)).toHaveLength(2);
   expect(html).toContain("2 followed guides");
-  expect(html).toContain("Source due:");
+  expect(html).toContain("Next due:");
   expect(html).toContain("Scheduled opening announcement");
 });
 it("connects campaign notifications to the followed guide without claiming a current opening", () => {

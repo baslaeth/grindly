@@ -51,5 +51,6 @@ export const config = {
     "/review",
     "/contribution",
     "/membership",
+    "/following",
   ],
 };

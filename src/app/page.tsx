@@ -4,7 +4,7 @@ import { Screen } from "@/components/screen";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { OpportunityManager } from "@/components/opportunity-manager";
 import { MemberActivity } from "@/components/member-activity";
-import { Watchlist } from "@/components/watchlist";
+import { AlphaSummary } from "@/components/alpha-summary";
 import { publicOpportunities } from "@/server/opportunities";
 import { readResearch } from "@/server/research/service";
 import { getCurrentMember } from "@/server/auth/session";
@@ -70,8 +70,8 @@ export default async function Home({
         <section className="section">
           <FilePlus2 size={22} aria-hidden="true" />
           <h2>Share useful work</h2>
-          <Link className="inline-link" href="/xp">
-            How XP and ranks work
+          <Link className="button" href="/findings/new">
+            <FilePlus2 size={16} /> Submit alpha
           </Link>
         </section>
         <section className="section">
@@ -98,6 +98,44 @@ export default async function Home({
           </Link>
         </section>
       </div>
+      {data && (
+        <section className="section">
+          <div className="section-heading">
+            <h2>Recent alphas</h2>
+            <Link className="inline-link" href="/workbench">
+              Browse rooms
+            </Link>
+          </div>
+          <div className="alpha-feed">
+            {data.findings
+              .filter((f) => f.visibility === "members")
+              .sort((a, b) =>
+                (
+                  data.versions.find((v) => v.id === b.current_version)
+                    ?.submitted_at ?? ""
+                ).localeCompare(
+                  data.versions.find((v) => v.id === a.current_version)
+                    ?.submitted_at ?? "",
+                ),
+              )
+              .slice(0, 4)
+              .map((f) => (
+                <AlphaSummary
+                  key={f.id}
+                  data={data}
+                  version={f.current_version!}
+                  preview
+                />
+              ))}
+          </div>
+          {!data.findings.some((f) => f.visibility === "members") && (
+            <p className="empty-state">
+              No shared alphas yet. Explore a room or contribute your first
+              finding.
+            </p>
+          )}
+        </section>
+      )}
       {sample && (
         <p className="notice">
           Separate sample experience. Fictional cards, with no real partnership,
@@ -142,7 +180,13 @@ export default async function Home({
         )}
       </section>
       {data && <MemberActivity data={data} limit={5} />}
-      {data && <Watchlist data={data} />}
+      {data && (
+        <p>
+          <Link className="inline-link" href="/following">
+            Following and updates
+          </Link>
+        </p>
+      )}
       {data?.roles.includes("steward") && <OpportunityManager />}
     </Screen>
   );
