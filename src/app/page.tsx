@@ -75,7 +75,7 @@ export default async function Home({
         <HomeActions member={!!data} signedIn={signedIn} />
       </section>
       {data ? (
-        <details className="home-explainer">
+        <details className="home-explainer" open>
           <summary>Membership and the Grindly journey</summary>
           <HomeEcosystem rooms={data.rooms} rank={data.token.tier} />
         </details>
